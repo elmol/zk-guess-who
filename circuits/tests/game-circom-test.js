@@ -1,5 +1,3 @@
-const hre = require('hardhat');
-
 // added tests
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -23,7 +21,7 @@ const VALID_SOLUTION = [2,0,1,3];
 describe('Game Circuits', function () {
 
     beforeEach(async function () {
-           circuit = await wasm_tester("artifacts/circuits/game.circom");
+           circuit = await wasm_tester("src/game.circom");
            await circuit.loadConstraints();
    
            poseidon = await buildPoseidon();  // default BN128

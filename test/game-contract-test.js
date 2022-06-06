@@ -304,7 +304,7 @@ async function select(character, salt) {
 }
 
 async function generateProof(input) {
-    const { proof, publicSignals } = await groth16.fullProve(input, "artifacts/circuits/game_js/game.wasm", "artifacts/circuits/circuit_final_game.zkey");
+    const { proof, publicSignals } = await groth16.fullProve(input, "artifacts/circuits/game.wasm", "artifacts/circuits/circuit_final_game.zkey");
     const { a, b, c, Input } = await generateCallData(publicSignals, proof);
     const selection = { piA: a, piB: b, piC: c, input: Input };
     return selection;
@@ -357,7 +357,7 @@ function unstringifyBigInts(o) {
 
 async function assertionFailInProofGeneration(input) {
     try {
-        await groth16.fullProve(input, "artifacts/circuits/game_js/game.wasm", "artifacts/circuits/circuit_final_game.zkey");
+        await groth16.fullProve(input, "artifacts/circuits/game.wasm", "artifacts/circuits/circuit_final_game.zkey");
         fail();
     } catch (error) {
         expect(error.toString().includes("Assert Failed")).to.be.true;

@@ -1,0 +1,20 @@
+{
+  "name": "zk-guess-who-circuits",
+  "version": "0.0.1",
+  "scripts": {
+    "test": ". scripts/compile-circuit.sh && mocha tests --timeout 5000"
+  },
+  "author": "elmol",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "circom_tester": "^0.0.11",
+    "circomlib": "^2.0.3",
+    "circomlibjs": "^0.1.2",
+    "snarkjs": "^0.4.19"
+  },
+  "dependencies": {
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^10.0.0"
+  }
+}

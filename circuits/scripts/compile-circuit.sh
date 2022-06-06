@@ -1,7 +1,7 @@
 #!/bin/bash
 
-mkdir -p artifacts/circuits
-cd artifacts/circuits
+mkdir -p artifacts
+cd artifacts
 
 if [ -f ./powersOfTau28_hez_final_10.ptau ]; then
     echo "powersOfTau28_hez_final_10.ptau already exists. Skipping."
@@ -15,7 +15,7 @@ echo "Compiling game.circom..."
 # compile circuit
 ## TODO: FIX this in a secure way
 rm -f game.circom
-cp ../../circuits/game.circom .
+cp ../src/game.circom .
 
 circom game.circom --r1cs --wasm --sym -o .
 snarkjs r1cs info game.r1cs
@@ -27,6 +27,9 @@ snarkjs zkey contribute circuit_0000.zkey circuit_final_game.zkey --name="1st Co
 snarkjs zkey export verificationkey circuit_final_game.zkey verification_key.json
 
 # generate solidity contract
-snarkjs zkey export solidityverifier circuit_final_game.zkey ../../contracts/VerifierGame.sol
+snarkjs zkey export solidityverifier circuit_final_game.zkey VerifierGame.sol
 
-cd ../../
+sed -i -e "s/Verifier/VerifierGame/g" VerifierGame.sol
+sed -i -e "s/pragma solidity ^0.6.11/pragma solidity ^0.8.0/g" VerifierGame.sol
+
+cd ../
