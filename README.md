@@ -1,31 +1,18 @@
 # zkGuessWho Game
 **ZKU Cohort 3 Final Project** - *zkGuessWho* is an on-chain “guess who” game. 
 
-## From hardhat init -  Basic Sample Hardhat Project
-
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
-
-Try running some of the following tasks:
-
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-```
-
 ## Command Tasks
-To Install
+
+### circuits module 
+see README in circuits
+
+To copy circuit solidity contracts to contracts
 ```
-yarn install
+scripts/copy-circuit-contract.sh 
 ```
 
-To compile and run tests
-```
-yarn test
-```
+### contracts modules
+see README in contracts
 
 ### Installation Errors
 

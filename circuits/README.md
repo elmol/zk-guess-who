@@ -1,3 +1,7 @@
 ``` 
+yarn install
+```
+
+``` 
 yarn test
 ```
