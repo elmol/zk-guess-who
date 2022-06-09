@@ -9,6 +9,6 @@
     "allowJs": true, // just for snarkjs
     "checkJs": false
   },
-  "include": ["./scripts", "./test", "./typechain"],
-  "files": ["./hardhat.config.ts", "test/game-zk.ts"]
+  "include": ["./scripts", "./test", "./typechain", "./game"],
+  "files": ["./hardhat.config.ts", "game/game-zk.ts"]
 }

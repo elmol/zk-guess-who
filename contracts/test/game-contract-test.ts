@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Game, Game__factory } from "../typechain";
-import { createGuessGame, GuessGame } from "./guess-game";
+import { createGuessGame, GuessGame } from "../game/guess-game";
 
 const VALID_CHARACTER = [3, 2, 1, 0];
 let guessGame: GuessGame;

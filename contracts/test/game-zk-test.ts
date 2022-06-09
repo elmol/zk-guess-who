@@ -7,8 +7,8 @@ import {
   selectionProof,
   verifyGuess,
   verifyQuestion
-} from "./game-zk";
-import { createHash } from "./zk-utils";
+} from "../game/game-zk";
+import { createHash } from "../game/zk-utils";
 
 const VALID_CHARACTER = [3, 2, 1, 0];
 
