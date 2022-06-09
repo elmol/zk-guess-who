@@ -1,6 +1,7 @@
 import { fail } from "assert";
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { Game, Game__factory } from "../typechain";
 import {
   createHash,
   gameAsk,
@@ -19,14 +20,17 @@ const VALID_CHARACTER = [3, 2, 1, 0];
 
 describe("Game Contract", function () {
   let verifier: any;
-  let game: any;
+  let game: Game;
   beforeEach(async function () {
     const Verifier = await ethers.getContractFactory("VerifierGame");
     verifier = await Verifier.deploy();
     await verifier.deployed();
 
-    const Game = await ethers.getContractFactory("Game");
-    game = await Game.deploy(verifier.address);
+    const gameFactory = (await ethers.getContractFactory(
+      "Game"
+      // eslint-disable-next-line camelcase
+    )) as Game__factory;
+    game = await gameFactory.deploy(verifier.address);
     await game.deployed();
   });
 
