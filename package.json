@@ -4,7 +4,9 @@
   "description": "ZKU Cohort 3 Final Project - zkGuessWho is an on-chain guess who game.",
   "main": "index.js",
   "scripts": {
-    "test": ". scripts/build-circuits.sh && scripts/copy-circuit-contract.sh && cd contracts && npx hardhat test && cd .."
+    "install": "cd circuits && yarn && cd .. && cd contracts && yarn && cd .. && cd frontend && yarn && cd ..",
+    "test": ". scripts/build-circuits.sh && scripts/copy-circuit-contract.sh && cd contracts && npx hardhat test && cd ..",
+    "dev-deploy": "cd contracts && yarn dev && yarn deploy"
   },
   "keywords": [
     "game",

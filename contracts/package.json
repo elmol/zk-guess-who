@@ -2,7 +2,9 @@
   "name": "zk-guess-who-contracts",
   "version": "0.0.1",
   "scripts": {
-    "test": "npx hardhat test"
+    "test": "npx hardhat test",
+    "dev": "npx hardhat node &",
+    "deploy": "npx hardhat run --network localhost scripts/deploy.ts"
   },
   "author": "elmol",
   "license": "MIT",
