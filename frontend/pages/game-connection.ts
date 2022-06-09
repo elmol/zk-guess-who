@@ -1,7 +1,7 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import { Contract, providers } from "ethers";
 import Game from "../public/Game.json";
-import { GuessGame } from "./guess-game";
+import { GuessGame } from "../game/guess-game";
 
 export class GameConnection {
   gameContract: Contract | undefined;
@@ -36,17 +36,24 @@ export class GameConnection {
   }
 
   async ask() {
+    const position = 0;
+    const number = 3;
+    await this.askQuestion(position, number);
+  }
+
+  async askQuestion(position: number, number: number) {
     const game = await this.gameConnection();
     const guess = new GuessGame(game);
-    console.log("Asking for 0,3");
+    console.log("Asking for", position, number);
     try {
-      await guess.question(0, 3);
+      await guess.question(position, number);
       console.log("Question asked!");
       console.log("Question done. type:", await game.lastType(), "characteristic:", await game.lastCharacteristic());
     } catch (e) {
       console.log(e);
     }
   }
+
   async responseQuestion() {
     const game = await this.gameConnection();
     const guess = new GuessGame(game);
