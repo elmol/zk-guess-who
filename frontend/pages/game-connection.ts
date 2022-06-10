@@ -5,7 +5,7 @@ import { GuessGame } from "../game/guess-game";
 
 export class GameConnection {
   gameContract: Contract | undefined;
-  
+
   async gameConnection(): Promise<Contract> {
     if (this.gameContract) {
       return this.gameContract;
@@ -66,6 +66,13 @@ export class GameConnection {
       console.log(e);
     }
   }
+
+  async getLastAnswer() {
+    const asw = await this.gameContract?.lastResponse();
+    console.log("Last Answer:", asw);
+    return asw;
+  }
+
   async guess() {
     const game = await this.gameConnection();
     const guess = new GuessGame(game);

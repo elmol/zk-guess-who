@@ -12,6 +12,7 @@
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@metamask/detect-provider": "^1.2.0",
+    "@mui/icons-material": "^5.8.3",
     "@mui/material": "^5.8.3",
     "circomlibjs": "^0.1.2",
     "ethers": "^5.6.8",

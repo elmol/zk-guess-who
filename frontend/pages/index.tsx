@@ -2,13 +2,14 @@ import { Contract, providers } from "ethers";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { FormEvent, useEffect } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
 import Game from "../public/Game.json";
 import { GameConnection } from "./game-connection";
-import { Box, Button, Container, createTheme, CssBaseline, Grid, TextField, ThemeProvider } from "@mui/material";
+import { Avatar, Box, Button, Container, createTheme, CssBaseline, Grid, TextField, ThemeProvider } from "@mui/material";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Typography from "@mui/material/Typography";
+import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 
 type Question = {
   position: string;
@@ -27,6 +28,8 @@ const Home: NextPage = () => {
     reset,
   } = useForm<Question>();
 
+  const [lastAnswer, setLastAnswer] = useState("?");
+
   const onSubmit: SubmitHandler<Question> = (question) => {
     const position = parseInt(question.position?.trim() ?? "0");
     const number = parseInt(question.number?.toString()?.trim() ?? "0");
@@ -39,14 +42,6 @@ const Home: NextPage = () => {
     console.log("on init..");
     console.log("Game contract address", contract.address);
   }
-
-  // function handleAsk(event: FormEvent<HTMLFormElement>) {
-  //   event.preventDefault();
-  //   const data = new FormData(event.currentTarget);
-  //   const position = parseInt(data.get("position")?.toString()?.trim() ?? "0");
-  //   const number = parseInt(data.get("number")?.toString()?.trim() ?? "0");
-  //   gameConnection.askQuestion(position, number);
-  // }
 
   useEffect(() => {
     onInit();
@@ -68,11 +63,14 @@ const Home: NextPage = () => {
         </Typography>
         <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={3}>
-              <TextField autoComplete="position" required id="position" label="Position" size="small" {...register("position") } autoFocus />
+            <Grid item xs={12} sm={2}>
+              <TextField autoComplete="position" required id="position" label="Position" size="small" {...register("position")} autoFocus />
             </Grid>
-            <Grid item xs={12} sm={3}>
-              <TextField autoComplete="number" required id="number" label="Number" size="small" {...register("number") } autoFocus />
+            <Grid item xs={12} sm={2}>
+              <TextField autoComplete="number" required id="number" label="Number" size="small" {...register("number")} autoFocus />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <Avatar variant="rounded">{lastAnswer}</Avatar>
             </Grid>
             <Grid item xs={12} sm={3}>
               <Button type="submit" fullWidth variant="contained">
@@ -81,7 +79,13 @@ const Home: NextPage = () => {
             </Grid>
 
             <Grid item xs={12} sm={3}>
-              <Button variant="outlined" onClick={() => gameConnection.responseQuestion()}>
+              <Button
+                variant="outlined"
+                onClick={async () => {
+                  await gameConnection.responseQuestion();
+                  setLastAnswer(await gameConnection.getLastAnswer());
+                }}
+              >
                 awk
               </Button>
             </Grid>
