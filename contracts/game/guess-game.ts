@@ -22,6 +22,10 @@ export class GuessGame {
     return hash;
   }
 
+  onQuestionAsked(callback: (type: number, characteristic: number) => void) {
+    this.game.on("QuestionAsked", callback);
+  }
+
   async question(type: number, characteristic: number) {
     const tx = await this.game.ask(type, characteristic);
     await tx.wait();

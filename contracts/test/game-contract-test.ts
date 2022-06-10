@@ -25,7 +25,7 @@ describe("Game Contract", function () {
     guessGame = createGuessGame(game, character, salt);
   });
 
-  xit("should allow to create a new game selecting a character", async function () {
+  it("should allow to create a new game selecting a character", async function () {
     const character = VALID_CHARACTER;
     const salt = 231;
     guessGame = createGuessGame(game, character, salt);
@@ -33,7 +33,7 @@ describe("Game Contract", function () {
     expect(await game.hash()).to.equal(hash);
   });
 
-  xit("should allow to the guesser to ask a question", async function () {
+  it("should allow to the guesser to ask a question", async function () {
     // initialize the game
     await guessGame.start();
 
@@ -49,7 +49,7 @@ describe("Game Contract", function () {
     expect(await game.lastResponse()).to.equal(response);
   });
 
-  xit("should allow to guess the character", async function () {
+  it("should allow to guess the character", async function () {
     // initialize the game
     await guessGame.start();
 
@@ -70,7 +70,7 @@ describe("Game Contract", function () {
     expect(await game.won()).to.equal(won);
   });
 
-  xit("should emit event when question is asked", async function () {
+  it("should emit event when question is asked", async function () {
     // initialize the game
     await guessGame.start();
 
@@ -96,8 +96,27 @@ describe("Game Contract", function () {
     const response = await guessGame.answer();
     expect(response).to.equal(1);
 
-    //wait until event 
+    // wait until event
     await new Promise((resolve) => setTimeout(resolve, 2500));
+    expect(eventEmmited).to.equal(true);
+  });
+
+  it("should game allow to handle question asked event", async function () {
+    // initialize the game
+    await guessGame.start();
+
+    let eventEmmited = false;
+    const callback = (type: number, characteristic: number) => {
+      expect(type).to.equal(0);
+      expect(characteristic).to.equal(3);
+      eventEmmited = true;
+    };
+
+    guessGame.onQuestionAsked(callback);
+    await game.ask(0, 3);
+
+    // wait until event
+    await new Promise((resolve) => setTimeout(resolve, 10000));
     expect(eventEmmited).to.equal(true);
   });
 });
