@@ -69,4 +69,19 @@ describe("Game Contract", function () {
     const won = await guessGame.guessAnswer();
     expect(await game.won()).to.equal(won);
   });
+
+  it("should emit event when question is asked", async function () {
+    // initialize the game
+    await guessGame.start();
+
+    // guesser player fist ask
+    // true question
+    await guessGame.question(0, 3);
+
+    // selector player respond
+    const response = await guessGame.answer();
+    expect(response).to.equal(1);
+
+    await expect(game.ask(0, 3)).to.emit(game, "QuestionAsked").withArgs(0, 3);
+  });
 });

@@ -5,6 +5,7 @@ import "hardhat/console.sol";
 import "./VerifierGame.sol";
 
 contract Game {
+    event QuestionAsked(uint8 _type, uint8 _characteristic);
 
     uint8 public  lastType;
     uint8 public  lastCharacteristic;
@@ -46,6 +47,7 @@ contract Game {
     function ask(uint8 _type, uint8 _characteristic) external {
         lastType = _type;
         lastCharacteristic = _characteristic;
+        emit QuestionAsked(_type, _characteristic);
     }
 
     function response(uint8 _response, uint256[2] memory a,
