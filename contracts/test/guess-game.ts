@@ -1,11 +1,11 @@
 import { Contract } from "ethers";
-import { guessProof, questionProof, select } from "./game-service";
+import { guessProof, questionProof, selectionProof } from "./game-zk";
 
 export class GuessGame {
   constructor(private game: Contract) {}
 
   async start(character: number[], salt: number): Promise<String> {
-    const selection = await select(character, salt);
+    const selection = await selectionProof(character, salt);
     const hash = selection.input[0];
     const tx = await this.game.start(
       hash,

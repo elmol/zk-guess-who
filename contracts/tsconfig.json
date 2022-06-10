@@ -10,5 +10,5 @@
     "checkJs": false
   },
   "include": ["./scripts", "./test", "./typechain"],
-  "files": ["./hardhat.config.ts"]
+  "files": ["./hardhat.config.ts", "test/game-zk.ts"]
 }
