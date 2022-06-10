@@ -25,7 +25,7 @@ describe("Game Contract", function () {
     guessGame = createGuessGame(game, character, salt);
   });
 
-  it("should allow to create a new game selecting a character", async function () {
+  xit("should allow to create a new game selecting a character", async function () {
     const character = VALID_CHARACTER;
     const salt = 231;
     guessGame = createGuessGame(game, character, salt);
@@ -33,7 +33,7 @@ describe("Game Contract", function () {
     expect(await game.hash()).to.equal(hash);
   });
 
-  it("should allow to the guesser to ask a question", async function () {
+  xit("should allow to the guesser to ask a question", async function () {
     // initialize the game
     await guessGame.start();
 
@@ -49,7 +49,7 @@ describe("Game Contract", function () {
     expect(await game.lastResponse()).to.equal(response);
   });
 
-  it("should allow to guess the character", async function () {
+  xit("should allow to guess the character", async function () {
     // initialize the game
     await guessGame.start();
 
@@ -70,7 +70,15 @@ describe("Game Contract", function () {
     expect(await game.won()).to.equal(won);
   });
 
-  it("should emit event when question is asked", async function () {
+  xit("should emit event when question is asked", async function () {
+    // initialize the game
+    await guessGame.start();
+
+    // guesser player fist ask
+    await expect(game.ask(0, 3)).to.emit(game, "QuestionAsked").withArgs(0, 3);
+  });
+
+  it("should emit event when question is answer", async function () {
     // initialize the game
     await guessGame.start();
 
@@ -78,10 +86,18 @@ describe("Game Contract", function () {
     // true question
     await guessGame.question(0, 3);
 
+    let eventEmmited = false;
+    game.on("QuestionAnswered", (answer) => {
+      expect(answer).to.equal(1);
+      eventEmmited = true;
+    });
+
     // selector player respond
     const response = await guessGame.answer();
     expect(response).to.equal(1);
 
-    await expect(game.ask(0, 3)).to.emit(game, "QuestionAsked").withArgs(0, 3);
+    //wait until event 
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+    expect(eventEmmited).to.equal(true);
   });
 });

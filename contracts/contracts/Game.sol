@@ -5,6 +5,7 @@ import "hardhat/console.sol";
 import "./VerifierGame.sol";
 
 contract Game {
+    event QuestionAnswered(uint8 _answer);
     event QuestionAsked(uint8 _type, uint8 _characteristic);
 
     uint8 public  lastType;
@@ -67,6 +68,7 @@ contract Game {
         ];
         require(verifier.verifyProof(a, b, c, inputs), "Invalid question response!");
         lastResponse = _response;
+        emit QuestionAnswered(_response);
     }
 
     function guess(uint8[4] memory _guess) external {
