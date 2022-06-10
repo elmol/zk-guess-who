@@ -4,23 +4,21 @@ import { ethers } from "hardhat";
 import { Game, Game__factory } from "../typechain";
 import {
   createHash,
-  gameAsk,
-  gameGuess,
-  gameRespond,
-  gameStart,
-  gameWon,
   guessProof,
   guessVerification,
   questionProof,
   select,
   verifyQuestion,
 } from "./game-service";
+import { GuessGame } from "./guess-game";
 
 const VALID_CHARACTER = [3, 2, 1, 0];
+let guessGame: GuessGame;
 
 describe("Game Contract", function () {
-  let verifier: any;
   let game: Game;
+  let verifier: any;
+
   beforeEach(async function () {
     const Verifier = await ethers.getContractFactory("VerifierGame");
     verifier = await Verifier.deploy();
@@ -32,6 +30,7 @@ describe("Game Contract", function () {
     )) as Game__factory;
     game = await gameFactory.deploy(verifier.address);
     await game.deployed();
+    guessGame = new GuessGame(game);
   });
 
   it("should be able to generate character selection proof", async function () {
@@ -244,3 +243,23 @@ async function assertProofGenerationFailed(proofGenerator: any) {
 //     expect(error.toString().includes("Assert Failed")).to.be.true;
 //   }
 // }
+
+async function gameStart(character: any, salt: any, game: any) {
+  return guessGame.start(character, salt);
+}
+
+async function gameAsk(type: any, characteristic: any, game: any) {
+  return guessGame.question(type, characteristic);
+}
+
+async function gameGuess(guess: any, game: any) {
+  return guessGame.guess(guess);
+}
+
+async function gameRespond(character: any, salt: any, game: any) {
+  return guessGame.answer(character, salt);
+}
+
+export async function gameWon(character: any, salt: any, game: any) {
+  return guessGame.guessAnswer(character, salt);
+}
