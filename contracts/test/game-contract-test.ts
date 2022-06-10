@@ -14,7 +14,7 @@ import {
   questionProof,
   select,
   verifyQuestion,
-} from "./game";
+} from "./game-service";
 
 const VALID_CHARACTER = [3, 2, 1, 0];
 
