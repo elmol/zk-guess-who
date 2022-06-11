@@ -43,6 +43,7 @@ export class GameConnection {
       await handleOnQuestionAsked(position, number);
       this.filterQuestionEvent = true;
     });
+
     console.log("Guess Game Connection initialized");
   }
 

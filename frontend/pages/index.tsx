@@ -10,6 +10,8 @@ import { Avatar, Box, Button, Container, createTheme, CssBaseline, Grid, TextFie
 import { SubmitHandler, useForm } from "react-hook-form";
 import Typography from "@mui/material/Typography";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 
 type Question = {
   position: string;
@@ -18,7 +20,6 @@ type Question = {
 
 const Home: NextPage = () => {
   const theme = createTheme();
-
   const gameConnection = new GameConnection();
 
   const {
@@ -28,7 +29,7 @@ const Home: NextPage = () => {
     reset,
   } = useForm<Question>();
 
-  const [lastAnswer, setLastAnswer] = useState("?");
+  const [lastAnswer, setLastAnswer] = useState(0);
   const [isPendingAnswer, setIsPendingAnswer] = useState(false);
 
   const onSubmit: SubmitHandler<Question> = (question) => {
@@ -42,19 +43,37 @@ const Home: NextPage = () => {
     const provider = new providers.JsonRpcProvider("http://localhost:8545");
     const contract = new Contract("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", Game.abi, provider);
     console.log("Game contract address", contract.address);
+  }
+  async function connect() {
+    console.log("connecting...");
     await gameConnection.init(handleOnQuestionAsked);
+    console.log("game connection initialized");
   }
 
   async function handleOnQuestionAsked(position: number, number: number) {
     console.log(`Question asked: ${position} ${number}`);
     const lastQuestion = await gameConnection.getLastQuestion();
-    // TODO: hardcoded for now until enable to answer
-    if (lastQuestion.type === 2 && lastQuestion.characteristic === 1) {
+    console.log("Last question", lastQuestion);
+    const lastAnswer = await gameConnection.getLastAnswer();
+    console.log(`Answer asked: ${lastAnswer}`);
+    if (lastAnswer === 0) {
       setIsPendingAnswer(true);
     } else {
       setIsPendingAnswer(false);
-    }   
+    }
+    setLastAnswer(lastAnswer);
   }
+
+  function answer(lastAnswer: number) {
+    if(lastAnswer === 1) {
+      return <CloseIcon />;
+    }
+    if(lastAnswer === 2) {
+      return <CheckIcon />;
+    }
+    return <QuestionMarkIcon />;
+  }
+  
 
   useEffect(() => {
     onInit();
@@ -83,7 +102,7 @@ const Home: NextPage = () => {
               <TextField autoComplete="number" required id="number" label="Number" size="small" {...register("number")} autoFocus />
             </Grid>
             <Grid item xs={12} sm={2}>
-              <Avatar variant="rounded">{lastAnswer}</Avatar>
+              <Avatar variant="rounded"> {answer(lastAnswer)}</Avatar>
             </Grid>
             <Grid item xs={12} sm={3}>
               <Button type="submit" fullWidth variant="contained">
@@ -107,6 +126,7 @@ const Home: NextPage = () => {
       </Box>
     </Container>
   );
+
   return (
     <div className={styles.container}>
       <Head>
@@ -118,6 +138,7 @@ const Home: NextPage = () => {
       <main className={styles.main}>
         <h1 className={styles.title}>zkGuessWho</h1>
         <h1>A ZK Game</h1>
+        <button onClick={() => connect()}>Connect</button>
         <div className={styles.description}>Character 3210 will be selected...</div>
         <button onClick={() => gameConnection.selection()}>Select</button>
 
@@ -141,3 +162,5 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+
