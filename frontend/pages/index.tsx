@@ -46,7 +46,7 @@ const Home: NextPage = () => {
   }
   async function connect() {
     console.log("connecting...");
-    await gameConnection.init(handleOnQuestionAsked);
+    await gameConnection.init(handleOnQuestionAsked,handleOnQuestionAnswered);
     console.log("game connection initialized");
   }
 
@@ -62,6 +62,18 @@ const Home: NextPage = () => {
       setIsPendingAnswer(false);
     }
     setLastAnswer(lastAnswer);
+  }
+
+  async function handleOnQuestionAnswered(answer: number) {
+    console.log(`Answer answered: ${answer}`);
+    const lastAnswer = await gameConnection.getLastAnswer();
+    console.log(`Answer answered: ${lastAnswer}`);
+    if (lastAnswer === 0) {
+      setIsPendingAnswer(true);
+    } else {
+      setIsPendingAnswer(false);
+    }
+    setLastAnswer(lastAnswer);  
   }
 
   function answer(lastAnswer: number) {

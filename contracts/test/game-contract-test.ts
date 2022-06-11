@@ -78,48 +78,6 @@ describe("Game Contract", function () {
     await expect(game.ask(0, 3)).to.emit(game, "QuestionAsked").withArgs(0, 3);
   });
 
-  xit("should emit event when question is answer", async function () {
-    // initialize the game
-    await guessGame.start();
-
-    // guesser player fist ask
-    // true question
-    await guessGame.question(0, 3);
-
-    let eventEmmited = false;
-    game.on("QuestionAnswered", (answer) => {
-      expect(answer).to.equal(1);
-      eventEmmited = true;
-    });
-
-    // selector player respond
-    const response = await guessGame.answer();
-    expect(response).to.equal(2);
-
-    // wait until event
-    await new Promise((resolve) => setTimeout(resolve, 2500));
-    expect(eventEmmited).to.equal(true);
-  });
-
-  xit("should game allow to handle question asked event", async function () {
-    // initialize the game
-    await guessGame.start();
-
-    let eventEmmited = false;
-    const callback = (type: number, characteristic: number) => {
-      expect(type).to.equal(0);
-      expect(characteristic).to.equal(3);
-      eventEmmited = true;
-    };
-
-    guessGame.onQuestionAsked(callback);
-    await game.ask(0, 3);
-
-    // wait until event
-    await new Promise((resolve) => setTimeout(resolve, 10000));
-    expect(eventEmmited).to.equal(true);
-  });
-
   // 0: not answered yet
   // 1: wrong answer
   // 2: correct answer

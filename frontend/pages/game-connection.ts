@@ -11,7 +11,10 @@ export class GameConnection {
   private game: GuessGame | undefined;
 
   private filterQuestionEvent = false;
-  private  initLastQuestion = {type:-1,characteristic:-1};
+  private initLastQuestion = { type: -1, characteristic: -1 };
+
+  private filterAnswerEvent = false;
+  private initLastAnswer = -1;
 
   async gameConnection(): Promise<Contract> {
     if (this.gameContract) {
@@ -29,21 +32,33 @@ export class GameConnection {
     return contract;
   }
 
-  async init(handleOnQuestionAsked: (position: number, number: number) => void) {
+  async init(handleOnQuestionAsked: (position: number, number: number) => void, handleOnQuestionAnswered: (answer: number) => void) {
     const game = await this.getGame();
     this.initLastQuestion = await this.getLastQuestion();
-    game.onQuestionAsked(async (position, number) => {
+    game.onQuestionAsked(async (position:number, number:number) => {
       // console.log("Checking if question is the same as last question");
       // console.log("Last question:", this.initLastQuestion);
       // console.log("New question:", { position, number });
       // console.log("Filter is:", this.filterQuestionEvent);
-      if(!this.filterQuestionEvent && this.initLastQuestion.type !== position && this.initLastQuestion.characteristic !== number) {
+      if (!this.filterQuestionEvent && this.initLastQuestion.type !== position && this.initLastQuestion.characteristic !== number) {
         return;
       }
       await handleOnQuestionAsked(position, number);
       this.filterQuestionEvent = true;
     });
 
+    this.initLastAnswer = await this.getLastAnswer();
+    game.onQuestionAnswered(async (answer: number) => {
+      // console.log("Checking if answer is the same as last answer");
+      // console.log("Last answer:", this.initLastAnswer);
+      // console.log("New answer:", answer);
+      // console.log("Filter is:", this.filterAnswerEvent);
+      if (!this.filterAnswerEvent && this.initLastAnswer !== answer) {
+        return;
+      }
+      await handleOnQuestionAnswered(answer);
+      this.filterAnswerEvent = true;
+    });
     console.log("Guess Game Connection initialized");
   }
 

@@ -26,6 +26,10 @@ export class GuessGame {
     this.game.on("QuestionAsked", callback);
   }
 
+  onQuestionAnswered(callback: (answer: number) => void) {
+    this.game.on("QuestionAnswered", callback);
+  }
+
   async question(type: number, characteristic: number) {
     const tx = await this.game.ask(type, characteristic);
     await tx.wait();
@@ -54,7 +58,7 @@ export class GuessGame {
       question.piC
     );
     await tx.wait();
-    return response;
+    return response + 1; // 0 is not anwered, 1 is incorrect, 2 is correct
   }
 
   async guess(guess: number[]) {
