@@ -10,7 +10,7 @@ contract Game {
 
     uint8 public  lastType;
     uint8 public  lastCharacteristic;
-    uint8 public  lastResponse;
+    uint8 public  lastResponse;  //last response 0:not answered, 1:wrong, 2:correct
     uint[4] public lastGuess;
     uint public won;
 
@@ -48,6 +48,7 @@ contract Game {
     function ask(uint8 _type, uint8 _characteristic) external {
         lastType = _type;
         lastCharacteristic = _characteristic;
+        lastResponse = 0; // set last response to 0, not answered
         emit QuestionAsked(_type, _characteristic);
     }
 
@@ -67,8 +68,8 @@ contract Game {
             hash  //hash
         ];
         require(verifier.verifyProof(a, b, c, inputs), "Invalid question response!");
-        lastResponse = _response;
-        emit QuestionAnswered(_response);
+        lastResponse = _response + 1; //1: false, 2: true
+        emit QuestionAnswered(lastResponse);
     }
 
     function guess(uint8[4] memory _guess) external {

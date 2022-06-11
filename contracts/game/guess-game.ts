@@ -54,7 +54,7 @@ export class GuessGame {
       question.piC
     );
     await tx.wait();
-    return response;
+    return response + 1; // 0 is not anwered, 1 is incorrect, 2 is correct
   }
 
   async guess(guess: number[]) {

@@ -78,7 +78,7 @@ describe("Game Contract", function () {
     await expect(game.ask(0, 3)).to.emit(game, "QuestionAsked").withArgs(0, 3);
   });
 
-  it("should emit event when question is answer", async function () {
+  xit("should emit event when question is answer", async function () {
     // initialize the game
     await guessGame.start();
 
@@ -94,14 +94,14 @@ describe("Game Contract", function () {
 
     // selector player respond
     const response = await guessGame.answer();
-    expect(response).to.equal(1);
+    expect(response).to.equal(2);
 
     // wait until event
     await new Promise((resolve) => setTimeout(resolve, 2500));
     expect(eventEmmited).to.equal(true);
   });
 
-  it("should game allow to handle question asked event", async function () {
+  xit("should game allow to handle question asked event", async function () {
     // initialize the game
     await guessGame.start();
 
@@ -118,5 +118,64 @@ describe("Game Contract", function () {
     // wait until event
     await new Promise((resolve) => setTimeout(resolve, 10000));
     expect(eventEmmited).to.equal(true);
+  });
+
+  // 0: not answered yet
+  // 1: wrong answer
+  // 2: correct answer
+
+  it("should set last answer 1 if the question is wrong", async function () {
+    // initialize the game
+    await guessGame.start();
+
+    // when the game is initialized, the last answer should be 0
+    expect(await game.lastResponse()).to.equal(0);
+
+    // guesser player first ask
+    await guessGame.question(1, 3);
+
+    // answer the question
+    await guessGame.answer();
+
+    expect(await game.lastResponse()).to.equal(1);
+  });
+
+  it("should set last answer 2 if the question is correct", async function () {
+    // initialize the game
+    await guessGame.start();
+
+    // when the game is initialized, the last answer should be 0
+    expect(await game.lastResponse()).to.equal(0);
+
+    // guesser player first ask
+    await guessGame.question(0, 3);
+
+    // answer the question
+    await guessGame.answer();
+
+    expect(await game.lastResponse()).to.equal(2);
+  });
+
+  it("should the last answer be 0 if the question was not answered", async function () {
+    // initialize the game
+    await guessGame.start();
+
+    // when the game is initialized, the last answer should be 0
+    expect(await game.lastResponse()).to.equal(0);
+
+    // guesser player first ask
+    await guessGame.question(0, 3);
+    expect(await game.lastResponse()).to.equal(0);
+
+    // answer the question
+    await guessGame.answer();
+
+    // true
+    expect(await game.lastResponse()).to.equal(2);
+
+    // another question
+    await guessGame.question(2, 3);
+    // false
+    expect(await game.lastResponse()).to.equal(0);
   });
 });
