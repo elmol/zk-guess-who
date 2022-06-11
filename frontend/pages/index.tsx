@@ -29,6 +29,7 @@ const Home: NextPage = () => {
   } = useForm<Question>();
 
   const [lastAnswer, setLastAnswer] = useState("?");
+  const [isPendingAnswer, setIsPendingAnswer] = useState(false);
 
   const onSubmit: SubmitHandler<Question> = (question) => {
     const position = parseInt(question.position?.trim() ?? "0");
@@ -37,10 +38,22 @@ const Home: NextPage = () => {
   };
 
   async function onInit() {
+    console.log("On init..");
     const provider = new providers.JsonRpcProvider("http://localhost:8545");
     const contract = new Contract("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", Game.abi, provider);
-    console.log("on init..");
     console.log("Game contract address", contract.address);
+    await gameConnection.init(handleOnQuestionAsked);
+  }
+
+  async function handleOnQuestionAsked(position: number, number: number) {
+    console.log(`Question asked: ${position} ${number}`);
+    const lastQuestion = await gameConnection.getLastQuestion();
+    // TODO: hardcoded for now until enable to answer
+    if (lastQuestion.type === 2 && lastQuestion.characteristic === 1) {
+      setIsPendingAnswer(true);
+    } else {
+      setIsPendingAnswer(false);
+    }   
   }
 
   useEffect(() => {
@@ -77,7 +90,6 @@ const Home: NextPage = () => {
                 ask
               </Button>
             </Grid>
-
             <Grid item xs={12} sm={3}>
               <Button
                 variant="outlined"
@@ -91,6 +103,7 @@ const Home: NextPage = () => {
             </Grid>
           </Grid>
         </Box>
+        <>{isPendingAnswer && <Typography variant="body2">Pending question answer. Waiting for the other player...</Typography>}</>
       </Box>
     </Container>
   );

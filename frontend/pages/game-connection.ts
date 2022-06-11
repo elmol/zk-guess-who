@@ -8,7 +8,10 @@ const SALT: number = 123; //HARDCODED
 
 export class GameConnection {
   gameContract: Contract | undefined;
-  private game:GuessGame | undefined;
+  private game: GuessGame | undefined;
+
+  private filterQuestionEvent = false;
+  private  initLastQuestion = {type:-1,characteristic:-1};
 
   async gameConnection(): Promise<Contract> {
     if (this.gameContract) {
@@ -26,6 +29,23 @@ export class GameConnection {
     return contract;
   }
 
+  async init(handleOnQuestionAsked: (position: number, number: number) => void) {
+    const game = await this.getGame();
+    this.initLastQuestion = await this.getLastQuestion();
+    game.onQuestionAsked(async (position, number) => {
+      // console.log("Checking if question is the same as last question");
+      // console.log("Last question:", this.initLastQuestion);
+      // console.log("New question:", { position, number });
+      // console.log("Filter is:", this.filterQuestionEvent);
+      if(!this.filterQuestionEvent && this.initLastQuestion.type !== position && this.initLastQuestion.characteristic !== number) {
+        return;
+      }
+      await handleOnQuestionAsked(position, number);
+      this.filterQuestionEvent = true;
+    });
+    console.log("Guess Game Connection initialized");
+  }
+
   async selection() {
     const guess = await this.getGame();
     console.log("Selecting the character");
@@ -38,22 +58,23 @@ export class GameConnection {
     }
   }
 
-  async ask() {
-    const position = 0;
-    const number = 3;
-    await this.askQuestion(position, number);
-  }
-
   async askQuestion(position: number, number: number) {
     const guess = await this.getGame();
     console.log("Asking for", position, number);
     try {
       await guess.question(position, number);
       console.log("Question asked!");
-      console.log("Question done. type:", await this.gameContract?.lastType(), "characteristic:", await this.gameContract?.lastCharacteristic());
+      const lastQuestion = await this.getLastQuestion();
+      console.log("Question done. type:", lastQuestion.type, "characteristic:", lastQuestion.characteristic);
     } catch (e) {
       console.log(e);
     }
+  }
+
+  async getLastQuestion() {
+    const lastQuestionType = await this.gameContract?.lastType();
+    const lastQuestionCharacteristic = await this.gameContract?.lastCharacteristic();
+    return { type: lastQuestionType, characteristic: lastQuestionCharacteristic };
   }
 
   async responseQuestion() {
@@ -62,7 +83,8 @@ export class GameConnection {
     try {
       await guess.answer();
       console.log("Question respond!");
-      console.log("Question answer for ", await this.gameContract?.lastType(), "characteristic:", await this.gameContract?.lastCharacteristic(), "is:", await this.gameContract?.lastResponse());
+      const lastQuestion = await this.getLastQuestion();
+      console.log("Question answer for ", lastQuestion.type, "characteristic:", lastQuestion.characteristic, "is:", await this.gameContract?.lastResponse());
     } catch (e) {
       console.log(e);
     }
@@ -76,7 +98,7 @@ export class GameConnection {
 
   async guess() {
     const guess = await this.getGame();
-     console.log("Guess for 3210");
+    console.log("Guess for 3210");
     try {
       await guess.guess([3, 2, 1, 0]);
       console.log("Guess done!");
@@ -91,20 +113,27 @@ export class GameConnection {
     try {
       await guess.guessAnswer();
       console.log("Guess respond!");
-      console.log("Guess answer for", await this.gameContract?.lastGuess(0), await this.gameContract?.lastGuess(1), await this.gameContract?.lastGuess(2), await this.gameContract?.lastGuess(3), "is:", await this.gameContract?.won());
+      console.log(
+        "Guess answer for",
+        await this.gameContract?.lastGuess(0),
+        await this.gameContract?.lastGuess(1),
+        await this.gameContract?.lastGuess(2),
+        await this.gameContract?.lastGuess(3),
+        "is:",
+        await this.gameContract?.won()
+      );
     } catch (e) {
       console.log(e);
     }
   }
-  
+
   // helpers
-  private createGame(game: Contract) {
-  }
+  private createGame(game: Contract) {}
 
   private async getGame() {
     const connection = await this.gameConnection();
-     if (this.game) {
-        return this.game;
+    if (this.game) {
+      return this.game;
     }
     return createGuessGame(connection, VALID_CHARACTER, SALT);
   }
