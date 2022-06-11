@@ -2,10 +2,15 @@ import { Contract } from "ethers";
 import { guessProof, questionProof, selectionProof } from "./game-zk";
 
 export class GuessGame {
-  constructor(private game: Contract) {}
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private game: Contract,
+    private character: number[],
+    private salt: number
+  ) {}
 
-  async start(character: number[], salt: number): Promise<String> {
-    const selection = await selectionProof(character, salt);
+  async start(): Promise<String> {
+    const selection = await selectionProof(this.character, this.salt);
     const hash = selection.input[0];
     const tx = await this.game.start(
       hash,
@@ -17,21 +22,25 @@ export class GuessGame {
     return hash;
   }
 
+  onQuestionAsked(callback: (type: number, characteristic: number) => void) {
+    this.game.on("QuestionAsked", callback);
+  }
+
   async question(type: number, characteristic: number) {
     const tx = await this.game.ask(type, characteristic);
     await tx.wait();
   }
 
-  async answer(character: number[], salt: number) {
+  async answer() {
     const type = await this.game.lastType();
     const characteristic = await this.game.lastCharacteristic();
-    const response = character[type] === characteristic ? 1 : 0;
+    const response = this.character[type] === characteristic ? 1 : 0;
 
     // generate question proof
     const hash = await this.game.hash();
     const question = await questionProof(
-      character,
-      salt,
+      this.character,
+      this.salt,
       type,
       characteristic,
       response,
@@ -53,7 +62,7 @@ export class GuessGame {
     await tx.wait();
   }
 
-  async guessAnswer(character: number[], salt: number) {
+  async guessAnswer() {
     const hash = await this.game.hash();
     const guess = [
       (await this.game.lastGuess(0)).toNumber(),
@@ -61,12 +70,13 @@ export class GuessGame {
       (await this.game.lastGuess(2)).toNumber(),
       (await this.game.lastGuess(3)).toNumber(),
     ];
-    const won = JSON.stringify(character) === JSON.stringify(guess) ? 1 : 0;
+    const won =
+      JSON.stringify(this.character) === JSON.stringify(guess) ? 1 : 0;
 
     // generate question proof
     const proof = await guessProof(
-      character,
-      salt,
+      this.character,
+      this.salt,
       guess,
       won,
       hash.toString()
@@ -75,4 +85,12 @@ export class GuessGame {
     await tx.wait();
     return won;
   }
+}
+
+export function createGuessGame(
+  game: Contract,
+  character: number[],
+  salt: number
+) {
+  return new GuessGame(game, character, salt);
 }
