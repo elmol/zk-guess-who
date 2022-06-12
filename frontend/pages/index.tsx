@@ -10,11 +10,12 @@ import { Avatar, Box, Button, Container, createTheme, CssBaseline, Grid, TextFie
 import { SubmitHandler, useForm } from "react-hook-form";
 import Typography from "@mui/material/Typography";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
-import CheckIcon from '@mui/icons-material/Check';
-import CloseIcon from '@mui/icons-material/Close';
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
+import NumberFormSelect from "../components/NumberFormSelect";
 
 type Question = {
-  position: string;
+  position: number;
   number: string;
 };
 
@@ -27,15 +28,16 @@ const Home: NextPage = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    control,
   } = useForm<Question>();
 
   const [lastAnswer, setLastAnswer] = useState(0);
   const [isPendingAnswer, setIsPendingAnswer] = useState(false);
 
   const onSubmit: SubmitHandler<Question> = (question) => {
-    const position = parseInt(question.position?.trim() ?? "0");
+    // const position = parseInt(question.position?.trim() ?? "0");
     const number = parseInt(question.number?.toString()?.trim() ?? "0");
-    gameConnection.askQuestion(position, number);
+    gameConnection.askQuestion(question.position, number);
   };
 
   async function onInit() {
@@ -46,7 +48,7 @@ const Home: NextPage = () => {
   }
   async function connect() {
     console.log("connecting...");
-    await gameConnection.init(handleOnQuestionAsked,handleOnQuestionAnswered);
+    await gameConnection.init(handleOnQuestionAsked, handleOnQuestionAnswered);
     console.log("game connection initialized");
   }
 
@@ -65,7 +67,7 @@ const Home: NextPage = () => {
   }
 
   async function handleOnQuestionAnswered(answer: number) {
-    console.log(`Answer answered: ${answer}`);
+    console.log(`Answer answered event: ${answer}`);
     const lastAnswer = await gameConnection.getLastAnswer();
     console.log(`Answer answered: ${lastAnswer}`);
     if (lastAnswer === 0) {
@@ -73,19 +75,18 @@ const Home: NextPage = () => {
     } else {
       setIsPendingAnswer(false);
     }
-    setLastAnswer(lastAnswer);  
+    setLastAnswer(lastAnswer);
   }
 
   function answer(lastAnswer: number) {
-    if(lastAnswer === 1) {
+    if (lastAnswer === 1) {
       return <CloseIcon />;
     }
-    if(lastAnswer === 2) {
+    if (lastAnswer === 2) {
       return <CheckIcon />;
     }
     return <QuestionMarkIcon />;
   }
-  
 
   useEffect(() => {
     onInit();
@@ -108,10 +109,10 @@ const Home: NextPage = () => {
         <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={2}>
-              <TextField autoComplete="position" required id="position" label="Position" size="small" {...register("position")} autoFocus />
+              <NumberFormSelect id="position" label="Position" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("position")}></NumberFormSelect>
             </Grid>
             <Grid item xs={12} sm={2}>
-              <TextField autoComplete="number" required id="number" label="Number" size="small" {...register("number")} autoFocus />
+              <NumberFormSelect id="number" label="Number" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("number")}></NumberFormSelect>
             </Grid>
             <Grid item xs={12} sm={2}>
               <Avatar variant="rounded"> {answer(lastAnswer)}</Avatar>
@@ -174,5 +175,3 @@ const Home: NextPage = () => {
 };
 
 export default Home;
-
-

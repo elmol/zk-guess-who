@@ -95,7 +95,6 @@ export class GameConnection {
 
   async responseQuestion() {
     const guess = await this.getGame();
-    console.log("Response 1 for 0,3 question");
     try {
       await guess.answer();
       console.log("Question respond!");
