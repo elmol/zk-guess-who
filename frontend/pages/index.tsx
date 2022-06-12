@@ -118,12 +118,13 @@ const Home: NextPage = () => {
               <Avatar variant="rounded"> {answer(lastAnswer)}</Avatar>
             </Grid>
             <Grid item xs={12} sm={3}>
-              <Button type="submit" fullWidth variant="contained">
+              <Button type="submit" fullWidth variant="contained" disabled={isPendingAnswer}>
                 ask
               </Button>
             </Grid>
             <Grid item xs={12} sm={3}>
               <Button
+                disabled={!isPendingAnswer}
                 variant="outlined"
                 onClick={async () => {
                   await gameConnection.responseQuestion();
