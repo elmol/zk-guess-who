@@ -32,7 +32,7 @@ export class GameConnection {
     return contract;
   }
 
-  async init(handleOnQuestionAsked: (position: number, number: number) => void, handleOnQuestionAnswered: (answer: number) => void) {
+  async init(handleOnQuestionAsked: (position: number, number: number) => void, handleOnQuestionAnswered: (answer: number) => void, handleOnGuess: (guess: number[]) => void, handleOnGuessResponse: (response: number) => void) {
     const game = await this.getGame();
     this.initLastQuestion = await this.getLastQuestion();
     game.onQuestionAsked(async (position:number, number:number) => {
@@ -59,6 +59,14 @@ export class GameConnection {
       await handleOnQuestionAnswered(answer);
       this.filterAnswerEvent = true;
     });
+
+    game.onGuess(async (guess: number[]) => {
+      await handleOnGuess(guess);
+    });
+    game.onGuessResponse(async (response: number) => {
+      await handleOnGuessResponse(response);
+    });
+
     console.log("Guess Game Connection initialized");
   }
 
@@ -110,6 +118,18 @@ export class GameConnection {
     console.log("Last Answer:", asw);
     return asw;
   }
+
+  async getLastGuess() {
+    const asw= [await this.gameContract?.lastGuess(0), await this.gameContract?.lastGuess(1), await this.gameContract?.lastGuess(2), await this.gameContract?.lastGuess(3)];
+    console.log("Last Guess:", asw);
+    return asw;
+  }
+  async getLastGuessResponse() {
+    const asw = await this.gameContract?.won();
+    console.log("Last Guess Response:", asw);
+    return asw;
+  }
+  
 
   async guess() {
     const guess = await this.getGame();

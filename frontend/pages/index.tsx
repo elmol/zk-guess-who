@@ -32,12 +32,21 @@ const Home: NextPage = () => {
   } = useForm<Question>();
 
   const [lastAnswer, setLastAnswer] = useState(0);
+  const [lastGuess,  setLastGuess] = useState(0);
+  
   const [isPendingAnswer, setIsPendingAnswer] = useState(false);
+  const [isPendingGuess, setIsPendingGuess] = useState(false);
 
   const onSubmit: SubmitHandler<Question> = (question) => {
     // const position = parseInt(question.position?.trim() ?? "0");
     const number = parseInt(question.number?.toString()?.trim() ?? "0");
     gameConnection.askQuestion(question.position, number);
+  };
+
+  const onGuess: SubmitHandler<Question> = (question) => {
+    // const position = parseInt(question.position?.trim() ?? "0");
+    //const number = parseInt(question.number?.toString()?.trim() ?? "0");
+    gameConnection.guess();
   };
 
   async function onInit() {
@@ -48,7 +57,7 @@ const Home: NextPage = () => {
   }
   async function connect() {
     console.log("connecting...");
-    await gameConnection.init(handleOnQuestionAsked, handleOnQuestionAnswered);
+    await gameConnection.init(handleOnQuestionAsked, handleOnQuestionAnswered,handleOnGuess,handleOnGuessResponse);
     console.log("game connection initialized");
   }
 
@@ -78,11 +87,47 @@ const Home: NextPage = () => {
     setLastAnswer(lastAnswer);
   }
 
+  async function handleOnGuess(guess: number[]) {
+    console.log(`Last Guess Event: ${guess}`);
+    const lastQuestion = await gameConnection.getLastGuess();
+    console.log("Last Guess", lastQuestion);
+    const lastAnswer = await gameConnection.getLastGuessResponse();
+    console.log(`Last Guess Response: ${lastAnswer}`);
+    if (lastAnswer === 0) {
+      setIsPendingGuess(true);
+    } else {
+      setIsPendingGuess(false);
+    }
+    setLastGuess(lastAnswer);
+  }
+
+  async function handleOnGuessResponse(answer: number) {
+    console.log(`Last Guess Response event: ${answer}`);
+    const lastAnswer = await gameConnection.getLastGuessResponse();
+    console.log(`Last Guess Response: ${lastAnswer}`);
+    if (lastAnswer === 0) {
+      setIsPendingGuess(true);
+    } else {
+      setIsPendingGuess(false);
+    }
+    setLastGuess(lastAnswer);
+  }
+
   function answer(lastAnswer: number) {
     if (lastAnswer === 1) {
       return <CloseIcon />;
     }
     if (lastAnswer === 2) {
+      return <CheckIcon />;
+    }
+    return <QuestionMarkIcon />;
+  }
+
+  function guessed(lastGuess: number) {
+    if (lastAnswer === 0) {
+      return <CloseIcon />;
+    }
+    if (lastAnswer === 1) {
       return <CheckIcon />;
     }
     return <QuestionMarkIcon />;
@@ -141,6 +186,57 @@ const Home: NextPage = () => {
     </Container>
   );
 
+  const guessAsk = (
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Typography component="h1" variant="h5">
+          Guess a Number
+        </Typography>
+        <Box component="form" noValidate onSubmit={handleSubmit(onGuess)} sx={{ mt: 3 }}>
+          <Grid container spacing={2}>
+            {/* <Grid item xs={12} sm={2}>
+              <NumberFormSelect id="position" label="Position" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("position")}></NumberFormSelect>
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <NumberFormSelect id="number" label="Number" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("number")}></NumberFormSelect>
+            </Grid> */}
+            <Grid item xs={12} sm={2}>
+              <Avatar variant="rounded"> {answer(lastGuess)}</Avatar>
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <Button type="submit" fullWidth variant="contained" 
+              // disabled={isPendingGuess}
+              >
+                guess
+              </Button>
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <Button
+                // disabled={!isPendingGuess}
+                variant="outlined"
+                onClick={async () => {
+                  gameConnection.responseGuess()
+                  setLastGuess(await gameConnection.getLastGuessResponse());
+                }}
+              >
+                awk
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+        <>{isPendingAnswer && <Typography variant="body2">Pending question answer. Waiting for the other player...</Typography>}</>
+      </Box>
+    </Container>
+  );
+
   return (
     <div className={styles.container}>
       <Head>
@@ -157,6 +253,7 @@ const Home: NextPage = () => {
         <button onClick={() => gameConnection.selection()}>Select</button>
 
         <ThemeProvider theme={theme}>{questionAsk}</ThemeProvider>
+        <ThemeProvider theme={theme}>{guessAsk}</ThemeProvider>
         <div className={styles.description}>Guess 3210</div>
         <button onClick={() => gameConnection.guess()}>Guess</button>
         <div className={styles.description}>Response 1 for Guess 3210</div>

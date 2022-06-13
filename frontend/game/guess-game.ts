@@ -22,14 +22,6 @@ export class GuessGame {
     return hash;
   }
 
-  onQuestionAsked(callback: (type: number, characteristic: number) => void) {
-    this.game.on("QuestionAsked", callback);
-  }
-
-  onQuestionAnswered(callback: (answer: number) => void) {
-    this.game.on("QuestionAnswered", callback);
-  }
-
   async question(type: number, characteristic: number) {
     const tx = await this.game.ask(type, characteristic);
     await tx.wait();
@@ -89,6 +81,24 @@ export class GuessGame {
     await tx.wait();
     return won;
   }
+
+  // on event handle
+  onQuestionAsked(callback: (type: number, characteristic: number) => void) {
+    this.game.on("QuestionAsked", callback);
+  }
+
+  onQuestionAnswered(callback: (answer: number) => void) {
+    this.game.on("QuestionAnswered", callback);
+  }
+
+  onGuess(callback: (guess: number[]) => void) {
+    this.game.on("Guess", callback);
+  }
+
+  onGuessResponse(callback: (answer: number) => void) {
+    this.game.on("GuessResponse", callback);
+  }
+
 }
 
 export function createGuessGame(
