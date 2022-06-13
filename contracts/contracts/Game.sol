@@ -5,14 +5,17 @@ import "hardhat/console.sol";
 import "./VerifierGame.sol";
 
 contract Game {
-    event QuestionAnswered(uint8 _answer);
     event QuestionAsked(uint8 _type, uint8 _characteristic);
+    event QuestionAnswered(uint8 _answer);
+
+    event Guess(uint[4] _guess);
+    event GuessResponse(uint8 _answer);
 
     uint8 public  lastType;
     uint8 public  lastCharacteristic;
     uint8 public  lastResponse;  //last response 0:not answered, 1:wrong, 2:correct
     uint[4] public lastGuess;
-    uint public won;
+    uint8 public won;
 
     uint256 public hash;
     
@@ -77,6 +80,7 @@ contract Game {
         lastCharacteristic = _guess[lastType];
         lastResponse = 1;
         lastGuess = _guess;
+        emit Guess(lastGuess);
     }
 
     function isWon(uint8 _won, uint256[2] memory a,
@@ -96,6 +100,7 @@ contract Game {
         ];
         require(verifier.verifyProof(a, b, c, inputs), "Invalid guess response!");
         won = _won;
+        emit GuessResponse(_won);
     }
 
 
