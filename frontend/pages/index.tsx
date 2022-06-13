@@ -6,7 +6,7 @@ import { FormEvent, useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
 import Game from "../public/Game.json";
 import { GameConnection } from "./game-connection";
-import { Avatar, Box, Button, Container, createTheme, CssBaseline, Grid, TextField, ThemeProvider } from "@mui/material";
+import { AppBar, Avatar, Box, Button, Container, createTheme, CssBaseline, Grid, Paper, TextField, ThemeProvider, Toolbar } from "@mui/material";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Typography from "@mui/material/Typography";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
@@ -244,24 +244,48 @@ const Home: NextPage = () => {
   );
 
   return (
-    <div className={styles.container}>
+    <div>
       <Head>
         <title>zkGuessWho</title>
         <meta name="description" content="zkGuessWho game" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>zkGuessWho</h1>
-        <h1>A ZK Game</h1>
-        <button onClick={() => connect()}>Connect</button>
-        <div className={styles.description}>Character 3210 will be selected...</div>
-        <button onClick={() => gameConnection.selection()}>Select</button>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
 
-        <ThemeProvider theme={theme}>{questionAsk}</ThemeProvider>
-        <ThemeProvider theme={theme}>{guessAsk}</ThemeProvider>
-      </main>
+        <AppBar
+          position="absolute"
+          color="default"
+          elevation={0}
+          sx={{
+            position: "relative",
+            borderBottom: (t) => `1px solid ${t.palette.divider}`,
+          }}
+        >
+          <Toolbar sx={{ flexWrap: "wrap" }}>
+            <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
+              zkGuessWho
+            </Typography>
+            <Button variant="contained" onClick={() => connect()}>
+              Connect Wallet
+            </Button>
+          </Toolbar>
+        </AppBar>
 
+        <Container component="main" maxWidth="sm" sx={{ mb: 4 }}>
+          <Paper variant="outlined" sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>
+            <Typography component="h1" variant="h4" align="center">
+              zkGuessWho
+            </Typography>
+            <Typography align="center">
+              <Button onClick={() => gameConnection.selection()}>Create New Game</Button>
+            </Typography>
+            {questionAsk}
+            {guessAsk}
+          </Paper>
+        </Container>
+      </ThemeProvider>
       <footer className={styles.footer}>
         <a href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app" target="_blank" rel="noopener noreferrer">
           Powered by{" "}
