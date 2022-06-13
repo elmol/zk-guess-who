@@ -65,7 +65,7 @@ export class GameConnection {
       console.log("On Guess",guess);
       await handleOnGuess(guess);
     });
-    
+
     game.onGuessResponse(async (response: number) => {
       console.log("On Guess Response",response);
       await handleOnGuessResponse(response);
@@ -135,17 +135,18 @@ export class GameConnection {
   }
   
 
-  async guess() {
-    const guess = await this.getGame();
-    console.log("Guess for 3210");
+  async guess(guess: number[]) {
+    const game = await this.getGame();
+    console.log("Guess for",guess);
     try {
-      await guess.guess([3, 2, 1, 0]);
+      await game.guess(guess);
       console.log("Guess done!");
       console.log("Last Guess:", await this.gameContract?.lastGuess(0), await this.gameContract?.lastGuess(1), await this.gameContract?.lastGuess(2), await this.gameContract?.lastGuess(3));
     } catch (e) {
       console.log(e);
     }
   }
+  
   async responseGuess() {
     const guess = await this.getGame();
     console.log("Response for 3210 guess");

@@ -13,11 +13,14 @@ import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import NumberFormSelect from "../components/NumberFormSelect";
+import CharacterSelector from "../components/CharacterSelector";
 
 type Question = {
   position: number;
   number: string;
+  guess: string;
 };
+
 
 const Home: NextPage = () => {
   const theme = createTheme();
@@ -44,9 +47,10 @@ const Home: NextPage = () => {
   };
 
   const onGuess: SubmitHandler<Question> = (question) => {
-    // const position = parseInt(question.position?.trim() ?? "0");
-    //const number = parseInt(question.number?.toString()?.trim() ?? "0");
-    gameConnection.guess();
+    console.log("Guessing", question.guess);
+   const guess = question.guess.split("-").map((n: string) => parseInt(n.trim()));
+   console.log("guess:", guess);
+    gameConnection.guess(guess);
   };
 
   async function onInit() {
@@ -207,12 +211,9 @@ const Home: NextPage = () => {
         </Typography>
         <Box component="form" noValidate onSubmit={handleSubmit(onGuess)} sx={{ mt: 3 }}>
           <Grid container spacing={2}>
-            {/* <Grid item xs={12} sm={2}>
-              <NumberFormSelect id="position" label="Position" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("position")}></NumberFormSelect>
+            <Grid item xs={12} sm={4}>
+              <CharacterSelector id="guess" label="Guess" control={control} defaultValue={"0-1-2-3"} variant="outlined" size="small" characters={[[0,1,2,3],[2,3,1,0],[3,2,1,0]]} {...register("guess")}></CharacterSelector>
             </Grid>
-            <Grid item xs={12} sm={2}>
-              <NumberFormSelect id="number" label="Number" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("number")}></NumberFormSelect>
-            </Grid> */}
             <Grid item xs={12} sm={2}>
               <Avatar variant="rounded"> {guessed(lastGuess)}</Avatar>
             </Grid>
@@ -259,10 +260,6 @@ const Home: NextPage = () => {
 
         <ThemeProvider theme={theme}>{questionAsk}</ThemeProvider>
         <ThemeProvider theme={theme}>{guessAsk}</ThemeProvider>
-        <div className={styles.description}>Guess 3210</div>
-        <button onClick={() => gameConnection.guess()}>Guess</button>
-        <div className={styles.description}>Response 1 for Guess 3210</div>
-        <button onClick={() => gameConnection.responseGuess()}>Response Guess</button>
       </main>
 
       <footer className={styles.footer}>
