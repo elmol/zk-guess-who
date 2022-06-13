@@ -58,6 +58,11 @@ const Home: NextPage = () => {
   async function connect() {
     console.log("connecting...");
     await gameConnection.init(handleOnQuestionAsked, handleOnQuestionAnswered,handleOnGuess,handleOnGuessResponse);
+
+    // init properties
+    setLastAnswer(await gameConnection.getLastAnswer());
+    setLastGuess(await gameConnection.getLastGuessResponse());
+    
     console.log("game connection initialized");
   }
 
@@ -124,10 +129,10 @@ const Home: NextPage = () => {
   }
 
   function guessed(lastGuess: number) {
-    if (lastAnswer === 0) {
+    if (lastGuess === 1) {
       return <CloseIcon />;
     }
-    if (lastAnswer === 1) {
+    if (lastGuess === 2) {
       return <CheckIcon />;
     }
     return <QuestionMarkIcon />;
@@ -209,21 +214,21 @@ const Home: NextPage = () => {
               <NumberFormSelect id="number" label="Number" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("number")}></NumberFormSelect>
             </Grid> */}
             <Grid item xs={12} sm={2}>
-              <Avatar variant="rounded"> {answer(lastGuess)}</Avatar>
+              <Avatar variant="rounded"> {guessed(lastGuess)}</Avatar>
             </Grid>
             <Grid item xs={12} sm={3}>
               <Button type="submit" fullWidth variant="contained" 
-              // disabled={isPendingGuess}
+               disabled={isPendingGuess}
               >
                 guess
               </Button>
             </Grid>
             <Grid item xs={12} sm={3}>
               <Button
-                // disabled={!isPendingGuess}
+                 disabled={!isPendingGuess}
                 variant="outlined"
                 onClick={async () => {
-                  gameConnection.responseGuess()
+                  await gameConnection.responseGuess()
                   setLastGuess(await gameConnection.getLastGuessResponse());
                 }}
               >
@@ -232,7 +237,7 @@ const Home: NextPage = () => {
             </Grid>
           </Grid>
         </Box>
-        <>{isPendingAnswer && <Typography variant="body2">Pending question answer. Waiting for the other player...</Typography>}</>
+        <>{isPendingGuess && <Typography variant="body2">Pending guess answer. Waiting for the other player...</Typography>}</>
       </Box>
     </Container>
   );

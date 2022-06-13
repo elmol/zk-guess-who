@@ -35,6 +35,7 @@ export class GameConnection {
   async init(handleOnQuestionAsked: (position: number, number: number) => void, handleOnQuestionAnswered: (answer: number) => void, handleOnGuess: (guess: number[]) => void, handleOnGuessResponse: (response: number) => void) {
     const game = await this.getGame();
     this.initLastQuestion = await this.getLastQuestion();
+
     game.onQuestionAsked(async (position:number, number:number) => {
       // console.log("Checking if question is the same as last question");
       // console.log("Last question:", this.initLastQuestion);
@@ -61,9 +62,12 @@ export class GameConnection {
     });
 
     game.onGuess(async (guess: number[]) => {
+      console.log("On Guess",guess);
       await handleOnGuess(guess);
     });
+    
     game.onGuessResponse(async (response: number) => {
+      console.log("On Guess Response",response);
       await handleOnGuessResponse(response);
     });
 

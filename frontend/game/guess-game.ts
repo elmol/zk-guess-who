@@ -77,9 +77,14 @@ export class GuessGame {
       won,
       hash.toString()
     );
+
+    //TODO: HARDCODED UNTIL SPLIT CIRCUITS
+    await this.question(0, this.character[0]);
+    //////
+
     const tx = await this.game.isWon(won, proof.piA, proof.piB, proof.piC);
     await tx.wait();
-    return won;
+    return await this.game.won();
   }
 
   // on event handle
@@ -98,7 +103,6 @@ export class GuessGame {
   onGuessResponse(callback: (answer: number) => void) {
     this.game.on("GuessResponse", callback);
   }
-
 }
 
 export function createGuessGame(
