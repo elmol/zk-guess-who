@@ -57,9 +57,6 @@ describe("Game Contract", function () {
     const guess = [3, 2, 1, 0]; // solution
     await guessGame.guess(guess);
 
-    expect(await game.lastType()).to.equal(0);
-    expect(await game.lastCharacteristic()).to.equal(3);
-    expect(await game.lastResponse()).to.equal(1);
     expect(await game.lastGuess(0)).to.equal(guess[0]);
     expect(await game.lastGuess(1)).to.equal(guess[1]);
     expect(await game.lastGuess(2)).to.equal(guess[2]);
@@ -135,5 +132,65 @@ describe("Game Contract", function () {
     await guessGame.question(2, 3);
     // false
     expect(await game.lastResponse()).to.equal(0);
+  });
+
+  // 0: not answered yet
+  // 1: wrong answer
+  // 2: correct answer
+  it("should set last guess response to  1 if it was not guessed", async function () {
+    // initialize the game
+    await guessGame.start();
+
+    // // guesser player first ask
+    // await guessGame.question(0, 3);
+
+    // // answer the question
+    // await guessGame.answer();
+
+    // when the game is initialized, the last answer should be 0
+    expect(await game.won()).to.equal(0);
+
+    // guesser player first ask
+    await guessGame.guess([0, 1, 2, 3]);
+
+    // answer the question
+    await guessGame.guessAnswer();
+
+    expect(await game.won()).to.equal(1);
+  });
+
+  it("should set last guess response to  2 if it was guessed", async function () {
+    // initialize the game
+    await guessGame.start();
+
+    // when the game is initialized, the last answer should be 0
+    expect(await game.won()).to.equal(0);
+
+    // guesser player first ask
+    await guessGame.guess([3, 2, 1, 0]);
+
+    // answer the question
+    await guessGame.guessAnswer();
+
+    expect(await game.won()).to.equal(2);
+  });
+
+  it("should set last guess response to 0 if is pending to respond", async function () {
+    // initialize the game
+    await guessGame.start();
+
+    // when the game is initialized, the last answer should be 0
+    expect(await game.won()).to.equal(0);
+
+    // guesser player first ask
+    await guessGame.guess([3, 2, 1, 0]);
+
+    // answer the question
+    await guessGame.guessAnswer();
+
+    // guesser player first ask
+    await guessGame.guess([1, 2, 1, 0]);
+
+    expect(await game.won()).to.equal(0);
   });
 });

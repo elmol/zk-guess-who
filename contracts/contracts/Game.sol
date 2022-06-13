@@ -76,10 +76,8 @@ contract Game {
     }
 
     function guess(uint8[4] memory _guess) external {
-        lastType = 0;
-        lastCharacteristic = _guess[lastType];
-        lastResponse = 1;
         lastGuess = _guess;
+        won = 0;
         emit Guess(lastGuess);
     }
 
@@ -92,16 +90,16 @@ contract Game {
             lastGuess[1],     //guess 
             lastGuess[2],     //guess
             lastGuess[3],     //guess
+            
+            //last question should be always be true / correct
             lastType,      //ask type
             lastCharacteristic,     //ask characteristic 
-            lastResponse,     //ask response
+            1,     //ask response //TODO: THIS IS A HACK FOR PENDING QUESTION should be removed when split circuits
             _won,     //win
             hash  //hash
         ];
         require(verifier.verifyProof(a, b, c, inputs), "Invalid guess response!");
-        won = _won;
-        emit GuessResponse(_won);
+        won = _won+1; //0: pending //1: false, 2: true
+        emit GuessResponse(won);
     }
-
-
 }
