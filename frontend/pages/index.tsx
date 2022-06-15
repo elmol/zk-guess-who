@@ -14,6 +14,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import NumberFormSelect from "../components/NumberFormSelect";
 import CharacterSelector from "../components/CharacterSelector";
+import WalletConnector from "../components/WalletConnector";
 
 type Question = {
   position: number;
@@ -54,12 +55,12 @@ const Home: NextPage = () => {
   };
 
   async function onInit() {
-    console.log("On init..");
-    const provider = new providers.JsonRpcProvider("http://localhost:8545");
-    const contract = new Contract("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", Game.abi, provider);
-    console.log("Game contract address", contract.address);
+    // console.log("On init..");
+    // const provider = new providers.JsonRpcProvider("http://localhost:8545");
+    // const contract = new Contract("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", Game.abi, provider);
+    // console.log("Game contract address", contract.address);
   }
-  async function connect() {
+  async function connect(): Promise<void> {
     console.log("connecting...");
     await gameConnection.init(handleOnQuestionAsked, handleOnQuestionAnswered,handleOnGuess,handleOnGuessResponse);
 
@@ -267,9 +268,7 @@ const Home: NextPage = () => {
             <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
               zkGuessWho
             </Typography>
-            <Button variant="contained" onClick={() => connect()}>
-              Connect Wallet
-            </Button>
+            <WalletConnector connectionHandle={connect} />
           </Toolbar>
         </AppBar>
 

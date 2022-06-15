@@ -1,6 +1,7 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import { Contract, providers } from "ethers";
 import Game from "../public/Game.json";
+import networks from "../public/networks.json";
 import { createGuessGame, GuessGame } from "./guess-game";
 
 const VALID_CHARACTER: number[] = [3, 2, 1, 0]; //HARDCODED
@@ -28,7 +29,12 @@ export class GameConnection {
     const ethersProvider = new providers.Web3Provider(provider);
     await provider.send('eth_requestAccounts', []); 
     const signer = ethersProvider.getSigner();
-    const contract = new Contract("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", Game.abi, signer);
+    let chainId = await provider.request({ method: 'eth_chainId' });
+    console.log("Connected chain id:", chainId, parseInt(chainId));
+    const parsedChainId = parseInt(chainId).toString() as keyof typeof networks;
+    const address = networks[parsedChainId].address;
+    console.log("Contract address:", address);
+    const contract = new Contract(address, Game.abi, signer);
     this.gameContract = contract;
     return contract;
   }
@@ -167,9 +173,6 @@ export class GameConnection {
       console.log(e);
     }
   }
-
-  // helpers
-  private createGame(game: Contract) {}
 
   private async getGame() {
     const connection = await this.gameConnection();
