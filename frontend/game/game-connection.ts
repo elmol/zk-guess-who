@@ -26,6 +26,7 @@ export class GameConnection {
   private async makeConnection() {
     const provider = (await detectEthereumProvider()) as any;
     const ethersProvider = new providers.Web3Provider(provider);
+    await provider.send('eth_requestAccounts', []); 
     const signer = ethersProvider.getSigner();
     const contract = new Contract("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", Game.abi, signer);
     this.gameContract = contract;

@@ -16,13 +16,13 @@ async function main() {
   const verifier = await Verifier.deploy();
   await verifier.deployed();
 
-  // const gameFactory = (await ethers.getContractFactory(
-  //   "Game"
-  //   // eslint-disable-next-line camelcase
-  // )) as Game__factory;
-  // const game = await gameFactory.deploy(verifier.address);
-  // await game.deployed();
-  // console.log("Game deployed to:", game.address);
+  const gameFactory = (await ethers.getContractFactory(
+    "Game"
+    // eslint-disable-next-line camelcase
+  )) as Game__factory;
+  const game = await gameFactory.deploy(verifier.address);
+  await game.deployed();
+  console.log("Game deployed to:", game.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
