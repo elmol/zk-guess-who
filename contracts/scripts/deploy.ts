@@ -8,17 +8,21 @@ import { ethers } from "hardhat";
 import { Game__factory } from "../typechain";
 
 async function main() {
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying contracts with the account:", deployer.address);
+  console.log("Account balance:", (await deployer.getBalance()).toString());
+
   const Verifier = await ethers.getContractFactory("VerifierGame");
   const verifier = await Verifier.deploy();
   await verifier.deployed();
 
-  const gameFactory = (await ethers.getContractFactory(
-    "Game"
-    // eslint-disable-next-line camelcase
-  )) as Game__factory;
-  const game = await gameFactory.deploy(verifier.address);
-  await game.deployed();
-  console.log("Game deployed to:", game.address);
+  // const gameFactory = (await ethers.getContractFactory(
+  //   "Game"
+  //   // eslint-disable-next-line camelcase
+  // )) as Game__factory;
+  // const game = await gameFactory.deploy(verifier.address);
+  // await game.deployed();
+  // console.log("Game deployed to:", game.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
