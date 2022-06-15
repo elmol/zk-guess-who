@@ -2,9 +2,9 @@ import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { forwardRef } from "react";
 import { Controller } from "react-hook-form";
 
-type FromProps = React.HTMLProps<HTMLFormElement>;
+type FromProps = React.HTMLProps<HTMLFormElement> & {control: typeof Controller | undefined} & {characters: number};
 // eslint-disable-next-line react/display-name
-const NumberFormSelect = forwardRef<HTMLFormElement, FromProps>(({ name, label, control, defaultValue, characters, ...props }, ref) => {
+const NumberFormSelect = forwardRef<any, any>(({ name, label, control, defaultValue, characters, ...props }, ref) => {
   const labelId = `${name}-label`;
 
   function mapCharacter(character: number[]) {

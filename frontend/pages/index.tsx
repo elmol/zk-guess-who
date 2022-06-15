@@ -5,7 +5,7 @@ import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
 import Game from "../public/Game.json";
-import { GameConnection } from "./game-connection";
+import { GameConnection } from "../game/game-connection";
 import { AppBar, Avatar, Box, Button, Container, createTheme, CssBaseline, Grid, Paper, TextField, ThemeProvider, Toolbar } from "@mui/material";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Typography from "@mui/material/Typography";

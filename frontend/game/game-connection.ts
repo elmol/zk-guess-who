@@ -1,7 +1,7 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import { Contract, providers } from "ethers";
 import Game from "../public/Game.json";
-import { createGuessGame, GuessGame } from "../game/guess-game";
+import { createGuessGame, GuessGame } from "./guess-game";
 
 const VALID_CHARACTER: number[] = [3, 2, 1, 0]; //HARDCODED
 const SALT: number = 123; //HARDCODED

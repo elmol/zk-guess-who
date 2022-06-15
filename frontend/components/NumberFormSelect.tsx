@@ -2,9 +2,9 @@ import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { forwardRef } from "react";
 import { Controller } from "react-hook-form";
 
-type FromProps = React.HTMLProps<HTMLFormElement>;
+type FromControllerProps = React.HTMLProps<HTMLFormElement> & {control: typeof Controller | undefined};
 // eslint-disable-next-line react/display-name
-const NumberFormSelect = forwardRef<HTMLFormElement, FromProps>(({ name, label, control, defaultValue, max, ...props }, ref) => {
+const NumberFormSelect = forwardRef<any, any>(({ name, label, control, defaultValue, max, ...props }, ref) => {
   const labelId = `${name}-label`;
   return (
     <FormControl {...props}>
