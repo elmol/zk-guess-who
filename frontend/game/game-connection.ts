@@ -27,7 +27,7 @@ export class GameConnection {
   private async makeConnection() {
     const provider = (await detectEthereumProvider()) as any;
     const ethersProvider = new providers.Web3Provider(provider);
-    await provider.send('eth_requestAccounts', []); 
+    await provider.request('eth_requestAccounts', []); 
     const signer = ethersProvider.getSigner();
     let chainId = await provider.request({ method: 'eth_chainId' });
     console.log("Connected chain id:", chainId, parseInt(chainId));

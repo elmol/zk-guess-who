@@ -174,7 +174,7 @@ const Home: NextPage = () => {
             </Grid>
             <Grid item xs={12} sm={3}>
               <Button type="submit" fullWidth variant="contained" disabled={isPendingAnswer}>
-                ask
+                ack
               </Button>
             </Grid>
             <Grid item xs={12} sm={3}>
@@ -186,7 +186,7 @@ const Home: NextPage = () => {
                   setLastAnswer(await gameConnection.getLastAnswer());
                 }}
               >
-                awk
+               ack
               </Button>
             </Grid>
           </Grid>
