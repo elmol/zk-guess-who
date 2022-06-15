@@ -234,7 +234,7 @@ const Home: NextPage = () => {
                   setLastGuess(await gameConnection.getLastGuessResponse());
                 }}
               >
-                awk
+                ack
               </Button>
             </Grid>
           </Grid>

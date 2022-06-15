@@ -1,3 +1,11 @@
+# Deploy to devnet
+```
+$ npx hardhat run scripts/deploy.ts --network devnet
+No need to generate any newer typings.
+Deploying contracts with the account: 0x959616dD5CaA900458ED0Af6137Cf1779FF7194F
+Account balance: 10010000000000000000000
+Game deployed to: 0x192D322359359A44D7b953790EC5D8CA312723b1
+```
 # Advanced Sample Hardhat Project
 
 This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.

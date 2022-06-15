@@ -2,5 +2,9 @@
   "31337": {
     "name": "zk Game Contract - localhost",
     "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+  },
+  "1666900000": {
+    "name": "zk Game Contract - devnet",
+    "address": "0x192D322359359A44D7b953790EC5D8CA312723b1"
   }
 }

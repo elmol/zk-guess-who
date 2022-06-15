@@ -35,6 +35,13 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    // Websocket: ws.s0.ps.hmny.io
+    // Faucet/explorer info: https://docs.harmony.one/home/developers/network-and-faucets
+    devnet: {
+      url: `https://api.s0.ps.hmny.io`,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
     mainnet: {
       url: `https://api.harmony.one`,
       accounts:

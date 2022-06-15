@@ -5,6 +5,7 @@ import { GameConnection } from '../game/game-connection';
 
 const testnetChainId = '0x6357d2e0'
 const localChainId = '0x7a69' //31337
+const devnetChainId = '0x635ae020' //1666900000
 
 interface IMyProps {
   connectionHandle: () => Promise<void>;
@@ -60,7 +61,7 @@ export default function WalletConnector(props: IMyProps) {
     let chainId = await ethereum.request({ method: 'eth_chainId' });
     console.log("Chain ID:", chainId, parseInt(chainId));
 
-    setCorrectChain(chainId === testnetChainId || chainId === localChainId); ;
+    setCorrectChain(chainId === testnetChainId || chainId === localChainId || chainId === devnetChainId); ;
   }
 
   const checkConnection = async () => {
