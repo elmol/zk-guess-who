@@ -123,7 +123,7 @@ describe("Game Event", function () {
     const t = timeout(10000);
     let eventEmmited = false;
     const callback = (isWon: number) => {
-      expect(isWon).to.equal(1);
+      expect(isWon).to.equal(2);
       eventEmmited = true;
       t.cancel();
     };
