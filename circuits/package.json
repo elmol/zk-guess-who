@@ -2,7 +2,8 @@
   "name": "zk-guess-who-circuits",
   "version": "0.0.1",
   "scripts": {
-    "test": ". scripts/compile-circuit.sh && mocha tests --timeout 5000"
+    "compile": "./scripts/compile-circuit.sh",
+    "test": "./scripts/compile-circuit.sh && mocha tests --timeout 5000"
   },
   "author": "elmol",
   "license": "MIT",
