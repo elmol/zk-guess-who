@@ -5,6 +5,15 @@ import { createGuessGame, GuessGame } from "../game/guess-game";
 
 const VALID_CHARACTER = [3, 2, 1, 0];
 let guessGame: GuessGame;
+const boardZKFiles = {
+  wasm: "artifacts/circuits/board.wasm",
+  zkey: "artifacts/circuits/circuit_final_board.zkey",
+};
+
+const gameZKFiles = {
+  wasm: "artifacts/circuits/game.wasm",
+  zkey: "artifacts/circuits/circuit_final_game.zkey",
+};
 
 describe("Game Event", function () {
   let game: Game;
@@ -27,7 +36,13 @@ describe("Game Event", function () {
     await game.deployed();
     const character = VALID_CHARACTER;
     const salt = 231;
-    guessGame = createGuessGame(game, character, salt);
+    guessGame = createGuessGame(
+      game,
+      boardZKFiles,
+      gameZKFiles,
+      character,
+      salt
+    );
   });
 
   it("should emit event when question is answer", async function () {

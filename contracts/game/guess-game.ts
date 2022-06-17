@@ -1,16 +1,20 @@
 import { Contract } from "ethers";
-import { guessProof, questionProof, selectionProof } from "./game-zk";
+import { GameZK, ZKFiles } from "./game-zk";
 
 export class GuessGame {
   // eslint-disable-next-line no-useless-constructor
   constructor(
     private game: Contract,
+    private gameZK: GameZK,
     private character: number[],
     private salt: number
   ) {}
 
   async start(): Promise<String> {
-    const selection = await selectionProof(this.character, this.salt);
+    const selection = await this.gameZK.selectionProof(
+      this.character,
+      this.salt
+    );
     const hash = selection.input[0];
     const tx = await this.game.start(
       hash,
@@ -34,7 +38,7 @@ export class GuessGame {
 
     // generate question proof
     const hash = await this.game.hash();
-    const question = await questionProof(
+    const question = await this.gameZK.questionProof(
       this.character,
       this.salt,
       type,
@@ -70,7 +74,7 @@ export class GuessGame {
       JSON.stringify(this.character) === JSON.stringify(guess) ? 1 : 0;
 
     // generate question proof
-    const proof = await guessProof(
+    const proof = await this.gameZK.guessProof(
       this.character,
       this.salt,
       guess,
@@ -107,8 +111,11 @@ export class GuessGame {
 
 export function createGuessGame(
   game: Contract,
+  boardZKFiles: ZKFiles,
+  gameZKFiles: ZKFiles,
   character: number[],
   salt: number
 ) {
-  return new GuessGame(game, character, salt);
+  const gameZK: GameZK = new GameZK(boardZKFiles, gameZKFiles);
+  return new GuessGame(game, gameZK, character, salt);
 }

@@ -1,13 +1,7 @@
 import { fail } from "assert";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import {
-  guessProof,
-  questionProof,
-  selectionProof,
-  verifyGuess,
-  verifyQuestion
-} from "../game/game-zk";
+import { GameZK } from "../game/game-zk";
 import { createHash } from "../game/zk-utils";
 
 const VALID_CHARACTER = [3, 2, 1, 0];
@@ -15,6 +9,17 @@ const VALID_CHARACTER = [3, 2, 1, 0];
 describe("Game ZK", function () {
   let verifier: any;
   let verifierBoard: any;
+  const board = {
+    wasm: "artifacts/circuits/board.wasm",
+    zkey: "artifacts/circuits/circuit_final_board.zkey",
+  };
+
+  const game = {
+    wasm: "artifacts/circuits/game.wasm",
+    zkey: "artifacts/circuits/circuit_final_game.zkey",
+  };
+
+  const gameZK: GameZK = new GameZK(board, game);
 
   beforeEach(async function () {
     const Verifier = await ethers.getContractFactory("VerifierGame");
@@ -32,7 +37,7 @@ describe("Game ZK", function () {
 
     const character = VALID_CHARACTER;
     const salt = 231;
-    const selection = await selectionProof(character, salt);
+    const selection = await gameZK.selectionProof(character, salt);
 
     // asserts
     const hash = await createHash({ solutions: character, salt: salt });
@@ -56,7 +61,7 @@ describe("Game ZK", function () {
   it("should be not able to generate character selection proof is not in the board", async function () {
     const character = [3, 2, 1, 1]; // not in the board
     const salt = 231;
-    const proofGenerator = selectionProof(character, salt);
+    const proofGenerator = gameZK.selectionProof(character, salt);
     await assertProofGenerationFailed(proofGenerator);
   });
 
@@ -68,7 +73,7 @@ describe("Game ZK", function () {
     // create a selection proof
     const character = VALID_CHARACTER;
     const salt = 231;
-    const selection = await selectionProof(character, salt);
+    const selection = await gameZK.selectionProof(character, salt);
 
     // create a question proof
     const type = 2;
@@ -79,7 +84,7 @@ describe("Game ZK", function () {
     const hash = selection.input[0];
     const response = 1;
 
-    const question = await questionProof(
+    const question = await gameZK.questionProof(
       character,
       salt,
       type,
@@ -104,7 +109,7 @@ describe("Game ZK", function () {
     expect(question.input[9]).to.equal(hash); // hash
 
     // guesser player verify the proof
-    const { isCorrect, questionReponse } = await verifyQuestion(
+    const { isCorrect, questionReponse } = await gameZK.verifyQuestion(
       question,
       verifier
     );
@@ -120,14 +125,14 @@ describe("Game ZK", function () {
     // create a selection proof
     const character = VALID_CHARACTER;
     const salt = 231;
-    const selection = await selectionProof(character, salt);
+    const selection = await gameZK.selectionProof(character, salt);
     // selector player generate the proof to respond this question
     const hash = selection.input[0];
 
     // create a guess proof
     const guess = [3, 2, 1, 0]; // ok
     const win = 1;
-    const proof = await guessProof(character, salt, guess, win, hash);
+    const proof = await gameZK.guessProof(character, salt, guess, win, hash);
 
     // asserts
     // output
@@ -145,7 +150,10 @@ describe("Game ZK", function () {
     expect(proof.input[9]).to.equal(hash); // hash
 
     // guesser player verify the proof
-    const { isCorrect, guessResponse } = await verifyGuess(proof, verifier);
+    const { isCorrect, guessResponse } = await gameZK.verifyGuess(
+      proof,
+      verifier
+    );
 
     // eslint-disable-next-line no-unused-expressions
     expect(isCorrect).to.be.true;

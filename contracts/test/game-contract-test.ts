@@ -5,6 +5,15 @@ import { createGuessGame, GuessGame } from "../game/guess-game";
 
 const VALID_CHARACTER = [3, 2, 1, 0];
 let guessGame: GuessGame;
+const boardZKFiles = {
+  wasm: "artifacts/circuits/board.wasm",
+  zkey: "artifacts/circuits/circuit_final_board.zkey",
+};
+
+const gameZKFiles = {
+  wasm: "artifacts/circuits/game.wasm",
+  zkey: "artifacts/circuits/circuit_final_game.zkey",
+};
 
 describe("Game Contract", function () {
   let game: Game;
@@ -22,19 +31,34 @@ describe("Game Contract", function () {
       "Game"
       // eslint-disable-next-line camelcase
     )) as Game__factory;
-    game = await gameFactory.deploy(verifierGame.address, verifierBoard.address);
+    game = await gameFactory.deploy(
+      verifierGame.address,
+      verifierBoard.address
+    );
     await game.deployed();
 
     const character = VALID_CHARACTER;
     const salt = 231;
 
-    guessGame = createGuessGame(game, character, salt);
+    guessGame = createGuessGame(
+      game,
+      boardZKFiles,
+      gameZKFiles,
+      character,
+      salt
+    );
   });
 
   it("should allow to create a new game selecting a character", async function () {
     const character = VALID_CHARACTER;
     const salt = 231;
-    guessGame = createGuessGame(game, character, salt);
+    guessGame = createGuessGame(
+      game,
+      boardZKFiles,
+      gameZKFiles,
+      character,
+      salt
+    );
     const hash = await guessGame.start();
     expect(await game.hash()).to.equal(hash);
   });

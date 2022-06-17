@@ -1,76 +1,92 @@
-import { createHash, generateBoardProof, generateGameProof } from "./zk-utils";
+import { createHash, ZKUtils } from "./zk-utils";
 
-// PROOFS GENERATIONS
-
-export async function selectionProof(character: any, salt: any) {
-  const input = {
-    solutions: character,
-    salt: salt,
-    solHash: "", // public
-  };
-  input.solHash = await createHash(input);
-  return await generateBoardProof(input);
+export interface ZKFiles {
+  wasm: string;
+  zkey: string;
 }
 
-export async function questionProof(
-  character: number[],
-  salt: number,
-  type: number,
-  characteristic: number,
-  response: number,
-  hash: any
-) {
-  const input = {
-    solutions: character,
-    salt: salt,
-    ask: [type, characteristic, response],
+export class GameZK {
+  private zkBoard: ZKUtils;
+  private zkGame: ZKUtils;
 
-    guess: [0, 0, 0, 0],
-    win: 0,
-    solHash: hash, // public hash
-  };
-  const question = await generateGameProof(input);
-  return question;
-}
+  constructor(board: ZKFiles, game: ZKFiles) {
+    this.zkBoard = new ZKUtils(board.wasm, board.zkey);
+    this.zkGame = new ZKUtils(game.wasm, game.zkey);
+  }
 
-export async function guessProof(
-  character: any,
-  salt: any,
-  guess: any,
-  win: any,
-  hash: any
-) {
-  const input = {
-    solutions: character,
-    salt: salt,
-    ask: [0, character[0], 1],
+  // PROOFS GENERATIONS
+  async selectionProof(character: any, salt: any) {
+    const input = {
+      solutions: character,
+      salt: salt,
+      solHash: "", // public
+    };
+    input.solHash = await createHash(input);
+    return await this.generateBoardProof(input);
+  }
 
-    guess: guess,
-    win: win,
-    solHash: hash, // public hash
-  };
-  return await generateGameProof(input);
-}
+  async questionProof(
+    character: number[],
+    salt: number,
+    type: number,
+    characteristic: number,
+    response: number,
+    hash: any
+  ) {
+    const input = {
+      solutions: character,
+      salt: salt,
+      ask: [type, characteristic, response],
 
-// VERIFICATIONS
-export async function verifyGuess(question: any, verifier: any) {
-  const guessResponse = question.input[8]; // response
-  const isCorrect = await verifier.verifyProof(
-    question.piA,
-    question.piB,
-    question.piC,
-    question.input
-  );
-  return { isCorrect, guessResponse };
-}
+      guess: [0, 0, 0, 0],
+      win: 0,
+      solHash: hash, // public hash
+    };
+    const question = await this.generateGameProof(input);
+    return question;
+  }
 
-export async function verifyQuestion(question: any, verifier: any) {
-  const questionReponse = question.input[7]; // response
-  const isCorrect = (await verifier.verifyProof(
-    question.piA,
-    question.piB,
-    question.piC,
-    question.input
-  )) as boolean;
-  return { isCorrect, questionReponse };
+  async guessProof(character: any, salt: any, guess: any, win: any, hash: any) {
+    const input = {
+      solutions: character,
+      salt: salt,
+      ask: [0, character[0], 1],
+
+      guess: guess,
+      win: win,
+      solHash: hash, // public hash
+    };
+    return await this.generateGameProof(input);
+  }
+
+  // VERIFICATIONS
+  async verifyGuess(question: any, verifier: any) {
+    const guessResponse = question.input[8]; // response
+    const isCorrect = await verifier.verifyProof(
+      question.piA,
+      question.piB,
+      question.piC,
+      question.input
+    );
+    return { isCorrect, guessResponse };
+  }
+
+  async verifyQuestion(question: any, verifier: any) {
+    const questionReponse = question.input[7]; // response
+    const isCorrect = (await verifier.verifyProof(
+      question.piA,
+      question.piB,
+      question.piC,
+      question.input
+    )) as boolean;
+    return { isCorrect, questionReponse };
+  }
+
+  async generateGameProof(input: any) {
+    return await this.zkGame.generateProof(input);
+  }
+
+  async generateBoardProof(input: any) {
+    return await this.zkBoard.generateProof(input);
+  }
 }
