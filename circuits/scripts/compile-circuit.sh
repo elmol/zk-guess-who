@@ -37,7 +37,6 @@ else
 fi
 
 ########### CIRCUITS COMPLIATION
-compile game
 compile board
 compile question
 compile guess

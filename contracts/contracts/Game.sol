@@ -2,8 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
-import "./IVerifierGame.sol";
 import "./IVerifierBoard.sol";
+import "./IVerifierQuestion.sol";
+import "./IVerifierGuess.sol";
 
 
 contract Game {
@@ -21,12 +22,14 @@ contract Game {
 
     uint256 public hash;
     
-    IVerifierGame private verifier;
     IVerifierBoard private verifierBoard;
+    IVerifierQuestion private verifierQuestion;
+    IVerifierGuess private verifierGuess;
 
-    constructor(address _verifier, address _verifierBoard) {
-        verifier = IVerifierGame(_verifier);
+    constructor(address _verifierBoard, address _verifierQuestion, address _verifierGuess) {
         verifierBoard = IVerifierBoard(_verifierBoard);
+        verifierQuestion = IVerifierQuestion(_verifierQuestion);
+        verifierGuess = IVerifierGuess(_verifierGuess);
     }
 
 
@@ -54,19 +57,14 @@ contract Game {
     function response(uint8 _response, uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c) external {
-        uint[10] memory inputs = [
+        uint[5] memory inputs = [
             hash, //hash
-            0,     //guess
-            0,     //guess 
-            0,     //guess
-            0,     //guess
             lastType,      //ask type
             lastCharacteristic,     //ask characteristic 
             _response,     //ask response
-            0,     //win
             hash  //hash
         ];
-        require(verifier.verifyProof(a, b, c, inputs), "Invalid question response!");
+        require(verifierQuestion.verifyProof(a, b, c, inputs), "Invalid question response!");
         lastResponse = _response + 1; //1: false, 2: true
         emit QuestionAnswered(lastResponse);
     }
@@ -80,21 +78,16 @@ contract Game {
     function isWon(uint8 _won, uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c) external {
-        uint[10] memory inputs = [
+        uint[7] memory inputs = [
             hash, //hash
             lastGuess[0],     //guess
             lastGuess[1],     //guess 
             lastGuess[2],     //guess
             lastGuess[3],     //guess
-            
-            //last question should be always be true / correct
-            lastType,      //ask type
-            lastCharacteristic,     //ask characteristic 
-            1,     //ask response //TODO: THIS IS A HACK FOR PENDING QUESTION should be removed when split circuits
             _won,     //win
             hash  //hash
         ];
-        require(verifier.verifyProof(a, b, c, inputs), "Invalid guess response!");
+        require(verifierGuess.verifyProof(a, b, c, inputs), "Invalid guess response!");
         won = _won+1; //0: pending //1: false, 2: true
         emit GuessResponse(won);
     }

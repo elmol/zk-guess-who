@@ -7,28 +7,41 @@ import { createHash } from "../game/zk-utils";
 const VALID_CHARACTER = [3, 2, 1, 0];
 
 describe("Game ZK", function () {
-  let verifier: any;
   let verifierBoard: any;
+  let verifierQuestion: any;
+  let verifierGuess: any;
+
   const board = {
     wasm: "artifacts/circuits/board.wasm",
     zkey: "artifacts/circuits/circuit_final_board.zkey",
   };
 
-  const game = {
-    wasm: "artifacts/circuits/game.wasm",
-    zkey: "artifacts/circuits/circuit_final_game.zkey",
+  const questionZKFiles = {
+    wasm: "artifacts/circuits/question.wasm",
+    zkey: "artifacts/circuits/circuit_final_question.zkey",
   };
 
-  const gameZK: GameZK = new GameZK(board, game);
+  const guessZKFiles = {
+    wasm: "artifacts/circuits/guess.wasm",
+    zkey: "artifacts/circuits/circuit_final_guess.zkey",
+  };
+
+  const gameZK: GameZK = new GameZK(board, questionZKFiles, guessZKFiles);
 
   beforeEach(async function () {
-    const Verifier = await ethers.getContractFactory("VerifierGame");
-    verifier = await Verifier.deploy();
-    await verifier.deployed();
-
     const VerifierBoard = await ethers.getContractFactory("VerifierBoard");
     verifierBoard = await VerifierBoard.deploy();
     await verifierBoard.deployed();
+
+    const VerifierQuestion = await ethers.getContractFactory(
+      "VerifierQuestion"
+    );
+    verifierQuestion = await VerifierQuestion.deploy();
+    await verifierQuestion.deployed();
+
+    const VerifierGuess = await ethers.getContractFactory("VerifierGuess");
+    verifierGuess = await VerifierGuess.deploy();
+    await verifierGuess.deployed();
   });
 
   it("should be able to generate character selection proof", async function () {
@@ -98,20 +111,15 @@ describe("Game ZK", function () {
     expect(question.input[0]).to.equal(hash); // hash
 
     // public inputs
-    expect(question.input[1]).to.equal("0"); // guess[0]
-    expect(question.input[2]).to.equal("0"); // guess[1]
-    expect(question.input[3]).to.equal("0"); // guess[2]
-    expect(question.input[4]).to.equal("0"); // guess[3]
-    expect(question.input[5]).to.equal(type.toString()); // ask[0]
-    expect(question.input[6]).to.equal(characteristic.toString()); // ask[1]
-    expect(question.input[7]).to.equal(response.toString()); // ask[2]
-    expect(question.input[8]).to.equal("0"); // win
-    expect(question.input[9]).to.equal(hash); // hash
+    expect(question.input[1]).to.equal(type.toString()); // ask[0]
+    expect(question.input[2]).to.equal(characteristic.toString()); // ask[1]
+    expect(question.input[3]).to.equal(response.toString()); // ask[2]
+    expect(question.input[4]).to.equal(hash); // hash
 
     // guesser player verify the proof
     const { isCorrect, questionReponse } = await gameZK.verifyQuestion(
       question,
-      verifier
+      verifierQuestion
     );
     expect(isCorrect).to.equal(true);
     expect(questionReponse).to.equal(response.toString());
@@ -143,16 +151,13 @@ describe("Game ZK", function () {
     expect(proof.input[2]).to.equal(guess[1].toString()); // guess[1]
     expect(proof.input[3]).to.equal(guess[2].toString()); // guess[2]
     expect(proof.input[4]).to.equal(guess[3].toString()); // guess[3]
-    expect(proof.input[5]).to.equal("0"); // ask[0]
-    expect(proof.input[6]).to.equal(character[0].toString()); // ask[1]
-    expect(proof.input[7]).to.equal("1"); // ask[2]
-    expect(proof.input[8]).to.equal(win.toString()); // ask[3] win
-    expect(proof.input[9]).to.equal(hash); // hash
+    expect(proof.input[5]).to.equal(win.toString()); // ask[3] win
+    expect(proof.input[6]).to.equal(hash); // hash
 
     // guesser player verify the proof
     const { isCorrect, guessResponse } = await gameZK.verifyGuess(
       proof,
-      verifier
+      verifierGuess
     );
 
     // eslint-disable-next-line no-unused-expressions

@@ -82,10 +82,6 @@ export class GuessGame {
       hash.toString()
     );
 
-    //TODO: HARDCODED UNTIL SPLIT CIRCUITS
-    await this.question(0, this.character[0]);
-    //////
-
     const tx = await this.game.isWon(won, proof.piA, proof.piB, proof.piC);
     await tx.wait();
     return await this.game.won();
@@ -112,10 +108,15 @@ export class GuessGame {
 export function createGuessGame(
   game: Contract,
   boardZKFiles: ZKFiles,
-  gameZKFiles: ZKFiles,
+  questionZKFiles: ZKFiles,
+  guessZKFiles: ZKFiles,
   character: number[],
   salt: number
 ) {
-  const gameZK: GameZK = new GameZK(boardZKFiles, gameZKFiles);
+  const gameZK: GameZK = new GameZK(
+    boardZKFiles,
+    questionZKFiles,
+    guessZKFiles
+  );
   return new GuessGame(game, gameZK, character, salt);
 }

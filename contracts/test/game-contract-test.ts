@@ -10,30 +10,43 @@ const boardZKFiles = {
   zkey: "artifacts/circuits/circuit_final_board.zkey",
 };
 
-const gameZKFiles = {
-  wasm: "artifacts/circuits/game.wasm",
-  zkey: "artifacts/circuits/circuit_final_game.zkey",
+const questionZKFiles = {
+  wasm: "artifacts/circuits/question.wasm",
+  zkey: "artifacts/circuits/circuit_final_question.zkey",
+};
+
+const guessZKFiles = {
+  wasm: "artifacts/circuits/guess.wasm",
+  zkey: "artifacts/circuits/circuit_final_guess.zkey",
 };
 
 describe("Game Contract", function () {
   let game: Game;
 
   beforeEach(async function () {
-    const VerifierGame = await ethers.getContractFactory("VerifierGame");
-    const verifierGame = await VerifierGame.deploy();
-    await verifierGame.deployed();
 
     const VerifierBoard = await ethers.getContractFactory("VerifierBoard");
     const verifierBoard = await VerifierBoard.deploy();
     await verifierBoard.deployed();
+
+    const VerifierQuestion = await ethers.getContractFactory(
+      "VerifierQuestion"
+    );
+    const verifierQuestion = await VerifierQuestion.deploy();
+    await verifierQuestion.deployed();
+
+    const VerifierGuess = await ethers.getContractFactory("VerifierGuess");
+    const verifierGuess = await VerifierGuess.deploy();
+    await verifierGuess.deployed();
 
     const gameFactory = (await ethers.getContractFactory(
       "Game"
       // eslint-disable-next-line camelcase
     )) as Game__factory;
     game = await gameFactory.deploy(
-      verifierGame.address,
-      verifierBoard.address
+      verifierBoard.address,
+      verifierQuestion.address,
+      verifierGuess.address
     );
     await game.deployed();
 
@@ -43,7 +56,8 @@ describe("Game Contract", function () {
     guessGame = createGuessGame(
       game,
       boardZKFiles,
-      gameZKFiles,
+      questionZKFiles,
+      guessZKFiles,
       character,
       salt
     );
@@ -55,7 +69,8 @@ describe("Game Contract", function () {
     guessGame = createGuessGame(
       game,
       boardZKFiles,
-      gameZKFiles,
+      questionZKFiles,
+      guessZKFiles,
       character,
       salt
     );

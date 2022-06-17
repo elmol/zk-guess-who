@@ -7,11 +7,13 @@ export interface ZKFiles {
 
 export class GameZK {
   private zkBoard: ZKUtils;
-  private zkGame: ZKUtils;
+  private zkQuestion: ZKUtils;
+  private zkGuess: ZKUtils;
 
-  constructor(board: ZKFiles, game: ZKFiles) {
+  constructor(board: ZKFiles, question: ZKFiles, guess: ZKFiles) {
     this.zkBoard = new ZKUtils(board.wasm, board.zkey);
-    this.zkGame = new ZKUtils(game.wasm, game.zkey);
+    this.zkQuestion = new ZKUtils(question.wasm, question.zkey);
+    this.zkGuess = new ZKUtils(guess.wasm, guess.zkey);
   }
 
   // PROOFS GENERATIONS
@@ -38,30 +40,25 @@ export class GameZK {
       salt: salt,
       ask: [type, characteristic, response],
 
-      guess: [0, 0, 0, 0],
-      win: 0,
       solHash: hash, // public hash
     };
-    const question = await this.generateGameProof(input);
-    return question;
+    return await this.generateQuestionProof(input);
   }
 
   async guessProof(character: any, salt: any, guess: any, win: any, hash: any) {
     const input = {
       solutions: character,
       salt: salt,
-      ask: [0, character[0], 1],
-
       guess: guess,
       win: win,
       solHash: hash, // public hash
     };
-    return await this.generateGameProof(input);
+    return await this.generateGuessProof(input);
   }
 
   // VERIFICATIONS
   async verifyGuess(question: any, verifier: any) {
-    const guessResponse = question.input[8]; // response
+    const guessResponse = question.input[5]; // response
     const isCorrect = await verifier.verifyProof(
       question.piA,
       question.piB,
@@ -72,7 +69,7 @@ export class GameZK {
   }
 
   async verifyQuestion(question: any, verifier: any) {
-    const questionReponse = question.input[7]; // response
+    const questionReponse = question.input[3]; // response
     const isCorrect = (await verifier.verifyProof(
       question.piA,
       question.piB,
@@ -82,8 +79,12 @@ export class GameZK {
     return { isCorrect, questionReponse };
   }
 
-  async generateGameProof(input: any) {
-    return await this.zkGame.generateProof(input);
+  async generateQuestionProof(input: any) {
+    return await this.zkQuestion.generateProof(input);
+  }
+
+  async generateGuessProof(input: any) {
+    return await this.zkGuess.generateProof(input);
   }
 
   async generateBoardProof(input: any) {
