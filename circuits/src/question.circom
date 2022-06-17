@@ -79,27 +79,25 @@ template Question() {
     hash <== poseidon.out;
     solHash === hash;
 
-    component lessThan[12];
-    component equals[12];
-    component equalsBoard[96];
+    component lessThan[3];
 
     //assert ask inputs characteristic
-    lessThan[8] = LessThan(4);
-    lessThan[8].in[0] <== ask[0];
-    lessThan[8].in[1] <== 5; 
-    lessThan[8].out === 1;
+    lessThan[0] = LessThan(4);
+    lessThan[0].in[0] <== ask[0];
+    lessThan[0].in[1] <== 5; 
+    lessThan[0].out === 1;
 
     //assert ask inputs characteristic to ask
-    lessThan[9] = LessThan(4);
-    lessThan[9].in[0] <== ask[1];
-    lessThan[9].in[1] <== max_chars;
-    lessThan[9].out === 1;
+    lessThan[1] = LessThan(4);
+    lessThan[1].in[0] <== ask[1];
+    lessThan[1].in[1] <== max_chars;
+    lessThan[1].out === 1;
 
     //assert ask inputs characteristic to ask
-    lessThan[10] = LessThan(4);
-    lessThan[10].in[0] <== ask[2];
-    lessThan[10].in[1] <== 2; //boolean
-    lessThan[10].out === 1;
+    lessThan[2] = LessThan(4);
+    lessThan[2].in[0] <== ask[2];
+    lessThan[2].in[1] <== 2; //boolean
+    lessThan[2].out === 1;
 
     //verify question
     component quinSelector = QuinSelector(4);
@@ -109,10 +107,10 @@ template Question() {
     quinSelector.index <== ask[0];
     signal d <== quinSelector.out;
 
-    equals[4] = IsEqual();
-    equals[4].in[0] <== d; //position
-    equals[4].in[1] <== ask[1]; //characteristic
-    equals[4].out === ask[2]; //response
+    component equals = IsEqual();
+    equals.in[0] <== d; //position
+    equals.in[1] <== ask[1]; //characteristic
+    equals.out === ask[2]; //response
    
 }
 

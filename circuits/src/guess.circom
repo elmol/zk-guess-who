@@ -2,61 +2,7 @@ pragma circom 2.0.0;
 include "../node_modules/circomlib/circuits/comparators.circom"; // relative path form artifact/circuits
 include "../node_modules/circomlib/circuits/poseidon.circom";  // relative path form artifact/circuits
 
-// Selection FROM
-// https://github.com/privacy-scaling-explorations/maci/blob/v1/circuits/circom/trees/incrementalQuinTree.circom#L29
-
-
-// This circuit returns the sum of the inputs.
-// n must be greater than 0.
-template CalculateTotal(n) {
-    signal input nums[n];
-    signal output sum;
-
-    signal sums[n];
-    sums[0] <== nums[0];
-
-    for (var i=1; i < n; i++) {
-        sums[i] <== sums[i - 1] + nums[i];
-    }
-
-    sum <== sums[n - 1];
-}
-
-/*
- * Given a list of items and an index, output the item at the position denoted
- * by the index. The number of items must be less than 8, and the index must
- * be less than the number of items.
- */
-template QuinSelector(choices) {
-    signal input in[choices];
-    signal input index;
-    signal output out;
-    
-    // Ensure that index < choices
-    component lessThan = LessThan(3);
-    lessThan.in[0] <== index;
-    lessThan.in[1] <== choices;
-    lessThan.out === 1;
-
-    component calcTotal = CalculateTotal(choices);
-    component eqs[choices];
-
-    // For each item, check whether its index equals the input index.
-    for (var i = 0; i < choices; i ++) {
-        eqs[i] = IsEqual();
-        eqs[i].in[0] <== i;
-        eqs[i].in[1] <== index;
-
-        // eqs[i].out is 1 if the index matches. As such, at most one input to
-        // calcTotal is not 0.
-        calcTotal.nums[i] <== eqs[i].out * in[i];
-    }
-
-    // Returns 0 + 0 + ... + item
-    out <== calcTotal.sum;
-}
-
-template Game() {
+template Guess() {
     // Public inputs guess
     signal input guess[4];
     signal input win; //1 win 0 lose
@@ -82,11 +28,10 @@ template Game() {
     solHash === hash;
 
    
-    component lessThan[12];
-    component equals[12];
-    component equalsBoard[96];
+    component lessThan[4];
+    component equals[4];
 
-    //assert max characteristic (6)
+    //assert max characteristic
     for (var i=0; i<4; i++) {
         lessThan[i] = LessThan(4);
         lessThan[i].in[0] <== guess[i];
@@ -105,4 +50,4 @@ template Game() {
     win === first * second;
 }
 
-component main {public [guess, win, solHash ]} =  Game();
+component main {public [guess, win, solHash ]} =  Guess();
