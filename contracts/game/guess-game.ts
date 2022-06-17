@@ -7,7 +7,7 @@ export class GuessGame {
     private game: Contract,
     private gameZK: GameZK,
     private character: number[],
-    private salt: number
+    private salt: bigint = randomGenerator()
   ) {}
 
   async start(): Promise<String> {
@@ -111,12 +111,22 @@ export function createGuessGame(
   questionZKFiles: ZKFiles,
   guessZKFiles: ZKFiles,
   character: number[],
-  salt: number
+  salt: bigint | undefined = undefined
 ) {
   const gameZK: GameZK = new GameZK(
     boardZKFiles,
     questionZKFiles,
     guessZKFiles
   );
-  return new GuessGame(game, gameZK, character, salt);
+
+  if (salt) {
+    return new GuessGame(game, gameZK, character, salt);
+  }
+
+  return new GuessGame(game, gameZK, character);
 }
+
+const randomGenerator = function randomBigInt(): bigint {
+  // eslint-disable-next-line node/no-unsupported-features/es-builtins
+  return BigInt(Math.floor(Math.random() * 10 ** 8));
+};

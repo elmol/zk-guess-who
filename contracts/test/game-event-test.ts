@@ -50,14 +50,12 @@ describe("Game Event", function () {
     );
     await game.deployed();
     const character = VALID_CHARACTER;
-    const salt = 231;
     guessGame = createGuessGame(
       game,
       boardZKFiles,
       questionZKFiles,
       guessZKFiles,
-      character,
-      salt
+      character
     );
   });
 

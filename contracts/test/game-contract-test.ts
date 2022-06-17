@@ -1,3 +1,4 @@
+/* eslint-disable node/no-unsupported-features/es-builtins */
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Game, Game__factory } from "../typechain";
@@ -24,7 +25,6 @@ describe("Game Contract", function () {
   let game: Game;
 
   beforeEach(async function () {
-
     const VerifierBoard = await ethers.getContractFactory("VerifierBoard");
     const verifierBoard = await VerifierBoard.deploy();
     await verifierBoard.deployed();
@@ -51,7 +51,7 @@ describe("Game Contract", function () {
     await game.deployed();
 
     const character = VALID_CHARACTER;
-    const salt = 231;
+    const salt = BigInt(231);
 
     guessGame = createGuessGame(
       game,
@@ -65,14 +65,12 @@ describe("Game Contract", function () {
 
   it("should allow to create a new game selecting a character", async function () {
     const character = VALID_CHARACTER;
-    const salt = 231;
     guessGame = createGuessGame(
       game,
       boardZKFiles,
       questionZKFiles,
       guessZKFiles,
-      character,
-      salt
+      character
     );
     const hash = await guessGame.start();
     expect(await game.hash()).to.equal(hash);
@@ -237,5 +235,25 @@ describe("Game Contract", function () {
     await guessGame.guess([1, 2, 1, 0]);
 
     expect(await game.won()).to.equal(0);
+  });
+
+  it("should allow to configure salt generator as random", async () => {
+    const character = VALID_CHARACTER;
+
+    const randomGameSalt = createGuessGame(
+      game,
+      boardZKFiles,
+      questionZKFiles,
+      guessZKFiles,
+      character
+    );
+
+    // initialize the game
+    await randomGameSalt.start();
+
+    // answer the question
+    await randomGameSalt.guessAnswer();
+
+    expect(await game.won()).to.equal(1);
   });
 });

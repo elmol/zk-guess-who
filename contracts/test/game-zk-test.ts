@@ -49,7 +49,8 @@ describe("Game ZK", function () {
     // and the hash after the proof generation will be sent to the other guesser player.
 
     const character = VALID_CHARACTER;
-    const salt = 231;
+    // eslint-disable-next-line node/no-unsupported-features/es-builtins
+    const salt = BigInt(231);
     const selection = await gameZK.selectionProof(character, salt);
 
     // asserts
@@ -85,7 +86,8 @@ describe("Game ZK", function () {
 
     // create a selection proof
     const character = VALID_CHARACTER;
-    const salt = 231;
+    // eslint-disable-next-line node/no-unsupported-features/es-builtins
+    const salt = BigInt(231);
     const selection = await gameZK.selectionProof(character, salt);
 
     // create a question proof

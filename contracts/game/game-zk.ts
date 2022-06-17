@@ -29,7 +29,7 @@ export class GameZK {
 
   async questionProof(
     character: number[],
-    salt: number,
+    salt: bigint,
     type: number,
     characteristic: number,
     response: number,
