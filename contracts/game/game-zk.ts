@@ -21,9 +21,7 @@ export class GameZK {
     const input = {
       solutions: character,
       salt: salt,
-      solHash: "", // public
     };
-    input.solHash = await createHash(input);
     return await this.generateBoardProof(input);
   }
 

@@ -58,9 +58,6 @@ describe("Game ZK", function () {
     // output
     expect(selection.input[0]).to.equal(hash); // hash
 
-    // public inputs
-    expect(selection.input[1]).to.equal(hash); // hash
-
     // eslint-disable-next-line no-unused-expressions
     expect(
       await verifierBoard.verifyProof(

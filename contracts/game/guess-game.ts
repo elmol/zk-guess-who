@@ -11,11 +11,14 @@ export class GuessGame {
   ) {}
 
   async start(): Promise<String> {
+    // generating proof character selection
     const selection = await this.gameZK.selectionProof(
       this.character,
       this.salt
     );
     const hash = selection.input[0];
+
+    // sending proof to contract
     const tx = await this.game.start(
       hash,
       selection.piA,
@@ -23,6 +26,7 @@ export class GuessGame {
       selection.piC
     );
     await tx.wait();
+
     return hash;
   }
 

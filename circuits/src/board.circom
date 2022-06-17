@@ -57,9 +57,6 @@ template QuinSelector(choices) {
 }
 
 template Board() {
-    // Public inputs guess
-    signal input solHash;
-
     // Private inputs solutions
     signal input solutions[4];
     signal input salt;
@@ -118,7 +115,6 @@ template Board() {
         poseidon.inputs[i+1] <== solutions[i];
     }
     hash <== poseidon.out;
-    solHash === hash;
 }
 
-component main {public [ solHash ]} =  Board();
+component main =  Board();

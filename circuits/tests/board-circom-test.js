@@ -33,7 +33,6 @@ describe("Board Circuits", function () {
     const input = {
       solutions: [0, 1, 2, MAX_CHARACTERISTICS],
       salt: 231,
-      solHash: HASH,
     };
     await assertionFailInProofGeneration(input);
   });
@@ -47,7 +46,6 @@ describe("Board Circuits", function () {
     const input = {
       solutions: [3, 2, 1, 1], // not in the board
       salt: 231,
-      solHash: HASH,
     };
     await assertionFailInProofGeneration(input);
   });
@@ -59,8 +57,7 @@ describe("Board Circuits", function () {
     };
 
     const solnHash = createHash(input);
-    input.solHash = solnHash;
-    await assertVerifyProof(input, input.solHash);
+    await assertVerifyProof(input, solnHash);
   });
 });
 
