@@ -14,11 +14,16 @@ const VALID_CHARACTER = [3, 2, 1, 0];
 
 describe("Game ZK", function () {
   let verifier: any;
+  let verifierBoard: any;
 
   beforeEach(async function () {
     const Verifier = await ethers.getContractFactory("VerifierGame");
     verifier = await Verifier.deploy();
     await verifier.deployed();
+
+    const VerifierBoard = await ethers.getContractFactory("VerifierBoard");
+    verifierBoard = await VerifierBoard.deploy();
+    await verifierBoard.deployed();
   });
 
   it("should be able to generate character selection proof", async function () {
@@ -35,19 +40,11 @@ describe("Game ZK", function () {
     expect(selection.input[0]).to.equal(hash); // hash
 
     // public inputs
-    expect(selection.input[1]).to.equal("0"); // guess[0]
-    expect(selection.input[2]).to.equal("0"); // guess[1]
-    expect(selection.input[3]).to.equal("0"); // guess[2]
-    expect(selection.input[4]).to.equal("0"); // guess[3]
-    expect(selection.input[5]).to.equal("0"); // ask[0]
-    expect(selection.input[6]).to.equal("0"); // ask[1]
-    expect(selection.input[7]).to.equal("0"); // ask[2]
-    expect(selection.input[8]).to.equal("0"); // win
-    expect(selection.input[9]).to.equal(hash); // hash
+    expect(selection.input[1]).to.equal(hash); // hash
 
     // eslint-disable-next-line no-unused-expressions
     expect(
-      await verifier.verifyProof(
+      await verifierBoard.verifyProof(
         selection.piA,
         selection.piB,
         selection.piC,

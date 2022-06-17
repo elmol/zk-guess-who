@@ -14,11 +14,16 @@ describe("Game Event", function () {
     const verifier = await Verifier.deploy();
     await verifier.deployed();
 
+    const VerifierBoard = await ethers.getContractFactory("VerifierBoard");
+    const verifierBoard = await VerifierBoard.deploy();
+    await verifierBoard.deployed();
+
+
     const gameFactory = (await ethers.getContractFactory(
       "Game"
       // eslint-disable-next-line camelcase
     )) as Game__factory;
-    game = await gameFactory.deploy(verifier.address);
+    game = await gameFactory.deploy(verifier.address, verifierBoard.address);
     await game.deployed();
     const character = VALID_CHARACTER;
     const salt = 231;

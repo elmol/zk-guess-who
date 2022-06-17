@@ -10,18 +10,24 @@ describe("Game Contract", function () {
   let game: Game;
 
   beforeEach(async function () {
-    const Verifier = await ethers.getContractFactory("VerifierGame");
-    const verifier = await Verifier.deploy();
-    await verifier.deployed();
+    const VerifierGame = await ethers.getContractFactory("VerifierGame");
+    const verifierGame = await VerifierGame.deploy();
+    await verifierGame.deployed();
+
+    const VerifierBoard = await ethers.getContractFactory("VerifierBoard");
+    const verifierBoard = await VerifierBoard.deploy();
+    await verifierBoard.deployed();
 
     const gameFactory = (await ethers.getContractFactory(
       "Game"
       // eslint-disable-next-line camelcase
     )) as Game__factory;
-    game = await gameFactory.deploy(verifier.address);
+    game = await gameFactory.deploy(verifierGame.address, verifierBoard.address);
     await game.deployed();
+
     const character = VALID_CHARACTER;
     const salt = 231;
+
     guessGame = createGuessGame(game, character, salt);
   });
 

@@ -12,15 +12,19 @@ async function main() {
   console.log("Deploying contracts with the account:", deployer.address);
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const Verifier = await ethers.getContractFactory("VerifierGame");
-  const verifier = await Verifier.deploy();
-  await verifier.deployed();
+  const GameVerifier = await ethers.getContractFactory("VerifierGame");
+  const gameVerifier = await GameVerifier.deploy();
+  await gameVerifier.deployed();
+
+  const BoardVerifier = await ethers.getContractFactory("VerifierBoard");
+  const boardVerifier = await BoardVerifier.deploy();
+  await boardVerifier.deployed();
 
   const gameFactory = (await ethers.getContractFactory(
     "Game"
     // eslint-disable-next-line camelcase
   )) as Game__factory;
-  const game = await gameFactory.deploy(verifier.address);
+  const game = await gameFactory.deploy(boardVerifier.address);
   await game.deployed();
   console.log("Game deployed to:", game.address);
 }

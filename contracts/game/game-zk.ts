@@ -1,4 +1,4 @@
-import { createHash, generateProof } from "./zk-utils";
+import { createHash, generateBoardProof, generateGameProof } from "./zk-utils";
 
 // PROOFS GENERATIONS
 
@@ -6,16 +6,10 @@ export async function selectionProof(character: any, salt: any) {
   const input = {
     solutions: character,
     salt: salt,
-
-    // not needed for the character selection
-    guess: [0, 0, 0, 0],
-    ask: [0, 0, 0],
-    win: 0,
     solHash: "", // public
   };
   input.solHash = await createHash(input);
-  const selection = await generateProof(input);
-  return selection;
+  return await generateBoardProof(input);
 }
 
 export async function questionProof(
@@ -35,7 +29,7 @@ export async function questionProof(
     win: 0,
     solHash: hash, // public hash
   };
-  const question = await generateProof(input);
+  const question = await generateGameProof(input);
   return question;
 }
 
@@ -55,7 +49,7 @@ export async function guessProof(
     win: win,
     solHash: hash, // public hash
   };
-  return await generateProof(input);
+  return await generateGameProof(input);
 }
 
 // VERIFICATIONS

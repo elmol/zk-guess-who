@@ -17,11 +17,27 @@ export async function createHash(input: any) {
   return solnHash;
 }
 
-export async function generateProof(input: any) {
+export async function generateGameProof(input: any) {
+  const wasmFile = "artifacts/circuits/game.wasm";
+  const zkeyFile = "artifacts/circuits/circuit_final_game.zkey";
+  return await generateProofFrom(input, wasmFile, zkeyFile);
+}
+
+export async function generateBoardProof(input: any) {
+  const wasmFile = "artifacts/circuits/board.wasm";
+  const zkeyFile = "artifacts/circuits/circuit_final_board.zkey";
+  return await generateProofFrom(input, wasmFile, zkeyFile);
+}
+
+async function generateProofFrom(
+  input: any,
+  wasmFile: string,
+  zkeyFile: string
+) {
   const { proof, publicSignals } = await groth16.fullProve(
     input,
-    "artifacts/circuits/game.wasm",
-    "artifacts/circuits/circuit_final_game.zkey"
+    wasmFile,
+    zkeyFile
   );
   const { a, b, c, Input } = await generateCallData(publicSignals, proof);
   const selection = { piA: a, piB: b, piC: c, input: Input };

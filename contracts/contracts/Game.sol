@@ -2,7 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
-import "./VerifierGame.sol";
+import "./IVerifierGame.sol";
+import "./IVerifierBoard.sol";
+
 
 contract Game {
     event QuestionAsked(uint8 _type, uint8 _characteristic);
@@ -19,10 +21,12 @@ contract Game {
 
     uint256 public hash;
     
-    VerifierGame private verifier;
+    IVerifierGame private verifier;
+    IVerifierBoard private verifierBoard;
 
-    constructor(address _verifier) {
-        verifier = VerifierGame(_verifier);
+    constructor(address _verifier, address _verifierBoard) {
+        verifier = IVerifierGame(_verifier);
+        verifierBoard = IVerifierBoard(_verifierBoard);
     }
 
 
@@ -32,19 +36,11 @@ contract Game {
         uint256[2][2] memory b,
         uint256[2] memory c
     ) external {
-        uint[10] memory inputs = [
+        uint[2] memory inputs = [
             _hash, //hash
-            0,     //guess
-            0,     //guess 
-            0,     //guess
-            0,     //guess
-            0,     //ask type
-            0,     //ask characteristic 
-            0,     //ask response
-            0,     //win
             _hash  //hash
         ];
-        require(verifier.verifyProof(a, b, c, inputs), "Invalid character selection!");
+        require(verifierBoard.verifyProof(a, b, c, inputs), "Invalid character selection!");
         hash = _hash;
     }
 
