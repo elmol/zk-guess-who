@@ -239,6 +239,9 @@ describe("Game Contract", function () {
     // answer the question
     await guessGame.guessAnswer();
 
+    // initialize the game
+    await guessGame.start();
+
     // guesser player first ask
     await guessGame.guess([1, 2, 1, 0]);
 
@@ -283,7 +286,7 @@ describe("Game Contract", function () {
   });
 
   it("should not allow to guess if is not started", async () => {
-    await expect(guessGame.guess([1, 2, 3, 4])).to.be.revertedWith(
+    await expect(guessGame.guess([1, 2, 3, 0])).to.be.revertedWith(
       "Game not started"
     );
   });
@@ -330,9 +333,19 @@ describe("Game Contract", function () {
     // initialize the game
     await guessGame.start();
 
-    await guessGame.guess([1, 2, 3, 4]);
+    await guessGame.guess([1, 2, 3, 0]);
     await expect(guessGame.guess([1, 2, 3, 4])).to.be.revertedWith(
       "Guess is pending of answer"
     );
+  });
+
+  it("it should finish the game after guess response", async () => {
+    // initialize the game
+    await guessGame.start();
+
+    await guessGame.guess([1, 2, 3, 0]);
+    await guessGame.guessAnswer();
+
+    expect(await game.isStarted()).to.be.equal(false);
   });
 });

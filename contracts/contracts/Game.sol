@@ -16,7 +16,7 @@ contract Game {
     uint8 public lastType;
     uint8 public lastCharacteristic;
     uint8 public lastResponse; //last response 0:not answered, 1:wrong, 2:correct 3:never response
-    uint256[4] public lastGuess; 
+    uint256[4] public lastGuess;
     uint8 public won; //last guess 0:not answered, 1:wrong, 2:correct 3:never guess
 
     uint256 public hash;
@@ -37,12 +37,12 @@ contract Game {
     }
 
     modifier gameCreated() {
-        require(hash!=0,"Game not started");
+        require(hash != 0, "Game not started");
         _;
     }
 
     modifier onlyCreator() {
-        require(msg.sender==creator,"Only creator can call this function");
+        require(msg.sender == creator, "Only creator can call this function");
         _;
     }
 
@@ -60,8 +60,8 @@ contract Game {
         );
         hash = _hash;
         creator = msg.sender;
-        lastResponse=3;
-        won=3;
+        lastResponse = 3;
+        won = 3;
     }
 
     function ask(uint8 _type, uint8 _characteristic) external gameCreated {
@@ -99,7 +99,7 @@ contract Game {
         emit Guess(lastGuess);
     }
 
-    function isWon (
+    function isWon(
         uint8 _won,
         uint256[2] memory a,
         uint256[2][2] memory b,
@@ -118,10 +118,17 @@ contract Game {
             "Invalid guess response!"
         );
         won = _won + 1; //0: pending //1: false, 2: true
+        end();
         emit GuessResponse(won);
     }
 
     function isStarted() external view returns (bool) {
         return hash != 0;
+    }
+
+    function end() private {
+        require(hash != 0, "Game not started");
+        hash = 0;
+        creator = address(0);
     }
 }
