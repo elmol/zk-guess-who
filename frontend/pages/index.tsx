@@ -15,7 +15,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import NumberFormSelect from "../components/NumberFormSelect";
 import CharacterSelector from "../components/CharacterSelector";
 import WalletConnector from "../components/WalletConnector";
-import Loading from "../components/Loading";
 
 type Question = {
   position: number;
