@@ -36,6 +36,10 @@ export class GuessGame {
   }
 
   async answer() {
+    if (!(await this.game.isStarted())) {
+      throw new Error("Game not started");
+    }
+
     const type = await this.game.lastType();
     const characteristic = await this.game.lastCharacteristic();
     const hash = await this.game.hash();
@@ -67,6 +71,10 @@ export class GuessGame {
   }
 
   async guessAnswer() {
+    if (!(await this.game.isStarted())) {
+      throw new Error("Game not started");
+    }
+
     const hash = await this.game.hash();
     const guess = [
       (await this.game.lastGuess(0)).toNumber(),

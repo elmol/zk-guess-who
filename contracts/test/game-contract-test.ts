@@ -3,6 +3,10 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Game, Game__factory } from "../typechain";
 import { createGuessGame, GuessGame } from "../game/guess-game";
+import * as chai from "chai";
+import chaiAsPromised from "chai-as-promised";
+
+chai.use(chaiAsPromised);
 
 const VALID_CHARACTER = [3, 2, 1, 0];
 let guessGame: GuessGame;
@@ -255,5 +259,34 @@ describe("Game Contract", function () {
     await randomGameSalt.guessAnswer();
 
     expect(await game.won()).to.equal(1);
+  });
+
+  it("should not allow to create a game if is already created", async () => {
+    // initialize the game
+    await guessGame.start();
+
+    await expect(guessGame.start()).to.be.revertedWith("Game already created");
+  });
+
+  it("should not allow to ask a question if is not started", async () => {
+    await expect(guessGame.question(1, 3)).to.be.revertedWith(
+      "Game not started"
+    );
+  });
+
+  it("should not allow to answer a question if is not started", async () => {
+    await expect(guessGame.answer()).to.be.rejectedWith("Game not started");
+  });
+
+  it("should not allow to guess if is not started", async () => {
+    await expect(guessGame.guess([1, 2, 3, 4])).to.be.revertedWith(
+      "Game not started"
+    );
+  });
+
+  it("should not allow to answer a guess if is not started", async () => {
+    await expect(guessGame.guessAnswer()).to.be.rejectedWith(
+      "Game not started"
+    );
   });
 });

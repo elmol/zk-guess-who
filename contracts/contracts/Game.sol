@@ -35,12 +35,18 @@ contract Game {
         verifierGuess = IVerifierGuess(_verifierGuess);
     }
 
+    modifier gameCreated() {
+        require(hash!=0,"Game not started");
+        _;
+    }
+
     function start(
         uint256 _hash, //al inputs
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c
     ) external {
+        require(hash == 0, "Game already created");
         uint256[1] memory inputs = [_hash];
         require(
             verifierBoard.verifyProof(a, b, c, inputs),
@@ -49,7 +55,7 @@ contract Game {
         hash = _hash;
     }
 
-    function ask(uint8 _type, uint8 _characteristic) external {
+    function ask(uint8 _type, uint8 _characteristic) external gameCreated {
         lastType = _type;
         lastCharacteristic = _characteristic;
         lastResponse = 0; // set last response to 0, not answered
@@ -61,7 +67,7 @@ contract Game {
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c
-    ) external {
+    ) external gameCreated {
         uint256[4] memory inputs = [
             _answer, //hash
             lastType, //ask type
@@ -76,18 +82,18 @@ contract Game {
         emit QuestionAnswered(lastResponse);
     }
 
-    function guess(uint8[4] memory _guess) external {
+    function guess(uint8[4] memory _guess) external gameCreated {
         lastGuess = _guess;
         won = 0;
         emit Guess(lastGuess);
     }
 
-    function isWon(
+    function isWon (
         uint8 _won,
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c
-    ) external {
+    ) external gameCreated {
         uint256[6] memory inputs = [
             _won, //hash
             lastGuess[0], //guess
@@ -102,5 +108,9 @@ contract Game {
         );
         won = _won + 1; //0: pending //1: false, 2: true
         emit GuessResponse(won);
+    }
+
+    function isStarted() external view returns (bool) {
+        return hash != 0;
     }
 }
