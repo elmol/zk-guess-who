@@ -15,11 +15,12 @@ contract Game {
 
     uint8 public lastType;
     uint8 public lastCharacteristic;
-    uint8 public lastResponse; //last response 0:not answered, 1:wrong, 2:correct
-    uint256[4] public lastGuess; //last guess 0:not answered, 1:wrong, 2:correct
-    uint8 public won;
+    uint8 public lastResponse; //last response 0:not answered, 1:wrong, 2:correct 3:never response
+    uint256[4] public lastGuess; 
+    uint8 public won; //last guess 0:not answered, 1:wrong, 2:correct 3:never guess
 
     uint256 public hash;
+    address public creator;
 
     IVerifierBoard private verifierBoard;
     IVerifierQuestion private verifierQuestion;
@@ -40,6 +41,11 @@ contract Game {
         _;
     }
 
+    modifier onlyCreator() {
+        require(msg.sender==creator,"Only creator can call this function");
+        _;
+    }
+
     function start(
         uint256 _hash, //al inputs
         uint256[2] memory a,
@@ -53,9 +59,13 @@ contract Game {
             "Invalid character selection!"
         );
         hash = _hash;
+        creator = msg.sender;
+        lastResponse=3;
+        won=3;
     }
 
     function ask(uint8 _type, uint8 _characteristic) external gameCreated {
+        require(lastResponse != 0, "Question is pending of answer");
         lastType = _type;
         lastCharacteristic = _characteristic;
         lastResponse = 0; // set last response to 0, not answered
@@ -67,7 +77,7 @@ contract Game {
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c
-    ) external gameCreated {
+    ) external gameCreated onlyCreator {
         uint256[4] memory inputs = [
             _answer, //hash
             lastType, //ask type
@@ -83,6 +93,7 @@ contract Game {
     }
 
     function guess(uint8[4] memory _guess) external gameCreated {
+        require(won != 0, "Guess is pending of answer");
         lastGuess = _guess;
         won = 0;
         emit Guess(lastGuess);
@@ -93,7 +104,7 @@ contract Game {
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c
-    ) external gameCreated {
+    ) external gameCreated onlyCreator {
         uint256[6] memory inputs = [
             _won, //hash
             lastGuess[0], //guess

@@ -1,4 +1,4 @@
-import { Contract } from "ethers";
+import { Contract, ethers } from "ethers";
 import { GameZK, ZKFiles } from "./game-zk";
 
 export class GuessGame {
@@ -113,6 +113,10 @@ export class GuessGame {
 
   onGuessResponse(callback: (answer: number) => void) {
     this.game.on("GuessResponse", callback);
+  }
+
+  connect(signer: any) {
+    this.game = this.game.connect(signer);
   }
 }
 

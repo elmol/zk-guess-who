@@ -27,6 +27,8 @@ const guessZKFiles = {
 
 describe("Game Contract", function () {
   let game: Game;
+  let creator: any;
+  let guesser: any;
 
   beforeEach(async function () {
     const VerifierBoard = await ethers.getContractFactory("VerifierBoard");
@@ -65,6 +67,8 @@ describe("Game Contract", function () {
       character,
       salt
     );
+
+    [creator, guesser] = await ethers.getSigners();
   });
 
   it("should allow to create a new game selecting a character", async function () {
@@ -130,8 +134,8 @@ describe("Game Contract", function () {
     // initialize the game
     await guessGame.start();
 
-    // when the game is initialized, the last answer should be 0
-    expect(await game.lastResponse()).to.equal(0);
+    // when the game is initialized, the last answer should be 3
+    expect(await game.lastResponse()).to.equal(3);
 
     // guesser player first ask
     await guessGame.question(1, 3);
@@ -146,8 +150,8 @@ describe("Game Contract", function () {
     // initialize the game
     await guessGame.start();
 
-    // when the game is initialized, the last answer should be 0
-    expect(await game.lastResponse()).to.equal(0);
+    // when the game is initialized, the last answer should be 3
+    expect(await game.lastResponse()).to.equal(3);
 
     // guesser player first ask
     await guessGame.question(0, 3);
@@ -162,8 +166,8 @@ describe("Game Contract", function () {
     // initialize the game
     await guessGame.start();
 
-    // when the game is initialized, the last answer should be 0
-    expect(await game.lastResponse()).to.equal(0);
+    // when the game is initialized, the last answer should be 3
+    expect(await game.lastResponse()).to.equal(3);
 
     // guesser player first ask
     await guessGame.question(0, 3);
@@ -195,7 +199,7 @@ describe("Game Contract", function () {
     // await guessGame.answer();
 
     // when the game is initialized, the last answer should be 0
-    expect(await game.won()).to.equal(0);
+    expect(await game.won()).to.equal(3);
 
     // guesser player first ask
     await guessGame.guess([0, 1, 2, 3]);
@@ -210,8 +214,8 @@ describe("Game Contract", function () {
     // initialize the game
     await guessGame.start();
 
-    // when the game is initialized, the last answer should be 0
-    expect(await game.won()).to.equal(0);
+    // when the game is initialized, the last answer should be 3
+    expect(await game.won()).to.equal(3);
 
     // guesser player first ask
     await guessGame.guess([3, 2, 1, 0]);
@@ -226,8 +230,8 @@ describe("Game Contract", function () {
     // initialize the game
     await guessGame.start();
 
-    // when the game is initialized, the last answer should be 0
-    expect(await game.won()).to.equal(0);
+    // when the game is initialized, the last answer should be 3
+    expect(await game.won()).to.equal(3);
 
     // guesser player first ask
     await guessGame.guess([3, 2, 1, 0]);
@@ -287,6 +291,48 @@ describe("Game Contract", function () {
   it("should not allow to answer a guess if is not started", async () => {
     await expect(guessGame.guessAnswer()).to.be.rejectedWith(
       "Game not started"
+    );
+  });
+
+  it("should only the creator can respond to a guess", async () => {
+    // initialize the game
+    await guessGame.start();
+
+    // connect with guesser
+    guessGame.connect(guesser);
+    await expect(guessGame.guessAnswer()).to.be.rejectedWith(
+      "Only creator can call this function"
+    );
+  });
+
+  it("should only the creator can respond to a question", async () => {
+    // initialize the game
+    await guessGame.start();
+
+    // connect with guesser
+    guessGame.connect(guesser);
+    await expect(guessGame.answer()).to.be.rejectedWith(
+      "Only creator can call this function"
+    );
+  });
+
+  it("should not ask a question if is pending of answer", async () => {
+    // initialize the game
+    await guessGame.start();
+
+    await guessGame.question(1, 3);
+    await expect(guessGame.question(2, 1)).to.be.revertedWith(
+      "Question is pending of answer"
+    );
+  });
+
+  it("should not guess if is pending of guess answer", async () => {
+    // initialize the game
+    await guessGame.start();
+
+    await guessGame.guess([1, 2, 3, 4]);
+    await expect(guessGame.guess([1, 2, 3, 4])).to.be.revertedWith(
+      "Guess is pending of answer"
     );
   });
 });
