@@ -53,7 +53,6 @@ export class GameConnection {
     handleOnGuess: (guess: number[]) => void,
     handleOnGuessResponse: (response: number) => void
   ) {
-  
     if (!this.isRegistered) {
       console.log("Registering handlers...");
       await this.register(handleOnQuestionAsked, handleOnQuestionAnswered, handleOnGuess, handleOnGuessResponse);
@@ -68,7 +67,6 @@ export class GameConnection {
     handleOnGuess: (guess: number[]) => void,
     handleOnGuessResponse: (response: number) => void
   ) {
-
     const game = await this.getGame();
 
     game.onQuestionAsked(async (position: number, number: number) => {
@@ -119,6 +117,7 @@ export class GameConnection {
       console.log("Game hash:", await this.gameContract?.hash());
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 
@@ -132,6 +131,7 @@ export class GameConnection {
       console.log("Question done. type:", lastQuestion.type, "characteristic:", lastQuestion.characteristic);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 
@@ -150,6 +150,7 @@ export class GameConnection {
       console.log("Question answer for ", lastQuestion.type, "characteristic:", lastQuestion.characteristic, "is:", await this.gameContract?.lastResponse());
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 
@@ -179,6 +180,7 @@ export class GameConnection {
       console.log("Last Guess:", await this.gameContract?.lastGuess(0), await this.gameContract?.lastGuess(1), await this.gameContract?.lastGuess(2), await this.gameContract?.lastGuess(3));
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 
@@ -197,6 +199,7 @@ export class GameConnection {
       );
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 

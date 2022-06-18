@@ -6,7 +6,7 @@ import { FormEvent, useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
 import Game from "../public/Game.json";
 import { GameConnection } from "../game/game-connection";
-import { AppBar, Avatar, Backdrop, Box, Button, CircularProgress, Container, createTheme, CssBaseline, Grid, Paper, TextField, ThemeProvider, Toolbar } from "@mui/material";
+import { Alert, AppBar, Avatar, Backdrop, Box, Button, CircularProgress, Container, createTheme, CssBaseline, Grid, Paper, TextField, ThemeProvider, Toolbar } from "@mui/material";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Typography from "@mui/material/Typography";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
@@ -54,14 +54,36 @@ const Home: NextPage = () => {
 
   const [isWaiting, setIsWaiting] = useState(false);
 
+  const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  function onCreateGame() {
+    return async () => {
+      try {
+        setIsWaiting(true);
+        setError(false);
+        await gameConnection.selection();
+      } catch (e: any) {
+        setError(true);
+        setErrorMsg(e.message);
+      }
+      setIsWaiting(false);
+    };
+  }
+
   const onQuestionSubmit: SubmitHandler<Question> = async (question) => {
     setIsWaiting(true);
+    setError(false);
 
     //set defaults question
     question.number = question.number ? question.number : 0;
     question.position = question.position ? question.position : 0;
-
-    await gameConnection.askQuestion(question.position, question.number);
+    try {
+      await gameConnection.askQuestion(question.position, question.number);
+    } catch (e: any) {
+      setError(true);
+      setErrorMsg(e.message);
+    }
 
     setIsWaiting(false);
   };
@@ -69,9 +91,15 @@ const Home: NextPage = () => {
   function onQuestionAnswered() {
     return async () => {
       setIsWaiting(true);
+      setError(false);
 
-      await gameConnection.responseQuestion();
-      setLastAnswer(await gameConnection.getLastAnswer());
+      try {
+        await gameConnection.responseQuestion();
+        setLastAnswer(await gameConnection.getLastAnswer());
+      } catch (e: any) {
+        setError(true);
+        setErrorMsg(e.message);
+      }
 
       setIsWaiting(false);
     };
@@ -79,12 +107,18 @@ const Home: NextPage = () => {
 
   const onGuessSubmit: SubmitHandler<Question> = async (question) => {
     setIsWaiting(true);
+    setError(false);
 
     //set defaults question guess|
     question.guess = question.guess ? question.guess : "0-1-2-3";
 
     const guess = question.guess.split("-").map((n: string) => parseInt(n.trim()));
-    await gameConnection.guess(guess);
+    try {
+      await gameConnection.guess(guess);
+    } catch (e: any) {
+      setError(true);
+      setErrorMsg(e.message);
+    }
 
     setIsWaiting(false);
   };
@@ -92,9 +126,14 @@ const Home: NextPage = () => {
   function onGuessAnswered() {
     return async () => {
       setIsWaiting(true);
-
-      await gameConnection.responseGuess();
-      setLastGuess(await gameConnection.getLastGuessResponse());
+      setError(false);
+      try {
+        await gameConnection.responseGuess();
+        setLastGuess(await gameConnection.getLastGuessResponse());
+      } catch (e: any) {
+        setError(true);
+        setErrorMsg(e.message);
+      }
 
       setIsWaiting(false);
     };
@@ -141,7 +180,7 @@ const Home: NextPage = () => {
     }
     setLastAnswer(lastAnswer);
   }
-  
+
   async function handleOnGuess(guess: number[]) {
     console.log(`Last Guess Event: ${guess}`);
     await updateGuessState();
@@ -165,7 +204,7 @@ const Home: NextPage = () => {
     setLastGuess(lastAnswer);
   }
 
-   function answer(lastAnswer: number) {
+  function answer(lastAnswer: number) {
     if (lastAnswer === 1) {
       return <CloseIcon />;
     }
@@ -322,13 +361,20 @@ const Home: NextPage = () => {
               zkGuessWho
             </Typography>
             <Typography align="center">
-              <Button onClick={() => gameConnection.selection()}>Create New Game</Button>
+              <Button onClick={onCreateGame()}>Create New Game</Button>
             </Typography>
             {questionAsk}
             {guessAsk}
           </Paper>
         </Container>
         {logging}
+        {error ? (
+          <Alert severity="error" sx={{ textAlign: "left" }}>
+            {errorMsg}
+          </Alert>
+        ) : (
+          <div />
+        )}
       </ThemeProvider>
       <footer className={styles.footer}>
         <a href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app" target="_blank" rel="noopener noreferrer">

@@ -1,4 +1,4 @@
-import { Contract } from "ethers";
+import { Contract, ethers } from "ethers";
 import { GameZK, ZKFiles } from "./game-zk";
 
 export class GuessGame {
@@ -36,6 +36,10 @@ export class GuessGame {
   }
 
   async answer() {
+    if (!(await this.game.isStarted())) {
+      throw new Error("Game not started");
+    }
+
     const type = await this.game.lastType();
     const characteristic = await this.game.lastCharacteristic();
     const hash = await this.game.hash();
@@ -67,6 +71,10 @@ export class GuessGame {
   }
 
   async guessAnswer() {
+    if (!(await this.game.isStarted())) {
+      throw new Error("Game not started");
+    }
+
     const hash = await this.game.hash();
     const guess = [
       (await this.game.lastGuess(0)).toNumber(),
@@ -105,6 +113,10 @@ export class GuessGame {
 
   onGuessResponse(callback: (answer: number) => void) {
     this.game.on("GuessResponse", callback);
+  }
+
+  connect(signer: any) {
+    this.game = this.game.connect(signer);
   }
 }
 
