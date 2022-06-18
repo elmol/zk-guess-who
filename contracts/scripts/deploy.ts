@@ -12,19 +12,27 @@ async function main() {
   console.log("Deploying contracts with the account:", deployer.address);
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const GameVerifier = await ethers.getContractFactory("VerifierGame");
-  const gameVerifier = await GameVerifier.deploy();
-  await gameVerifier.deployed();
+  const VerifierBoard = await ethers.getContractFactory("VerifierBoard");
+  const verifierBoard = await VerifierBoard.deploy();
+  await verifierBoard.deployed();
 
-  const BoardVerifier = await ethers.getContractFactory("VerifierBoard");
-  const boardVerifier = await BoardVerifier.deploy();
-  await boardVerifier.deployed();
+  const VerifierQuestion = await ethers.getContractFactory("VerifierQuestion");
+  const verifierQuestion = await VerifierQuestion.deploy();
+  await verifierQuestion.deployed();
+
+  const VerifierGuess = await ethers.getContractFactory("VerifierGuess");
+  const verifierGuess = await VerifierGuess.deploy();
+  await verifierGuess.deployed();
 
   const gameFactory = (await ethers.getContractFactory(
     "Game"
     // eslint-disable-next-line camelcase
   )) as Game__factory;
-  const game = await gameFactory.deploy(boardVerifier.address);
+  const game = await gameFactory.deploy(
+    verifierBoard.address,
+    verifierQuestion.address,
+    verifierGuess.address
+  );
   await game.deployed();
   console.log("Game deployed to:", game.address);
 }

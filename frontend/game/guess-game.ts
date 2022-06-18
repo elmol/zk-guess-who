@@ -1,17 +1,24 @@
 import { Contract } from "ethers";
-import { guessProof, questionProof, selectionProof } from "./game-zk";
+import { GameZK, ZKFiles } from "./game-zk";
 
 export class GuessGame {
   // eslint-disable-next-line no-useless-constructor
   constructor(
     private game: Contract,
+    private gameZK: GameZK,
     private character: number[],
-    private salt: number
+    private salt: bigint = randomGenerator()
   ) {}
 
   async start(): Promise<String> {
-    const selection = await selectionProof(this.character, this.salt);
+    // generating proof character selection
+    const selection = await this.gameZK.selectionProof(
+      this.character,
+      this.salt
+    );
     const hash = selection.input[0];
+
+    // sending proof to contract
     const tx = await this.game.start(
       hash,
       selection.piA,
@@ -19,6 +26,7 @@ export class GuessGame {
       selection.piC
     );
     await tx.wait();
+
     return hash;
   }
 
@@ -30,27 +38,27 @@ export class GuessGame {
   async answer() {
     const type = await this.game.lastType();
     const characteristic = await this.game.lastCharacteristic();
-    const response = this.character[type] === characteristic ? 1 : 0;
+    const hash = await this.game.hash();
 
     // generate question proof
-    const hash = await this.game.hash();
-    const question = await questionProof(
+    const question = await this.gameZK.questionProof(
       this.character,
       this.salt,
       type,
       characteristic,
-      response,
       hash.toString()
     );
+    const answer = parseInt(question.input[0]);
 
     const tx = await this.game.response(
-      response,
+      answer,
       question.piA,
       question.piB,
       question.piC
     );
     await tx.wait();
-    return response + 1; // 0 is not anwered, 1 is incorrect, 2 is correct
+
+    return answer + 1; // 0 is not anwered, 1 is incorrect, 2 is correct
   }
 
   async guess(guess: number[]) {
@@ -66,25 +74,20 @@ export class GuessGame {
       (await this.game.lastGuess(2)).toNumber(),
       (await this.game.lastGuess(3)).toNumber(),
     ];
-    const won =
-      JSON.stringify(this.character) === JSON.stringify(guess) ? 1 : 0;
 
     // generate question proof
-    const proof = await guessProof(
+    const proof = await this.gameZK.guessProof(
       this.character,
       this.salt,
       guess,
-      won,
       hash.toString()
     );
-
-    //TODO: HARDCODED UNTIL SPLIT CIRCUITS
-    await this.question(0, this.character[0]);
-    //////
+    const won = parseInt(proof.input[0]);
 
     const tx = await this.game.isWon(won, proof.piA, proof.piB, proof.piC);
     await tx.wait();
-    return await this.game.won();
+
+    return won + 1;
   }
 
   // on event handle
@@ -107,8 +110,26 @@ export class GuessGame {
 
 export function createGuessGame(
   game: Contract,
+  boardZKFiles: ZKFiles,
+  questionZKFiles: ZKFiles,
+  guessZKFiles: ZKFiles,
   character: number[],
-  salt: number
+  salt: bigint | undefined = undefined
 ) {
-  return new GuessGame(game, character, salt);
+  const gameZK: GameZK = new GameZK(
+    boardZKFiles,
+    questionZKFiles,
+    guessZKFiles
+  );
+
+  if (salt) {
+    return new GuessGame(game, gameZK, character, salt);
+  }
+
+  return new GuessGame(game, gameZK, character);
 }
+
+const randomGenerator = function randomBigInt(): bigint {
+  // eslint-disable-next-line node/no-unsupported-features/es-builtins
+  return BigInt(Math.floor(Math.random() * 10 ** 8));
+};

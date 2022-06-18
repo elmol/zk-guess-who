@@ -5,7 +5,6 @@ import networks from "../public/networks.json";
 import { createGuessGame, GuessGame } from "./guess-game";
 
 const VALID_CHARACTER: number[] = [3, 2, 1, 0]; //HARDCODED
-const SALT: number = 123; //HARDCODED
 
 export class GameConnection {
   gameContract: Contract | undefined;
@@ -30,10 +29,10 @@ export class GameConnection {
     console.log("provider:", provider);
     const ethersProvider = new providers.Web3Provider(provider);
     console.log("ethersProvider:", ethersProvider);
-    await provider.send('eth_requestAccounts', []); 
+    await provider.send("eth_requestAccounts", []);
     const signer = ethersProvider.getSigner();
     console.log("signer:", signer);
-    let chainId = await provider.request({ method: 'eth_chainId' });
+    let chainId = await provider.request({ method: "eth_chainId" });
     console.log("Connected chain id:", chainId, parseInt(chainId));
     const parsedChainId = parseInt(chainId).toString() as keyof typeof networks;
     const address = networks[parsedChainId].address;
@@ -43,11 +42,16 @@ export class GameConnection {
     return contract;
   }
 
-  async init(handleOnQuestionAsked: (position: number, number: number) => void, handleOnQuestionAnswered: (answer: number) => void, handleOnGuess: (guess: number[]) => void, handleOnGuessResponse: (response: number) => void) {
+  async init(
+    handleOnQuestionAsked: (position: number, number: number) => void,
+    handleOnQuestionAnswered: (answer: number) => void,
+    handleOnGuess: (guess: number[]) => void,
+    handleOnGuessResponse: (response: number) => void
+  ) {
     const game = await this.getGame();
     this.initLastQuestion = await this.getLastQuestion();
 
-    game.onQuestionAsked(async (position:number, number:number) => {
+    game.onQuestionAsked(async (position: number, number: number) => {
       // console.log("Checking if question is the same as last question");
       // console.log("Last question:", this.initLastQuestion);
       // console.log("New question:", { position, number });
@@ -73,12 +77,12 @@ export class GameConnection {
     });
 
     game.onGuess(async (guess: number[]) => {
-      console.log("On Guess",guess);
+      console.log("On Guess", guess);
       await handleOnGuess(guess);
     });
 
     game.onGuessResponse(async (response: number) => {
-      console.log("On Guess Response",response);
+      console.log("On Guess Response", response);
       await handleOnGuessResponse(response);
     });
 
@@ -135,7 +139,7 @@ export class GameConnection {
   }
 
   async getLastGuess() {
-    const asw= [await this.gameContract?.lastGuess(0), await this.gameContract?.lastGuess(1), await this.gameContract?.lastGuess(2), await this.gameContract?.lastGuess(3)];
+    const asw = [await this.gameContract?.lastGuess(0), await this.gameContract?.lastGuess(1), await this.gameContract?.lastGuess(2), await this.gameContract?.lastGuess(3)];
     console.log("Last Guess:", asw);
     return asw;
   }
@@ -144,11 +148,10 @@ export class GameConnection {
     console.log("Last Guess Response:", asw);
     return asw;
   }
-  
 
   async guess(guess: number[]) {
     const game = await this.getGame();
-    console.log("Guess for",guess);
+    console.log("Guess for", guess);
     try {
       await game.guess(guess);
       console.log("Guess done!");
@@ -157,7 +160,7 @@ export class GameConnection {
       console.log(e);
     }
   }
-  
+
   async responseGuess() {
     const guess = await this.getGame();
     console.log("Response for 3210 guess");
@@ -183,6 +186,22 @@ export class GameConnection {
     if (this.game) {
       return this.game;
     }
-    return createGuessGame(connection, VALID_CHARACTER, SALT);
+
+    const boardZKFiles = {
+      wasm: "./board.wasm",
+      zkey: "./circuit_final_board.zkey",
+    };
+
+    const questionZKFiles = {
+      wasm: "./question.wasm",
+      zkey: "./circuit_final_question.zkey",
+    };
+
+    const guessZKFiles = {
+      wasm: "./guess.wasm",
+      zkey: "./circuit_final_guess.zkey",
+    };
+
+    return createGuessGame(connection, boardZKFiles, questionZKFiles, guessZKFiles, VALID_CHARACTER, BigInt(123));
   }
 }

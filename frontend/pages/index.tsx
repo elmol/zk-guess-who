@@ -174,7 +174,7 @@ const Home: NextPage = () => {
             </Grid>
             <Grid item xs={12} sm={3}>
               <Button type="submit" fullWidth variant="contained" disabled={isPendingAnswer}>
-                ack
+                ask
               </Button>
             </Grid>
             <Grid item xs={12} sm={3}>
