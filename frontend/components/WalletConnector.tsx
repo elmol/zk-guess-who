@@ -3,9 +3,37 @@ import Backdrop from '@mui/material/Backdrop';
 import { useEffect, useState } from 'react';
 import { GameConnection } from '../game/game-connection';
 
-const testnetChainId = '0x6357d2e0'
+//const testnetChainId = '0x6357d2e0'
 const localChainId = '0x7a69' //31337
 const devnetChainId = '0x635ae020' //1666900000
+const testnetChainId = devnetChainId; //because is disabled
+
+// const testnetConfig = {
+//   chainId: testnetChainId,
+//   chainName: 'Harmony Testnet',
+//   nativeCurrency: {
+//     name: 'ONE',
+//     symbol: 'ONE',
+//     decimals: 18
+//   },
+//   rpcUrls: ['https://api.s0.b.hmny.io'],
+//   blockExplorerUrls: ['https://explorer.pops.one']
+// };
+
+
+const devnetConfig = {
+  chainId: testnetChainId,
+  chainName: 'Harmony Devnet',
+  nativeCurrency: {
+    name: 'ONE',
+    symbol: 'ONE',
+    decimals: 18
+  },
+  rpcUrls: ['https://api.s0.ps.hmny.io'],
+  blockExplorerUrls: ['https://explorer.ps.hmny.io/']
+};
+
+const testnetConfig=devnetConfig; //because is disabled
 
 interface IMyProps {
   connectionHandle: () => Promise<void>;
@@ -96,17 +124,7 @@ export default function WalletConnector(props: IMyProps) {
             await ethereum.request({
               method: 'wallet_addEthereumChain',
               params: [
-                {
-                  chainId: testnetChainId,
-                  chainName: 'Harmony Testnet',
-                  nativeCurrency: {
-                    name: 'ONE',
-                    symbol: 'ONE',
-                    decimals: 18
-                  },
-                  rpcUrls: ['https://api.s0.b.hmny.io'],
-                  blockExplorerUrls: ['https://explorer.pops.one']
-                },
+                testnetConfig,
               ],
             });
           } catch (addError) {

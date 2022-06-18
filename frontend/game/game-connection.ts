@@ -16,6 +16,8 @@ export class GameConnection {
   private filterAnswerEvent = false;
   private initLastAnswer = -1;
 
+  private isRegistered = false;
+
   async gameConnection(): Promise<Contract> {
     if (this.gameContract) {
       return this.gameContract;
@@ -35,7 +37,10 @@ export class GameConnection {
     let chainId = await provider.request({ method: "eth_chainId" });
     console.log("Connected chain id:", chainId, parseInt(chainId));
     const parsedChainId = parseInt(chainId).toString() as keyof typeof networks;
-    const address = networks[parsedChainId].address;
+    const address = networks[parsedChainId]?.address;
+    if (!address) {
+      throw new Error("No address found for chain id: " + parsedChainId);
+    }
     console.log("Contract address:", address);
     const contract = new Contract(address, Game.abi, signer);
     this.gameContract = contract;
@@ -48,32 +53,50 @@ export class GameConnection {
     handleOnGuess: (guess: number[]) => void,
     handleOnGuessResponse: (response: number) => void
   ) {
+  
+    if (!this.isRegistered) {
+      console.log("Registering handlers...");
+      await this.register(handleOnQuestionAsked, handleOnQuestionAnswered, handleOnGuess, handleOnGuessResponse);
+      this.isRegistered = true;
+    }
+    console.log("Guess Game Connection initialized");
+  }
+
+  private async register(
+    handleOnQuestionAsked: (position: number, number: number) => void,
+    handleOnQuestionAnswered: (answer: number) => void,
+    handleOnGuess: (guess: number[]) => void,
+    handleOnGuessResponse: (response: number) => void
+  ) {
+
     const game = await this.getGame();
-    this.initLastQuestion = await this.getLastQuestion();
 
     game.onQuestionAsked(async (position: number, number: number) => {
       // console.log("Checking if question is the same as last question");
       // console.log("Last question:", this.initLastQuestion);
       // console.log("New question:", { position, number });
       // console.log("Filter is:", this.filterQuestionEvent);
-      if (!this.filterQuestionEvent && this.initLastQuestion.type !== position && this.initLastQuestion.characteristic !== number) {
-        return;
-      }
+      // this.initLastQuestion = await this.getLastQuestion();
+      // if (!this.filterQuestionEvent && this.initLastQuestion.type !== position && this.initLastQuestion.characteristic !== number) {
+      //   console.log("Question Asked:", position, number,"FILTERED", this.filterQuestionEvent, this.initLastQuestion.type, this.initLastQuestion.characteristic);
+      //   return;
+      // }
       await handleOnQuestionAsked(position, number);
-      this.filterQuestionEvent = true;
+      // this.filterQuestionEvent = true;
+      // console.log("Question Asked:", position, number,"NOT FILTERED");
     });
 
-    this.initLastAnswer = await this.getLastAnswer();
     game.onQuestionAnswered(async (answer: number) => {
       // console.log("Checking if answer is the same as last answer");
       // console.log("Last answer:", this.initLastAnswer);
       // console.log("New answer:", answer);
       // console.log("Filter is:", this.filterAnswerEvent);
-      if (!this.filterAnswerEvent && this.initLastAnswer !== answer) {
-        return;
-      }
+      // this.initLastAnswer = await this.getLastAnswer();
+      // if (!this.filterAnswerEvent && this.initLastAnswer !== answer) {
+      //   return;
+      // }
       await handleOnQuestionAnswered(answer);
-      this.filterAnswerEvent = true;
+      // this.filterAnswerEvent = true;
     });
 
     game.onGuess(async (guess: number[]) => {
@@ -85,8 +108,6 @@ export class GameConnection {
       console.log("On Guess Response", response);
       await handleOnGuessResponse(response);
     });
-
-    console.log("Guess Game Connection initialized");
   }
 
   async selection() {
@@ -163,10 +184,8 @@ export class GameConnection {
 
   async responseGuess() {
     const guess = await this.getGame();
-    console.log("Response for 3210 guess");
     try {
       await guess.guessAnswer();
-      console.log("Guess respond!");
       console.log(
         "Guess answer for",
         await this.gameContract?.lastGuess(0),
