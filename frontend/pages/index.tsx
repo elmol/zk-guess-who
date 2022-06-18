@@ -22,10 +22,11 @@ type Question = {
   guess: string;
 };
 
+const gameConnection = new GameConnection();
 
 const Home: NextPage = () => {
   const theme = createTheme();
-  const gameConnection = new GameConnection();
+  console.log("new game connection", gameConnection);
 
   const {
     register,

@@ -182,11 +182,23 @@ export class GameConnection {
   }
 
   private async getGame() {
-    const connection = await this.gameConnection();
+    // try to load form memory
+    console.log("game:", this.game);
     if (this.game) {
       return this.game;
     }
 
+    //try to load form localStorage
+    let salt;
+    const saltStorage = localStorage.getItem("salt");
+    if (saltStorage) {
+      salt = BigInt(JSON.parse(saltStorage));
+    } else {
+      salt = randomGenerator();
+    }
+
+    // generate new game
+    console.log("new game created...");
     const boardZKFiles = {
       wasm: "./board.wasm",
       zkey: "./circuit_final_board.zkey",
@@ -201,7 +213,14 @@ export class GameConnection {
       wasm: "./guess.wasm",
       zkey: "./circuit_final_guess.zkey",
     };
-
-    return createGuessGame(connection, boardZKFiles, questionZKFiles, guessZKFiles, VALID_CHARACTER, BigInt(123));
+    const connection = await this.gameConnection();
+    this.game = createGuessGame(connection, boardZKFiles, questionZKFiles, guessZKFiles, VALID_CHARACTER, salt);
+    localStorage.setItem("salt", JSON.stringify(salt.toString()));
+    return this.game;
   }
 }
+
+const randomGenerator = function randomBigInt(): bigint {
+  // eslint-disable-next-line node/no-unsupported-features/es-builtins
+  return BigInt(Math.floor(Math.random() * 10 ** 8));
+};
