@@ -139,19 +139,18 @@ describe("Game ZK", function () {
     // create a guess proof
     const guess = [3, 2, 1, 0]; // ok
     const win = 1;
-    const proof = await gameZK.guessProof(character, salt, guess, win, hash);
+    const proof = await gameZK.guessProof(character, salt, guess, hash);
 
     // asserts
     // output
-    expect(proof.input[0]).to.equal(hash); // hash
+    expect(proof.input[0]).to.equal(win.toString()); // hash
 
     // public inputs
     expect(proof.input[1]).to.equal(guess[0].toString()); // guess[0]
     expect(proof.input[2]).to.equal(guess[1].toString()); // guess[1]
     expect(proof.input[3]).to.equal(guess[2].toString()); // guess[2]
     expect(proof.input[4]).to.equal(guess[3].toString()); // guess[3]
-    expect(proof.input[5]).to.equal(win.toString()); // ask[3] win
-    expect(proof.input[6]).to.equal(hash); // hash
+    expect(proof.input[5]).to.equal(hash); // ask[3] win
 
     // guesser player verify the proof
     const { isCorrect, guessResponse } = await gameZK.verifyGuess(

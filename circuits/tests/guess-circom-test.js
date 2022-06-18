@@ -31,7 +31,6 @@ describe("Guess Circuits", function () {
     const input = {
       guess: [2, 0, 1, 3],
       solutions: VALID_SOLUTION,
-      win: 1,
       salt: 231,
       solHash: hash,
     };
@@ -44,7 +43,6 @@ describe("Guess Circuits", function () {
     const input = {
       guess: [0, MAX_CHARACTERISTICS, 2, 3],
       solutions: [0, 1, 2, 3],
-      win: 0,
       salt: 231,
       solHash: HASH,
     };
@@ -55,34 +53,34 @@ describe("Guess Circuits", function () {
     let input = {
       guess: [0, 1, 2, 3],
       solutions: VALID_SOLUTION,
-      win: 0,
+      salt: 231,
+    };
+    
+    const solnHash = createHash(input);
+    input.solHash = solnHash;
+    // win: 0,
+    await assertVerifyProofGuess(input, 0);
+  });
+
+  it("Proof should be verify when win", async function () {
+    const input = {
+      guess: [2, 0, 1, 3],
+      solutions: VALID_SOLUTION,
       salt: 231,
     };
 
     const solnHash = createHash(input);
     input.solHash = solnHash;
-    await assertVerifyProof(input, input.solHash);
-  });
-
-  it("Proof should be verify when win", async function () {
-    const hash = "1777277235915767316413086087329044818051298499936897961862053055117000839929";
-    const input = {
-      guess: [2, 0, 1, 3],
-      solutions: VALID_SOLUTION,
-      win: 1,
-      salt: 231,
-      solHash: hash,
-    };
-    input.solHash = createHash(input);
-    await assertVerifyProof(input, input.solHash);
+    // win = 1
+    await assertVerifyProofGuess(input, 1);
   });
 });
 
 // test helpers
-async function assertVerifyProof(input, solnHash) {
+async function assertVerifyProofGuess(input, win) {
   const witness = await circuit.calculateWitness(input, true);
   assert(Fr.eq(Fr.e(witness[0]), Fr.e(1)), "proof is valid");
-  assert(Fr.eq(Fr.e(witness[1]), Fr.e(solnHash)), "output equals soln hash");
+  assert(Fr.eq(Fr.e(witness[1]), Fr.e(win)), "win");
 }
 
 function createHash(input) {

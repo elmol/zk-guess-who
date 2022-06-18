@@ -89,13 +89,12 @@ contract Game {
         uint256[2][2] memory b,
         uint256[2] memory c
     ) external {
-        uint256[7] memory inputs = [
-            hash, //hash
+        uint256[6] memory inputs = [
+            _won, //hash
             lastGuess[0], //guess
             lastGuess[1], //guess
             lastGuess[2], //guess
             lastGuess[3], //guess
-            _won, //win
             hash //hash
         ];
         require(

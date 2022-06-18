@@ -5,7 +5,6 @@ include "../node_modules/circomlib/circuits/poseidon.circom";  // relative path 
 template Guess() {
     // Public inputs guess
     signal input guess[4];
-    signal input win; //1 win 0 lose
     signal input solHash;
 
     // Private inputs solutions
@@ -13,7 +12,7 @@ template Guess() {
     signal input salt;
     
     // Outputs
-    signal output hash;
+    signal output win; //1 win 0 lose
     
     var max_chars = 4; //max_characteristics
 
@@ -24,8 +23,7 @@ template Guess() {
     for (var i=0; i<4; i++) {
         poseidon.inputs[i+1] <== solutions[i];
     }
-    hash <== poseidon.out;
-    solHash === hash;
+    solHash === poseidon.out;
 
    
     component lessThan[4];
@@ -47,7 +45,7 @@ template Guess() {
     }
     signal first <==  equals[0].out * equals[1].out;
     signal second <== equals[2].out * equals[3].out;
-    win === first * second;
+    win <== first * second;
 }
 
-component main {public [guess, win, solHash ]} =  Guess();
+component main {public [guess, solHash ]} =  Guess();

@@ -43,12 +43,11 @@ export class GameZK {
     return await this.generateQuestionProof(input);
   }
 
-  async guessProof(character: any, salt: any, guess: any, win: any, hash: any) {
+  async guessProof(character: any, salt: any, guess: any, hash: any) {
     const input = {
       solutions: character,
       salt: salt,
       guess: guess,
-      win: win,
       solHash: hash, // public hash
     };
     return await this.generateGuessProof(input);
@@ -56,7 +55,7 @@ export class GameZK {
 
   // VERIFICATIONS
   async verifyGuess(question: any, verifier: any) {
-    const guessResponse = question.input[5]; // response
+    const guessResponse = question.input[0]; // response
     const isCorrect = await verifier.verifyProof(
       question.piA,
       question.piB,

@@ -74,20 +74,19 @@ export class GuessGame {
       (await this.game.lastGuess(2)).toNumber(),
       (await this.game.lastGuess(3)).toNumber(),
     ];
-    const won =
-      JSON.stringify(this.character) === JSON.stringify(guess) ? 1 : 0;
 
     // generate question proof
     const proof = await this.gameZK.guessProof(
       this.character,
       this.salt,
       guess,
-      won,
       hash.toString()
     );
+    const won = proof.input[0];
 
     const tx = await this.game.isWon(won, proof.piA, proof.piB, proof.piC);
     await tx.wait();
+
     return await this.game.won();
   }
 
