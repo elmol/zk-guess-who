@@ -30,14 +30,12 @@ export class GameZK {
     salt: bigint,
     type: number,
     characteristic: number,
-    response: number,
     hash: any
   ) {
     const input = {
       solutions: character,
       salt: salt,
-      ask: [type, characteristic, response],
-
+      ask: [type, characteristic],
       solHash: hash, // public hash
     };
     return await this.generateQuestionProof(input);
@@ -66,7 +64,7 @@ export class GameZK {
   }
 
   async verifyQuestion(question: any, verifier: any) {
-    const questionReponse = question.input[3]; // response
+    const questionReponse = question.input[0]; // response
     const isCorrect = (await verifier.verifyProof(
       question.piA,
       question.piB,

@@ -38,27 +38,27 @@ export class GuessGame {
   async answer() {
     const type = await this.game.lastType();
     const characteristic = await this.game.lastCharacteristic();
-    const response = this.character[type] === characteristic ? 1 : 0;
+    const hash = await this.game.hash();
 
     // generate question proof
-    const hash = await this.game.hash();
     const question = await this.gameZK.questionProof(
       this.character,
       this.salt,
       type,
       characteristic,
-      response,
       hash.toString()
     );
+    const answer = parseInt(question.input[0]);
 
     const tx = await this.game.response(
-      response,
+      answer,
       question.piA,
       question.piB,
       question.piC
     );
     await tx.wait();
-    return response + 1; // 0 is not anwered, 1 is incorrect, 2 is correct
+
+    return answer + 1; // 0 is not anwered, 1 is incorrect, 2 is correct
   }
 
   async guess(guess: number[]) {
@@ -82,12 +82,12 @@ export class GuessGame {
       guess,
       hash.toString()
     );
-    const won = proof.input[0];
+    const won = parseInt(proof.input[0]);
 
     const tx = await this.game.isWon(won, proof.piA, proof.piB, proof.piC);
     await tx.wait();
 
-    return await this.game.won();
+    return won + 1;
   }
 
   // on event handle

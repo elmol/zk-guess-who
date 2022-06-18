@@ -58,7 +58,7 @@ template QuinSelector(choices) {
 
 template Question() {
     // Public inputs guess
-    signal input ask[3]; //position, characteristic, response
+    signal input ask[2]; //position, characteristic
     signal input solHash;
 
     // Private inputs solutions
@@ -66,7 +66,7 @@ template Question() {
     signal input salt;
     
     // Outputs
-    signal output hash;
+    signal output answer;
     
     var max_chars = 4; //max_characteristics
     
@@ -76,8 +76,7 @@ template Question() {
     for (var i=0; i<4; i++) {
         poseidon.inputs[i+1] <== solutions[i];
     }
-    hash <== poseidon.out;
-    solHash === hash;
+    solHash === poseidon.out;
 
     component lessThan[3];
 
@@ -93,12 +92,6 @@ template Question() {
     lessThan[1].in[1] <== max_chars;
     lessThan[1].out === 1;
 
-    //assert ask inputs characteristic to ask
-    lessThan[2] = LessThan(4);
-    lessThan[2].in[0] <== ask[2];
-    lessThan[2].in[1] <== 2; //boolean
-    lessThan[2].out === 1;
-
     //verify question
     component quinSelector = QuinSelector(4);
     for (var k=0; k< 4; k++) {
@@ -110,8 +103,7 @@ template Question() {
     component equals = IsEqual();
     equals.in[0] <== d; //position
     equals.in[1] <== ask[1]; //characteristic
-    equals.out === ask[2]; //response
-   
+    answer <== equals.out; //response
 }
 
 component main {public [ask, solHash ]} =  Question();

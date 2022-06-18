@@ -57,23 +57,22 @@ contract Game {
     }
 
     function response(
-        uint8 _response,
+        uint8 _answer,
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c
     ) external {
-        uint256[5] memory inputs = [
-            hash, //hash
+        uint256[4] memory inputs = [
+            _answer, //hash
             lastType, //ask type
             lastCharacteristic, //ask characteristic
-            _response, //ask response
             hash //hash
         ];
         require(
             verifierQuestion.verifyProof(a, b, c, inputs),
-            "Invalid question response!"
+            "Invalid question answer!"
         );
-        lastResponse = _response + 1; //1: false, 2: true
+        lastResponse = _answer + 1; //1: false, 2: true
         emit QuestionAnswered(lastResponse);
     }
 

@@ -101,19 +101,17 @@ describe("Game ZK", function () {
       salt,
       type,
       characteristic,
-      response,
       hash
     );
 
     // asserts
     // output
-    expect(question.input[0]).to.equal(hash); // hash
+    expect(question.input[0]).to.equal(response.toString()); // hash
 
     // public inputs
     expect(question.input[1]).to.equal(type.toString()); // ask[0]
     expect(question.input[2]).to.equal(characteristic.toString()); // ask[1]
-    expect(question.input[3]).to.equal(response.toString()); // ask[2]
-    expect(question.input[4]).to.equal(hash); // hash
+    expect(question.input[3]).to.equal(hash); // hash
 
     // guesser player verify the proof
     const { isCorrect, questionReponse } = await gameZK.verifyQuestion(
