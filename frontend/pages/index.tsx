@@ -52,6 +52,8 @@ const Home: NextPage = () => {
   const [error, setError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  const [isStarted, setIsStarted] = useState(false);
+
   const onCreateGame: SubmitHandler<Question> = async (selection) => {
     setIsWaiting(true);
     setError(false);
@@ -117,6 +119,7 @@ const Home: NextPage = () => {
     // init properties
     setLastAnswer(await gameConnection.getLastAnswer());
     setLastGuess(await gameConnection.getLastGuessResponse());
+    setIsStarted(await gameConnection.isStarted());
 
     console.log("game connection initialized");
   }
@@ -275,6 +278,8 @@ const Home: NextPage = () => {
               zkGuessWho
             </Typography>
 
+            {!isStarted ? (
+              <>
             <Box component="form" noValidate onSubmit={handleSubmit(onCreateGame)} sx={{ mt: 3 }}>
               <Typography component="h1" variant="h4" align="center">
                 <CharacterSelector
@@ -288,13 +293,23 @@ const Home: NextPage = () => {
                   {...register("character")}
                 ></CharacterSelector>
               </Typography>
-              <Typography  align="center">
+              <Typography align="center">
                 <Button type="submit">Create New Game</Button>
               </Typography>
             </Box>
+            </>
+            ) : (
+              <div />
+            )}
 
-            <QuestionAnswer isPendingAnswer={isPendingAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onQuestionAnswered} />
-            <GuessAnswer isPendingGuess={isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
+            {isStarted ? (
+              <>
+                <QuestionAnswer isPendingAnswer={isPendingAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onQuestionAnswered} />
+                <GuessAnswer isPendingGuess={isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />{" "}
+              </>
+            ) : (
+              <div />
+            )}
           </Paper>
         </Container>
         {logging}

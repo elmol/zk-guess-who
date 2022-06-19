@@ -191,6 +191,12 @@ export class GameConnection {
     }
   }
 
+
+  async isStarted() {
+    const game = await this.getGame();
+    return await game.isStarted();
+  }
+  
   async responseGuess() {
     const guess = await this.getGame();
     try {
