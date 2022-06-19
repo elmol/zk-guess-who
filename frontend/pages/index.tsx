@@ -16,6 +16,7 @@ import NumberFormSelect from "../components/NumberFormSelect";
 import CharacterSelector from "../components/CharacterSelector";
 import WalletConnector from "../components/WalletConnector";
 import { QuestionAnswer } from "../components/QuestionAnswer";
+import { GuessAnswer } from "../components/GuessAnswer";
 
 type Question = {
   position: number;
@@ -38,14 +39,6 @@ const gameConnection = new GameConnection();
 const Home: NextPage = () => {
   const theme = createTheme();
   console.log("new game connection", gameConnection);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    control,
-  } = useForm<Question>();
 
   const [lastAnswer, setLastAnswer] = useState(0);
   const [lastGuess, setLastGuess] = useState(0);
@@ -171,15 +164,6 @@ const Home: NextPage = () => {
     setLastGuess(lastAnswer);
   }
 
-  function answer(lastAnswer: number) {
-    if (lastAnswer === 1) {
-      return <CloseIcon />;
-    }
-    if (lastAnswer === 2) {
-      return <CheckIcon />;
-    }
-    return <QuestionMarkIcon />;
-  }
 
   useEffect(() => {
     onInit();
@@ -220,46 +204,7 @@ const Home: NextPage = () => {
     };
   }
 
-  const guessAsk = (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Typography component="h1" variant="h5">
-          Guess a Number
-        </Typography>
-        <Box component="form" noValidate onSubmit={handleSubmit(onGuessSubmit)} sx={{ mt: 3 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={4}>
-              <CharacterSelector id="guess" label="Guess" control={control} defaultValue={"0-1-2-3"} variant="outlined" size="small" characters={board} {...register("guess")}></CharacterSelector>
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <Avatar variant="rounded"> {answer(lastGuess)}</Avatar>
-            </Grid>
-            <Grid item xs={12} sm={3}>
-              <Button type="submit" fullWidth variant="contained" disabled={isPendingGuess}>
-                guess
-              </Button>
-            </Grid>
-            <Grid item xs={12} sm={3}>
-              <Button disabled={!isPendingGuess} variant="outlined" onClick={onGuessAnswered()}>
-                ack
-              </Button>
-            </Grid>
-          </Grid>
-        </Box>
-        <>{isPendingGuess && <Typography variant="body2">Pending guess answer. Waiting for the other player...</Typography>}</>
-      </Box>
-    </Container>
-  );
-
-  const logging = (
+ const logging = (
     <>
       {isWaiting ? (
         <Backdrop open={true}>
@@ -324,7 +269,7 @@ const Home: NextPage = () => {
               <Button onClick={onCreateGame()}>Create New Game</Button>
             </Typography>
             <QuestionAnswer isPendingAnswer={isPendingAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onQuestionAnswered}/>
-            {guessAsk}
+            <GuessAnswer isPendingGuess={isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered}/>
           </Paper>
         </Container>
         {logging}
