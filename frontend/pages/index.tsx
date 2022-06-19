@@ -15,6 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import NumberFormSelect from "../components/NumberFormSelect";
 import CharacterSelector from "../components/CharacterSelector";
 import WalletConnector from "../components/WalletConnector";
+import { QuestionAnswer } from "../components/QuestionAnswer";
 
 type Question = {
   position: number;
@@ -67,40 +68,6 @@ const Home: NextPage = () => {
         setError(true);
         setErrorMsg(e.message);
       }
-      setIsWaiting(false);
-    };
-  }
-
-  const onQuestionSubmit: SubmitHandler<Question> = async (question) => {
-    setIsWaiting(true);
-    setError(false);
-
-    //set defaults question
-    question.number = question.number ? question.number : 0;
-    question.position = question.position ? question.position : 0;
-    try {
-      await gameConnection.askQuestion(question.position, question.number);
-    } catch (e: any) {
-      setError(true);
-      setErrorMsg(e.message);
-    }
-
-    setIsWaiting(false);
-  };
-
-  function onQuestionAnswered() {
-    return async () => {
-      setIsWaiting(true);
-      setError(false);
-
-      try {
-        await gameConnection.responseQuestion();
-        setLastAnswer(await gameConnection.getLastAnswer());
-      } catch (e: any) {
-        setError(true);
-        setErrorMsg(e.message);
-      }
-
       setIsWaiting(false);
     };
   }
@@ -218,47 +185,40 @@ const Home: NextPage = () => {
     onInit();
   }, []);
 
-  const questionAsk = (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Typography component="h1" variant="h5">
-          Ask about the position and number
-        </Typography>
-        <Box component="form" noValidate onSubmit={handleSubmit(onQuestionSubmit)} sx={{ mt: 3 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={2}>
-              <NumberFormSelect id="position" label="Position" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("position")}></NumberFormSelect>
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <NumberFormSelect id="number" label="Number" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("number")}></NumberFormSelect>
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <Avatar variant="rounded"> {answer(lastAnswer)}</Avatar>
-            </Grid>
-            <Grid item xs={12} sm={3}>
-              <Button type="submit" fullWidth variant="contained" disabled={isPendingAnswer}>
-                ask
-              </Button>
-            </Grid>
-            <Grid item xs={12} sm={3}>
-              <Button disabled={!isPendingAnswer} variant="outlined" onClick={onQuestionAnswered()}>
-                ack
-              </Button>
-            </Grid>
-          </Grid>
-        </Box>
-        <>{isPendingAnswer && <Typography variant="body2">Pending question answer. Waiting for the other player...</Typography>}</>
-      </Box>
-    </Container>
-  );
+
+  const onQuestionSubmit: SubmitHandler<Question> = async (question) => {
+    setIsWaiting(true);
+    setError(false);
+
+    //set defaults question
+    question.number = question.number ? question.number : 0;
+    question.position = question.position ? question.position : 0;
+    try {
+      await gameConnection.askQuestion(question.position, question.number);
+    } catch (e: any) {
+      setError(true);
+      setErrorMsg(e.message);
+    }
+
+    setIsWaiting(false);
+  };
+
+  function onQuestionAnswered() {
+    return async () => {
+      setIsWaiting(true);
+      setError(false);
+
+      try {
+        await gameConnection.responseQuestion();
+        setLastAnswer(await gameConnection.getLastAnswer());
+      } catch (e: any) {
+        setError(true);
+        setErrorMsg(e.message);
+      }
+
+      setIsWaiting(false);
+    };
+  }
 
   const guessAsk = (
     <Container component="main" maxWidth="xs">
@@ -363,7 +323,7 @@ const Home: NextPage = () => {
             <Typography align="center">
               <Button onClick={onCreateGame()}>Create New Game</Button>
             </Typography>
-            {questionAsk}
+            <QuestionAnswer isPendingAnswer={isPendingAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onQuestionAnswered}/>
             {guessAsk}
           </Paper>
         </Container>
