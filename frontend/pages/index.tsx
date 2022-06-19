@@ -17,6 +17,7 @@ import CharacterSelector from "../components/CharacterSelector";
 import WalletConnector from "../components/WalletConnector";
 import { QuestionAnswer } from "../components/QuestionAnswer";
 import { GuessAnswer } from "../components/GuessAnswer";
+import AlertDialogSlide from "../components/EndGameDialog";
 
 type Question = {
   position: number;
@@ -53,6 +54,8 @@ const Home: NextPage = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   const [isStarted, setIsStarted] = useState(false);
+
+  const [open, setOpen] = useState(false);
 
   const onCreateGame: SubmitHandler<Question> = async (selection) => {
     setIsWaiting(true);
@@ -95,6 +98,7 @@ const Home: NextPage = () => {
       try {
         await gameConnection.responseGuess();
         setLastGuess(await gameConnection.getLastGuessResponse());
+        await onHandleEndOfGame();
       } catch (e: any) {
         setError(true);
         setErrorMsg(e.message);
@@ -155,6 +159,16 @@ const Home: NextPage = () => {
   async function handleOnGuessResponse(answer: number) {
     console.log(`Last Guess Response event: ${answer}`);
     await updateGuessState();
+    await onHandleEndOfGame();
+  }
+
+  async function onHandleEndOfGame() {
+    const lastAnswer = await gameConnection.getLastGuessResponse();
+    if(lastAnswer !== 0 && lastAnswer !== 3) {
+      console.log("End Game");
+      setOpen(true);
+    }
+
   }
 
   async function updateGuessState() {
@@ -320,6 +334,7 @@ const Home: NextPage = () => {
         ) : (
           <div />
         )}
+        <AlertDialogSlide open={open} setOpen={setOpen}></AlertDialogSlide>
       </ThemeProvider>
       <footer className={styles.footer}>
         <a href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app" target="_blank" rel="noopener noreferrer">
