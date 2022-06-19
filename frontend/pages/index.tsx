@@ -22,6 +22,7 @@ type Question = {
   position: number;
   number: number;
   guess: string;
+  character: string;
 };
 
 /* eslint-disable */
@@ -51,19 +52,21 @@ const Home: NextPage = () => {
   const [error, setError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  function onCreateGame() {
-    return async () => {
-      try {
-        setIsWaiting(true);
-        setError(false);
-        await gameConnection.selection();
-      } catch (e: any) {
-        setError(true);
-        setErrorMsg(e.message);
-      }
-      setIsWaiting(false);
-    };
-  }
+  const onCreateGame: SubmitHandler<Question> = async (selection) => {
+    setIsWaiting(true);
+    setError(false);
+    try {
+      //set defaults selection
+      selection.character = selection.character ? selection.character : "0-1-2-3";
+      const character = selection.character.split("-").map((n: string) => parseInt(n.trim()));
+      console.log("selection", selection.character);
+      await gameConnection.selection(character);
+    } catch (e: any) {
+      setError(true);
+      setErrorMsg(e.message);
+    }
+    setIsWaiting(false);
+  };
 
   const onGuessSubmit: SubmitHandler<Question> = async (question) => {
     setIsWaiting(true);
@@ -164,11 +167,9 @@ const Home: NextPage = () => {
     setLastGuess(lastAnswer);
   }
 
-
   useEffect(() => {
     onInit();
   }, []);
-
 
   const onQuestionSubmit: SubmitHandler<Question> = async (question) => {
     setIsWaiting(true);
@@ -204,7 +205,7 @@ const Home: NextPage = () => {
     };
   }
 
- const logging = (
+  const logging = (
     <>
       {isWaiting ? (
         <Backdrop open={true}>
@@ -231,6 +232,14 @@ const Home: NextPage = () => {
       )}
     </>
   );
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    control,
+  } = useForm<Question>();
 
   return (
     <div>
@@ -265,11 +274,27 @@ const Home: NextPage = () => {
             <Typography component="h1" variant="h4" align="center">
               zkGuessWho
             </Typography>
-            <Typography align="center">
-              <Button onClick={onCreateGame()}>Create New Game</Button>
-            </Typography>
-            <QuestionAnswer isPendingAnswer={isPendingAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onQuestionAnswered}/>
-            <GuessAnswer isPendingGuess={isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered}/>
+
+            <Box component="form" noValidate onSubmit={handleSubmit(onCreateGame)} sx={{ mt: 3 }}>
+              <Typography component="h1" variant="h4" align="center">
+                <CharacterSelector
+                  id="select"
+                  label="select character"
+                  control={control}
+                  defaultValue={"0-1-2-3"}
+                  variant="outlined"
+                  size="small"
+                  characters={board}
+                  {...register("character")}
+                ></CharacterSelector>
+              </Typography>
+              <Typography  align="center">
+                <Button type="submit">Create New Game</Button>
+              </Typography>
+            </Box>
+
+            <QuestionAnswer isPendingAnswer={isPendingAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onQuestionAnswered} />
+            <GuessAnswer isPendingGuess={isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
           </Paper>
         </Container>
         {logging}

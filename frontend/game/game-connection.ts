@@ -108,8 +108,15 @@ export class GameConnection {
     });
   }
 
-  async selection() {
-    const guess = await this.getGame();
+  async selection(character: number[]) {
+    let guess = await this.getGame(character);
+    if(await guess.isStarted()) {
+      console.log("Game already started");
+      throw new Error("Game already started");
+    }
+    this.game=undefined;
+    guess = await this.getGame(character);
+
     console.log("Selecting the character");
     try {
       await await guess.start();
@@ -203,7 +210,7 @@ export class GameConnection {
     }
   }
 
-  private async getGame() {
+  private async getGame(character: number[] = VALID_CHARACTER) {
     // try to load form memory
     console.log("game:", this.game);
     if (this.game) {
@@ -236,7 +243,7 @@ export class GameConnection {
       zkey: "./circuit_final_guess.zkey",
     };
     const connection = await this.gameConnection();
-    this.game = createGuessGame(connection, boardZKFiles, questionZKFiles, guessZKFiles, VALID_CHARACTER, salt);
+    this.game = createGuessGame(connection, boardZKFiles, questionZKFiles, guessZKFiles, character, salt);
     localStorage.setItem("salt", JSON.stringify(salt.toString()));
     return this.game;
   }

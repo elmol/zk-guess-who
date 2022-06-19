@@ -11,6 +11,7 @@ type Question = {
   position: number;
   number: number;
   guess: string;
+  character: string;
 };
 
 interface QuestionAnswerProps {
