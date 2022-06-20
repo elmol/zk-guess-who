@@ -86,12 +86,12 @@ describe("Game Contract", function () {
     player2Game.connect(guesser);
   });
 
-  it("should allow to create a new game selecting a character", async function () {
+  it("should allow to create a new game", async function () {
     const hash = await player1Game.start();
-    expect(await gameContract.hash()).to.equal(hash);
+    expect(await gameContract.hash(0)).to.equal(hash);
   });
 
-  it("should allow to the guesser to ask a question", async function () {
+  it("should allow to ask a question", async function () {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -307,25 +307,25 @@ describe("Game Contract", function () {
     );
   });
 
-  it("should only the creator can respond to a guess", async () => {
+  it("should only the turn answer player can respond to a guess", async () => {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
 
     // connect with guesser
     await expect(player2Game.guessAnswer()).to.be.rejectedWith(
-      "Only game creator can answer"
+      "Only current player turn can answer"
     );
   });
 
-  it("should only the creator can respond to a question", async () => {
+  it("should only the turn answer player can respond to a question", async () => {
     // initialize the game
-    await player1Game.start();
-    await player2Game.join();
+    await player2Game.start();
+    await player1Game.join();
 
     // connect with guesser
-    await expect(player2Game.answer()).to.be.rejectedWith(
-      "Only game creator can answer"
+    await expect(player1Game.answer()).to.be.rejectedWith(
+      "Only current player turn can answer"
     );
   });
 
@@ -366,7 +366,7 @@ describe("Game Contract", function () {
     // initialize the game
     await player1Game.start();
 
-    expect(await player1Game.isGameCreator()).to.be.equal(true);
+    expect(await player1Game.isAnswerTurn()).to.be.equal(true);
   });
 
   it("it should return false if signer is not the creator", async () => {
@@ -374,7 +374,7 @@ describe("Game Contract", function () {
     await player1Game.start();
     // connect with guesser
     player1Game.connect(guesser);
-    expect(await player1Game.isGameCreator()).to.be.equal(false);
+    expect(await player1Game.isAnswerTurn()).to.be.equal(false);
   });
 
   it("should not allow to join if the game is full", async () => {
@@ -464,5 +464,35 @@ describe("Game Contract", function () {
     await expect(player1Game.createOrJoin()).to.be.rejectedWith(
       "Player already join"
     );
+  });
+
+  it("should player 2 to question answer when is its turn", async () => {
+    // initialize the game
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await player2Game.question(1, 3);
+    await player1Game.answer();
+
+    expect(await gameContract.lastResponse()).to.equal(1);
+
+    await player1Game.question(1, 1);
+    await player2Game.answer();
+    expect(await gameContract.lastResponse()).to.equal(2);
+  });
+
+  it("should player 2 to guess answer when is its turn", async () => {
+    // initialize the game
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await player2Game.question(1, 3);
+    await player1Game.answer();
+
+    expect(await gameContract.lastResponse()).to.equal(1);
+
+    await player1Game.guess([0, 1, 2, 3]);
+    await player2Game.guessAnswer();
+    expect(await gameContract.won()).to.equal(2);
   });
 });

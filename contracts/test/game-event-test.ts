@@ -195,6 +195,24 @@ describe("Game Event", function () {
     await t.delay;
     expect(eventEmmited).to.equal(true);
   });
+
+  it("should game allow to handle game joined event", async function () {
+    // initialize the game
+    await player1Game.start();
+    const t = timeout(10000);
+    let eventEmmited = false;
+    const callback = () => {
+      eventEmmited = true;
+      t.cancel();
+    };
+    await player2Game.join();
+
+    player2Game.onPlayerJoined(callback);
+    await player1Game.guessAnswer();
+
+    await t.delay;
+    expect(eventEmmited).to.equal(true);
+  });
 });
 
 // HELPERS
