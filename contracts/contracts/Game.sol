@@ -21,6 +21,7 @@ contract Game {
 
     uint256 public hash;
     address public creator;
+    address[2] public players;
 
     IVerifierBoard private verifierBoard;
     IVerifierQuestion private verifierQuestion;
@@ -41,6 +42,12 @@ contract Game {
         _;
     }
 
+    modifier gameStarted() {
+        require(hash != 0, "Game not started");
+        require(players[1] != address(0), "Player 2 is not join");
+        _;
+    }
+
     modifier onlyCreator() {
         require(msg.sender == creator, "Only creator can call this function");
         _;
@@ -52,6 +59,7 @@ contract Game {
         uint256[2][2] memory b,
         uint256[2] memory c
     ) external {
+        require(players[0] == address(0),"Game already created");
         require(hash == 0, "Game already created");
         uint256[1] memory inputs = [_hash];
         require(
@@ -60,11 +68,34 @@ contract Game {
         );
         hash = _hash;
         creator = msg.sender;
+        players[0] = msg.sender;
         lastResponse = 3;
         won = 3;
     }
 
-    function ask(uint8 _type, uint8 _characteristic) external gameCreated {
+
+    function join(
+        uint256 _hash, //al inputs
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c
+    ) external gameCreated {
+        require(players[1] == address(0),"Game Room already full");
+        uint256[1] memory inputs = [_hash];
+        require(
+            verifierBoard.verifyProof(a, b, c, inputs),
+            "Invalid character selection!"
+        );
+        // hash = _hash;
+        // creator = msg.sender;
+        players[1] = msg.sender;
+        lastResponse = 3;
+        won = 3;
+    }
+
+
+
+    function ask(uint8 _type, uint8 _characteristic) external gameStarted {
         require(lastResponse != 0, "Question is pending of answer");
         lastType = _type;
         lastCharacteristic = _characteristic;
@@ -77,7 +108,7 @@ contract Game {
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c
-    ) external gameCreated onlyCreator {
+    ) external gameStarted onlyCreator {
         uint256[4] memory inputs = [
             _answer, //hash
             lastType, //ask type
@@ -92,7 +123,7 @@ contract Game {
         emit QuestionAnswered(lastResponse);
     }
 
-    function guess(uint8[4] memory _guess) external gameCreated {
+    function guess(uint8[4] memory _guess) external gameStarted {
         require(won != 0, "Guess is pending of answer");
         lastGuess = _guess;
         won = 0;
@@ -104,7 +135,7 @@ contract Game {
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c
-    ) external gameCreated onlyCreator {
+    ) external gameStarted onlyCreator {
         uint256[6] memory inputs = [
             _won, //hash
             lastGuess[0], //guess
@@ -130,9 +161,13 @@ contract Game {
         return msg.sender == creator;
     }
 
-    function end() private {
-        require(hash != 0, "Game not started");
+    function end() private gameStarted {
+   //     require(hash != 0, "Game not started");
         hash = 0;
         creator = address(0);
+
+        // free room
+        players[0] = address(0);
+        players[1] = address(0);
     }
 }

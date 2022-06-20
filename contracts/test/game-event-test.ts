@@ -1,9 +1,14 @@
+/* eslint-disable node/no-unsupported-features/es-builtins */
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Game, Game__factory } from "../typechain";
 import { createGuessGame, GuessGame } from "../game/guess-game";
+import { Game, Game__factory } from "../typechain";
 
 const VALID_CHARACTER = [3, 2, 1, 0];
+const VALID_PLAYER2_CHARACTER = [0, 1, 2, 3];
+
+let player1Game: GuessGame;
+let player2Game: GuessGame;
 
 const boardZKFiles = {
   wasm: "artifacts/circuits/board.wasm",
@@ -19,12 +24,13 @@ const guessZKFiles = {
   wasm: "artifacts/circuits/guess.wasm",
   zkey: "artifacts/circuits/circuit_final_guess.zkey",
 };
-
 describe("Game Event", function () {
-  let game: Game;
-  let guessGame: GuessGame;
+  let gameContract: Game;
+  let creator: any;
+  let guesser: any;
 
   beforeEach(async function () {
+    // Contracts Deployment
     const VerifierBoard = await ethers.getContractFactory("VerifierBoard");
     const verifierBoard = await VerifierBoard.deploy();
     await verifierBoard.deployed();
@@ -43,40 +49,57 @@ describe("Game Event", function () {
       "Game"
       // eslint-disable-next-line camelcase
     )) as Game__factory;
-    game = await gameFactory.deploy(
+    gameContract = await gameFactory.deploy(
       verifierBoard.address,
       verifierQuestion.address,
       verifierGuess.address
     );
-    await game.deployed();
+    await gameContract.deployed();
+
+    // Game Creation
+    [creator, guesser] = await ethers.getSigners();
+
     const character = VALID_CHARACTER;
-    guessGame = createGuessGame(
-      game,
+    const salt = BigInt(231);
+    player1Game = createGuessGame(
+      gameContract,
       boardZKFiles,
       questionZKFiles,
       guessZKFiles,
-      character
+      character,
+      salt
     );
+
+    player2Game = createGuessGame(
+      gameContract,
+      boardZKFiles,
+      questionZKFiles,
+      guessZKFiles,
+      VALID_PLAYER2_CHARACTER,
+      BigInt(133)
+    );
+    player2Game.connect(guesser);
   });
 
   it("should emit event when question is answer", async function () {
     // initialize the game
-    await guessGame.start();
+    await player1Game.start();
+    await player2Game.join();
 
     // guesser player fist ask
     // true question
-    await guessGame.question(0, 3);
+    await player2Game.question(0, 3);
 
     const t = timeout(5000);
     let eventEmmited = false;
-    game.on("QuestionAnswered", (answer) => {
+    gameContract.on("QuestionAnswered", (answer) => {
       expect(answer).to.equal(2);
       eventEmmited = true;
       t.cancel();
     });
 
     // selector player respond
-    const response = await guessGame.answer();
+    const response = await player1Game.answer();
     expect(response).to.equal(2);
 
     // wait until event
@@ -86,7 +109,8 @@ describe("Game Event", function () {
 
   it("should game allow to handle question asked event", async function () {
     // initialize the game
-    await guessGame.start();
+    await player1Game.start();
+    await player2Game.join();
 
     const t = timeout(5000);
     let eventEmmited = false;
@@ -97,8 +121,8 @@ describe("Game Event", function () {
       t.cancel();
     };
 
-    guessGame.onQuestionAsked(callback);
-    await game.ask(0, 3);
+    player1Game.onQuestionAsked(callback);
+    await gameContract.ask(0, 3);
 
     // wait until event
     await t.delay;
@@ -107,9 +131,10 @@ describe("Game Event", function () {
 
   it("should game allow to handle question answered event", async function () {
     // initialize the game
-    await guessGame.start();
+    await player1Game.start();
+    await player2Game.join();
 
-    await game.ask(0, 3);
+    await gameContract.ask(0, 3);
 
     const t = timeout(8000);
     let eventEmmited = false;
@@ -119,8 +144,8 @@ describe("Game Event", function () {
       t.cancel();
     };
 
-    guessGame.onQuestionAnswered(callback);
-    await guessGame.answer();
+    player1Game.onQuestionAnswered(callback);
+    await player1Game.answer();
 
     // wait until event
     await t.delay;
@@ -129,7 +154,8 @@ describe("Game Event", function () {
 
   it("should game allow to handle guess event", async function () {
     // initialize the game
-    await guessGame.start();
+    await player1Game.start();
+    await player2Game.join();
 
     const t = timeout(5000);
     let eventEmmited = false;
@@ -142,8 +168,8 @@ describe("Game Event", function () {
       t.cancel();
     };
 
-    guessGame.onGuess(callback);
-    await game.guess([3, 2, 1, 0]);
+    player1Game.onGuess(callback);
+    await gameContract.guess([3, 2, 1, 0]);
 
     await t.delay;
     expect(eventEmmited).to.equal(true);
@@ -151,8 +177,10 @@ describe("Game Event", function () {
 
   it("should game allow to handle guess response event", async function () {
     // initialize the game
-    await guessGame.start();
-    await game.guess([3, 2, 1, 0]);
+    await player1Game.start();
+    await player2Game.join();
+
+    await gameContract.guess([3, 2, 1, 0]);
 
     const t = timeout(10000);
     let eventEmmited = false;
@@ -161,14 +189,15 @@ describe("Game Event", function () {
       eventEmmited = true;
       t.cancel();
     };
-    guessGame.onGuessResponse(callback);
-    await guessGame.guessAnswer();
+    player1Game.onGuessResponse(callback);
+    await player1Game.guessAnswer();
 
     await t.delay;
     expect(eventEmmited).to.equal(true);
   });
 });
 
+// HELPERS
 function timeout(ms: any) {
   let cancel = function () {};
   const delay = new Promise(function (resolve, reject) {
