@@ -408,19 +408,9 @@ describe("Game Contract", function () {
   it("should not allow to join a game if the room is full", async () => {
     // initialize the game
     await player1Game.start();
+    await player2Game.join();
 
-    const guesserGame = createGuessGame(
-      gameContract,
-      boardZKFiles,
-      questionZKFiles,
-      guessZKFiles,
-      [0, 1, 2, 3]
-    );
-    // connect with guesser
-    guesserGame.connect(guesser);
-    await guesserGame.join();
-
-    await expect(guesserGame.join()).to.be.revertedWith(
+    await expect(player2Game.join()).to.be.revertedWith(
       "Game Room already full"
     );
   });
@@ -428,58 +418,45 @@ describe("Game Contract", function () {
   it("should player 2 to join a game if the game is not created yet", async () => {
     // initialize the game
     await player1Game.start();
-
-    const guesserGame = createGuessGame(
-      gameContract,
-      boardZKFiles,
-      questionZKFiles,
-      guessZKFiles,
-      [0, 1, 2, 3]
-    );
-    // connect with guesser
-    guesserGame.connect(guesser);
-    await guesserGame.join();
+    await player2Game.join();
 
     // expect player 1 is the creator of the game
     expect(await gameContract.players(1)).to.be.equal(guesser.address);
   });
 
   it("should not allow to join a game if the game was not created", async () => {
-    const guesserGame = createGuessGame(
-      gameContract,
-      boardZKFiles,
-      questionZKFiles,
-      guessZKFiles,
-      [0, 1, 2, 3]
-    );
-    // connect with guesser
-    guesserGame.connect(guesser);
-
-    await expect(guesserGame.join()).to.be.revertedWith("Game not started");
+    await expect(player2Game.join()).to.be.revertedWith("Game not started");
   });
 
   it("should free the room when game finished", async () => {
     // initialize the game
     await player1Game.start();
+    await player2Game.join();
 
-    const guesserGame = createGuessGame(
-      gameContract,
-      boardZKFiles,
-      questionZKFiles,
-      guessZKFiles,
-      [0, 1, 2, 3]
-    );
-    // connect with guesser
-    guesserGame.connect(guesser);
-    await guesserGame.join();
-
-    await guesserGame.guess([1, 2, 3, 0]);
+    await player2Game.guess([1, 2, 3, 0]);
     await player1Game.guessAnswer();
 
     expect(await gameContract.isStarted()).to.be.equal(false);
 
     // allow to start a new game
     await player1Game.start();
-    await guesserGame.join();
+    await player2Game.join();
   });
+
+  it("should is ready to join true if the game was created but not joined", async () => {
+    // initialize the game
+    await player1Game.start();
+
+    expect(await gameContract.isCreated()).to.be.equal(true);
+  });
+
+  it("should not allow to start or join if the game was started", async () => {
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await expect(player2Game.createOrJoin()).to.be.rejectedWith(
+      "Game Room already full"
+    );
+  });
+
 });

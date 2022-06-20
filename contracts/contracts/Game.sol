@@ -154,12 +154,18 @@ contract Game {
     }
 
     function isStarted() external view returns (bool) {
-        return hash != 0;
+        return hash != 0 && players[1] != address(0);
+    }
+
+    function isCreated() external view returns (bool) {
+        return players[0] != address(0) && players[1] == address(0);
     }
 
     function isGameCreator() external view returns (bool) {
         return msg.sender == creator;
     }
+
+    // PRIVATE FUNCTIONS
 
     function end() private gameStarted {
    //     require(hash != 0, "Game not started");

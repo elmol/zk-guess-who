@@ -10,6 +10,17 @@ export class GuessGame {
     private salt: bigint = randomGenerator()
   ) {}
 
+  async createOrJoin(): Promise<String> {
+    if (await this.game.isStarted()) {
+      throw new Error("Game Room already full");
+    }
+    if (await this.game.isCreated()) {
+      return await this.join();
+    } else {
+      return await this.start();
+    }
+  }
+
   async start(): Promise<String> {
     // generating proof character selection
     const selection = await this.gameZK.selectionProof(
