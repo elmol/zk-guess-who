@@ -459,4 +459,10 @@ describe("Game Contract", function () {
     );
   });
 
+  it("should not allow to join the same player who create the game", async () => {
+    await player1Game.createOrJoin();
+    await expect(player1Game.createOrJoin()).to.be.rejectedWith(
+      "Player already join"
+    );
+  });
 });

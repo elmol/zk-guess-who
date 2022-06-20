@@ -81,6 +81,7 @@ contract Game {
         uint256[2] memory c
     ) external gameCreated {
         require(players[1] == address(0),"Game Room already full");
+        require(players[0]!=msg.sender, "Player already join");
         uint256[1] memory inputs = [_hash];
         require(
             verifierBoard.verifyProof(a, b, c, inputs),

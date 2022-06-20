@@ -10,6 +10,17 @@ export class GuessGame {
     private salt: bigint = randomGenerator()
   ) {}
 
+  async createOrJoin(): Promise<String> {
+    if (await this.game.isStarted()) {
+      throw new Error("Game Room already full");
+    }
+    if (await this.game.isCreated()) {
+      return await this.join();
+    } else {
+      return await this.start();
+    }
+  }
+
   async start(): Promise<String> {
     // generating proof character selection
     const selection = await this.gameZK.selectionProof(
@@ -30,6 +41,26 @@ export class GuessGame {
     return hash;
   }
 
+  async join(): Promise<String> {
+    // generating proof character selection
+    const selection = await this.gameZK.selectionProof(
+      this.character,
+      this.salt
+    );
+    const hash = selection.input[0];
+
+    // sending proof to contract
+    const tx = await this.game.join(
+      hash,
+      selection.piA,
+      selection.piB,
+      selection.piC
+    );
+    await tx.wait();
+
+    return hash;
+  }
+
   async question(type: number, characteristic: number) {
     const tx = await this.game.ask(type, characteristic);
     await tx.wait();
@@ -38,6 +69,10 @@ export class GuessGame {
   async answer() {
     if (!(await this.game.isStarted())) {
       throw new Error("Game not started");
+    }
+
+    if (!(await this.game.isGameCreator())) {
+      throw new Error("Only game creator can answer");
     }
 
     const type = await this.game.lastType();
@@ -73,6 +108,10 @@ export class GuessGame {
   async guessAnswer() {
     if (!(await this.game.isStarted())) {
       throw new Error("Game not started");
+    }
+
+    if (!(await this.game.isGameCreator())) {
+      throw new Error("Only game creator can answer");
     }
 
     const hash = await this.game.hash();

@@ -110,21 +110,31 @@ export class GameConnection {
 
   async selection(character: number[]) {
     let guess = await this.getGame(character);
-    if(await guess.isStarted()) {
-      console.log("Game already started");
+
+    // if the game is started should be not started
+    if (await guess.isStarted()) {
       throw new Error("Game already started");
     }
-    this.game=undefined;
-    localStorage.removeItem('salt');
-    localStorage.removeItem('character');
+
+    // backup game storage
+    const { saltLoaded, characterLoaded }: { saltLoaded: bigint | undefined; characterLoaded: number[] | undefined } = this.loadGame();
+
+    //clear game with the selected character
+    this.game = undefined;
+    localStorage.removeItem("salt");
+    localStorage.removeItem("character");
     guess = await this.getGame(character);
 
-    console.log("Selecting the character");
+    // create or join to the game
     try {
-      await await guess.start();
+      await await guess.createOrJoin();
       console.log("Character selected!");
       console.log("Game hash:", await this.gameContract?.hash());
     } catch (e) {
+      //rollback game
+      if (saltLoaded && characterLoaded) {
+        this.saveGame(characterLoaded, saltLoaded);
+      }
       console.log(e);
       throw e;
     }
@@ -134,7 +144,6 @@ export class GameConnection {
     const guess = await this.getGame();
     return guess.isGameCreator();
   }
-  
 
   async askQuestion(position: number, number: number) {
     const guess = await this.getGame();
@@ -199,12 +208,11 @@ export class GameConnection {
     }
   }
 
-
   async isStarted() {
     const game = await this.getGame();
     return await game.isStarted();
   }
-  
+
   async responseGuess() {
     const guess = await this.getGame();
     try {
@@ -232,25 +240,44 @@ export class GameConnection {
     }
 
     //try to load form localStorage
-    let salt;
+    const { saltLoaded, characterLoaded }: { saltLoaded: bigint | undefined; characterLoaded: number[] | undefined } = this.loadGame();
+
+    const salt = saltLoaded ? saltLoaded : randomGenerator();
+    character = characterLoaded ? characterLoaded : character;
+
+    // generate new game
+    this.game = await this.createGame(character, salt);
+
+    // save to localStorage
+    this.saveGame(character, salt);
+
+    return this.game;
+  }
+
+  private loadGame() {
+    let saltLoaded: bigint | undefined;
     const saltStorage = localStorage.getItem("salt");
     if (saltStorage) {
-      salt = BigInt(JSON.parse(saltStorage));
-    } else {
-      salt = randomGenerator();
+      saltLoaded = BigInt(JSON.parse(saltStorage));
     }
 
     const characterStorage = localStorage.getItem("character");
     console.log("character storage:", characterStorage);
+    let characterLoaded: number[] | undefined;
     if (characterStorage) {
       const characterParsed = JSON.parse(characterStorage);
-      character = [characterParsed[0], characterParsed[1], characterParsed[2], character[3]] as number[];
-      console.log("character:", character);
-      console.log("type of character",typeof character);
+      characterLoaded = [characterParsed[0], characterParsed[1], characterParsed[2], characterParsed[3]] as number[];
     }
+    return { saltLoaded, characterLoaded };
+  }
 
-    // generate new game
-    console.log("new game created...");
+  private saveGame(character: number[], salt: bigint) {
+    localStorage.setItem("salt", JSON.stringify(salt.toString()));
+    localStorage.setItem("character", JSON.stringify(character));
+  }
+
+  private async createGame(character: number[], salt: bigint) {
+    const connection = await this.gameConnection();
     const boardZKFiles = {
       wasm: "./board.wasm",
       zkey: "./circuit_final_board.zkey",
@@ -265,13 +292,7 @@ export class GameConnection {
       wasm: "./guess.wasm",
       zkey: "./circuit_final_guess.zkey",
     };
-    const connection = await this.gameConnection();
-    this.game = createGuessGame(connection, boardZKFiles, questionZKFiles, guessZKFiles, character, salt);
-    console.log("type of character",typeof character);
-    console.log("new game created with character:", character);
-    localStorage.setItem("salt", JSON.stringify(salt.toString()));
-    localStorage.setItem("character", JSON.stringify(character));
-    return this.game;
+    return createGuessGame(connection, boardZKFiles, questionZKFiles, guessZKFiles, character, salt);
   }
 }
 
