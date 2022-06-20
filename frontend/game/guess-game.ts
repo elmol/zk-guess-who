@@ -3,15 +3,28 @@ import { GameZK, ZKFiles } from "./game-zk";
 
 export class GuessGame {
   // eslint-disable-next-line no-useless-constructor
-  constructor(private game: Contract, private gameZK: GameZK, private character: number[], private salt: bigint = randomGenerator()) {}
+  constructor(
+    private game: Contract,
+    private gameZK: GameZK,
+    private character: number[],
+    private salt: bigint = randomGenerator()
+  ) {}
 
   async start(): Promise<String> {
     // generating proof character selection
-    const selection = await this.gameZK.selectionProof(this.character, this.salt);
+    const selection = await this.gameZK.selectionProof(
+      this.character,
+      this.salt
+    );
     const hash = selection.input[0];
 
     // sending proof to contract
-    const tx = await this.game.start(hash, selection.piA, selection.piB, selection.piC);
+    const tx = await this.game.start(
+      hash,
+      selection.piA,
+      selection.piB,
+      selection.piC
+    );
     await tx.wait();
 
     return hash;
@@ -32,10 +45,21 @@ export class GuessGame {
     const hash = await this.game.hash();
 
     // generate question proof
-    const question = await this.gameZK.questionProof(this.character, this.salt, type, characteristic, hash.toString());
+    const question = await this.gameZK.questionProof(
+      this.character,
+      this.salt,
+      type,
+      characteristic,
+      hash.toString()
+    );
     const answer = parseInt(question.input[0]);
 
-    const tx = await this.game.response(answer, question.piA, question.piB, question.piC);
+    const tx = await this.game.response(
+      answer,
+      question.piA,
+      question.piB,
+      question.piC
+    );
     await tx.wait();
 
     return answer + 1; // 0 is not anwered, 1 is incorrect, 2 is correct
@@ -52,10 +76,20 @@ export class GuessGame {
     }
 
     const hash = await this.game.hash();
-    const guess = [(await this.game.lastGuess(0)).toNumber(), (await this.game.lastGuess(1)).toNumber(), (await this.game.lastGuess(2)).toNumber(), (await this.game.lastGuess(3)).toNumber()];
+    const guess = [
+      (await this.game.lastGuess(0)).toNumber(),
+      (await this.game.lastGuess(1)).toNumber(),
+      (await this.game.lastGuess(2)).toNumber(),
+      (await this.game.lastGuess(3)).toNumber(),
+    ];
 
     // generate question proof
-    const proof = await this.gameZK.guessProof(this.character, this.salt, guess, hash.toString());
+    const proof = await this.gameZK.guessProof(
+      this.character,
+      this.salt,
+      guess,
+      hash.toString()
+    );
     const won = parseInt(proof.input[0]);
 
     const tx = await this.game.isWon(won, proof.piA, proof.piB, proof.piC);
@@ -88,10 +122,25 @@ export class GuessGame {
   async isStarted(): Promise<boolean> {
     return await this.game.isStarted();
   }
+
+  async isGameCreator(): Promise<boolean> {
+    return await this.game.isGameCreator();
+  }
 }
 
-export function createGuessGame(game: Contract, boardZKFiles: ZKFiles, questionZKFiles: ZKFiles, guessZKFiles: ZKFiles, character: number[], salt: bigint | undefined = undefined) {
-  const gameZK: GameZK = new GameZK(boardZKFiles, questionZKFiles, guessZKFiles);
+export function createGuessGame(
+  game: Contract,
+  boardZKFiles: ZKFiles,
+  questionZKFiles: ZKFiles,
+  guessZKFiles: ZKFiles,
+  character: number[],
+  salt: bigint | undefined = undefined
+) {
+  const gameZK: GameZK = new GameZK(
+    boardZKFiles,
+    questionZKFiles,
+    guessZKFiles
+  );
 
   if (salt) {
     return new GuessGame(game, gameZK, character, salt);

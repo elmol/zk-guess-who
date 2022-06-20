@@ -57,6 +57,8 @@ const Home: NextPage = () => {
 
   const [open, setOpen] = useState(false);
 
+  const [isGameCreator,setIsGameCreator] = useState(false);
+
   const onCreateGame: SubmitHandler<Question> = async (selection) => {
     setIsWaiting(true);
     setError(false);
@@ -124,6 +126,7 @@ const Home: NextPage = () => {
     setLastAnswer(await gameConnection.getLastAnswer());
     setLastGuess(await gameConnection.getLastGuessResponse());
     setIsStarted(await gameConnection.isStarted());
+    setIsGameCreator(await gameConnection.isGameCreator());
 
     console.log("game connection initialized");
   }
@@ -318,8 +321,8 @@ const Home: NextPage = () => {
 
             {isStarted ? (
               <>
-                <QuestionAnswer isPendingAnswer={isPendingAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onQuestionAnswered} />
-                <GuessAnswer isPendingGuess={isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />{" "}
+                <QuestionAnswer isGameCreator={isGameCreator} isPendingAnswer={isPendingAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onQuestionAnswered} />
+                <GuessAnswer isGameCreator={isGameCreator} isPendingGuess={isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />{" "}
               </>
             ) : (
               <div />

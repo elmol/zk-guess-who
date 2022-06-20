@@ -348,4 +348,19 @@ describe("Game Contract", function () {
 
     expect(await game.isStarted()).to.be.equal(false);
   });
+
+  it("it should return true if signer is the creator", async () => {
+    // initialize the game
+    await guessGame.start();
+
+    expect(await guessGame.isGameCreator()).to.be.equal(true);
+  });
+
+  it("it should return false if signer is not the creator", async () => {
+    // initialize the game
+    await guessGame.start();
+    // connect with guesser
+    guessGame.connect(guesser);
+    expect(await guessGame.isGameCreator()).to.be.equal(false);
+  });
 });

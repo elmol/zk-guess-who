@@ -118,6 +118,14 @@ export class GuessGame {
   connect(signer: any) {
     this.game = this.game.connect(signer);
   }
+
+  async isStarted(): Promise<boolean> {
+    return await this.game.isStarted();
+  }
+
+  async isGameCreator(): Promise<boolean> {
+    return await this.game.isGameCreator();
+  }
 }
 
 export function createGuessGame(

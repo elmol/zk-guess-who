@@ -115,6 +115,8 @@ export class GameConnection {
       throw new Error("Game already started");
     }
     this.game=undefined;
+    localStorage.removeItem('salt');
+    localStorage.removeItem('character');
     guess = await this.getGame(character);
 
     console.log("Selecting the character");
@@ -127,6 +129,12 @@ export class GameConnection {
       throw e;
     }
   }
+
+  async isGameCreator(): Promise<boolean> {
+    const guess = await this.getGame();
+    return guess.isGameCreator();
+  }
+  
 
   async askQuestion(position: number, number: number) {
     const guess = await this.getGame();
@@ -232,6 +240,15 @@ export class GameConnection {
       salt = randomGenerator();
     }
 
+    const characterStorage = localStorage.getItem("character");
+    console.log("character storage:", characterStorage);
+    if (characterStorage) {
+      const characterParsed = JSON.parse(characterStorage);
+      character = [characterParsed[0], characterParsed[1], characterParsed[2], character[3]] as number[];
+      console.log("character:", character);
+      console.log("type of character",typeof character);
+    }
+
     // generate new game
     console.log("new game created...");
     const boardZKFiles = {
@@ -250,7 +267,10 @@ export class GameConnection {
     };
     const connection = await this.gameConnection();
     this.game = createGuessGame(connection, boardZKFiles, questionZKFiles, guessZKFiles, character, salt);
+    console.log("type of character",typeof character);
+    console.log("new game created with character:", character);
     localStorage.setItem("salt", JSON.stringify(salt.toString()));
+    localStorage.setItem("character", JSON.stringify(character));
     return this.game;
   }
 }

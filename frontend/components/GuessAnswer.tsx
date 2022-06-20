@@ -15,12 +15,12 @@ type Question = {
   character: string;
 };
 
-
 interface GuessAnswerProps {
   isPendingGuess: boolean | undefined;
   lastGuess: number;
   onGuessSubmit: SubmitHandler<Question>;
   onGuessAnswered: () => () => Promise<void>;
+  isGameCreator: boolean | undefined;
 }
 
 export const GuessAnswer = (props: GuessAnswerProps) => {
@@ -80,7 +80,7 @@ export const GuessAnswer = (props: GuessAnswerProps) => {
                 </Button>
               </Grid>
               <Grid item xs={12} sm={3}>
-                <Button disabled={!props.isPendingGuess} variant="outlined" onClick={props.onGuessAnswered()}>
+                <Button disabled={!props.isPendingGuess || !props.isGameCreator} variant="outlined" onClick={props.onGuessAnswered()}>
                   ack
                 </Button>
               </Grid>

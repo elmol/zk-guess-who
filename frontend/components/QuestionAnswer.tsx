@@ -6,6 +6,7 @@ import Typography from "@mui/material/Typography";
 import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import NumberFormSelect from "../components/NumberFormSelect";
+import { GameConnection } from "../game/game-connection";
 
 type Question = {
   position: number;
@@ -16,6 +17,7 @@ type Question = {
 
 interface QuestionAnswerProps {
   isPendingAnswer: boolean | undefined;
+  isGameCreator: boolean | undefined;
   lastAnswer: number;
   onQuestionSubmit: SubmitHandler<Question>;
   onQuestionAnswered: () => () => Promise<void>;
@@ -39,6 +41,7 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
     }
     return <QuestionMarkIcon />;
   }
+
 
   return (
     <>
@@ -72,7 +75,7 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
                 </Button>
               </Grid>
               <Grid item xs={12} sm={3}>
-                <Button disabled={!props.isPendingAnswer} variant="outlined" onClick={props.onQuestionAnswered()}>
+                <Button disabled={!props.isPendingAnswer || !props.isGameCreator} variant="outlined" onClick={props.onQuestionAnswered()}>
                   ack
                 </Button>
               </Grid>

@@ -126,6 +126,10 @@ contract Game {
         return hash != 0;
     }
 
+    function isGameCreator() external view returns (bool) {
+        return msg.sender == creator;
+    }
+
     function end() private {
         require(hash != 0, "Game not started");
         hash = 0;
