@@ -70,7 +70,7 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
                 <Avatar variant="rounded"> {answer(props.lastAnswer)}</Avatar>
               </Grid>
               <Grid item xs={12} sm={3}>
-                <Button type="submit" fullWidth variant="contained" disabled={props.isPendingAnswer}>
+                <Button type="submit" fullWidth variant="contained" disabled={props.isPendingAnswer || props.isGameCreator}>
                   ask
                 </Button>
               </Grid>
@@ -81,7 +81,7 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
               </Grid>
             </Grid>
           </Box>
-          <>{props.isPendingAnswer && <Typography variant="body2">Pending question answer. Waiting for the other player...</Typography>}</>
+          <>{(props.isGameCreator|| props.isPendingAnswer) && (!props.isPendingAnswer || !props.isGameCreator) && <Typography variant="body2">Pending question answer. Waiting for the other player...</Typography>}</>
         </Box>
       </Container>
     </>

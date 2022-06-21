@@ -120,7 +120,7 @@ const Home: NextPage = () => {
   async function connect(): Promise<void> {
     console.log("connecting...");
 
-    await gameConnection.init(handleOnQuestionAsked, handleOnQuestionAnswered, handleOnGuess, handleOnGuessResponse);
+    await gameConnection.init(handleOnQuestionAsked, handleOnQuestionAnswered, handleOnGuess, handleOnGuessResponse,handleOnJoined);
 
     // init properties
     setLastAnswer(await gameConnection.getLastAnswer());
@@ -156,6 +156,13 @@ const Home: NextPage = () => {
 
   async function handleOnGuess(guess: number[]) {
     console.log(`Last Guess Event: ${guess}`);
+    await updateGuessState();
+  }
+
+  async function handleOnJoined(){
+    setIsStarted(true);
+    console.log("Joined event");
+    await updateQuestionState();
     await updateGuessState();
   }
 
