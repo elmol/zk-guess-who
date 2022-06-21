@@ -57,7 +57,7 @@ export const GuessAnswer = (props: GuessAnswerProps) => {
         <CssBaseline />
         <Box
           sx={{
-            marginTop: 8,
+            marginTop: 4,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -67,14 +67,11 @@ export const GuessAnswer = (props: GuessAnswerProps) => {
             Guess a Number
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit(props.onGuessSubmit)} sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <CharacterSelector id="guess" label="Guess" control={control} defaultValue={"0-1-2-3"} variant="outlined" size="small" characters={board} {...register("guess")}></CharacterSelector>
+            <Grid container >
+              <Grid item xs={8} sm={8}>
+                <CharacterSelector disabled={props.isPendingGuess || !props.isQuestionTurn} align="center" id="guess" label="Guess" control={control} defaultValue={"0-1-2-3"} variant="outlined" size="small" characters={board} {...register("guess")}></CharacterSelector>
               </Grid>
-              <Grid item xs={12} sm={3}>
-                <Avatar variant="rounded"> {answer(props.lastGuess)}</Avatar>
-              </Grid>
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={4} sm={4}>
                 <Button type="submit" fullWidth variant="contained" disabled={props.isPendingGuess || !props.isQuestionTurn}>
                   guess
                 </Button>
