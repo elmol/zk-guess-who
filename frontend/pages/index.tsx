@@ -60,6 +60,8 @@ const Home: NextPage = () => {
   const [isAnswerTurn, setAnswerTurn] = useState(false);
   const [isQuestionTurn,setQuestionTurn] = useState(false);
 
+  const [isWinner,setIsWinner] = useState(false);
+
   const onCreateGame: SubmitHandler<Question> = async (selection) => {
     setIsWaiting(true);
     setError(false);
@@ -93,6 +95,7 @@ const Home: NextPage = () => {
 
     setIsWaiting(false);
   };
+
 
   function onGuessAnswered() {
     return async () => {
@@ -197,6 +200,7 @@ const Home: NextPage = () => {
   async function onHandleEndOfGame() {
     const lastAnswer = await gameConnection.getLastGuessResponse();
     if (lastAnswer !== 0 && lastAnswer !== 3) {
+      setIsWinner(await gameConnection.isWinner());
       console.log("End Game");
       setOpen(true);
     }
@@ -385,7 +389,7 @@ const Home: NextPage = () => {
         ) : (
           <div />
         )}
-        <AlertDialogSlide open={open} setOpen={setOpen}></AlertDialogSlide>
+        <AlertDialogSlide open={open} setOpen={setOpen} win={isWinner}></AlertDialogSlide>
       </ThemeProvider>
       <footer className={styles.footer}>
         <a href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app" target="_blank" rel="noopener noreferrer">

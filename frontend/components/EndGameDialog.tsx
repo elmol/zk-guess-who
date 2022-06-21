@@ -19,15 +19,12 @@ const Transition = React.forwardRef(function Transition(
 
 interface EndGameDialogProps {
     open: boolean;
+    win: boolean
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function AlertDialogSlide(props: EndGameDialogProps) {
   
-
-  const handleClickOpen = () => {
-    props.setOpen(true);
-  };
 
   const handleClose = () => {
     props.setOpen(false);
@@ -35,9 +32,6 @@ export default function AlertDialogSlide(props: EndGameDialogProps) {
 
   return (
     <div>
-      {/* <Button variant="outlined" onClick={handleClickOpen}>
-        Slide in alert dialog
-      </Button> */}
       <Dialog
         open={props.open}
         TransitionComponent={Transition}
@@ -45,14 +39,14 @@ export default function AlertDialogSlide(props: EndGameDialogProps) {
         onClose={handleClose}
         aria-describedby="alert-dialog-slide-description"
       >
-        <DialogTitle>{"zk Guess Who Game End"}</DialogTitle>
+        <DialogTitle>{"Game Over"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
-            You have win/lose the game.
+            You have {props.win?"WON":"LOST"}!
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Agree</Button>
+          <Button onClick={handleClose}>OK</Button>
         </DialogActions>
       </Dialog>
     </div>

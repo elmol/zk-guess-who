@@ -166,6 +166,10 @@ export class GameConnection {
     return guess.isAnswerTurn();
   }
 
+  async isWinner(): Promise<boolean> {
+    return await this.gameContract?.isWinner();
+  }
+
   async askQuestion(position: number, number: number) {
     const guess = await this.getGame();
     console.log("Asking for", position, number);

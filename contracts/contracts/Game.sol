@@ -190,6 +190,10 @@ contract Game {
         return msg.sender == players[previousTurn()];
     }
 
+    function isWinner() public view returns (bool) {
+        return msg.sender == winner;
+    }
+
     function hashByAccount() external view returns (uint256) {
         if (msg.sender == players[1]) {
             return hash[1];

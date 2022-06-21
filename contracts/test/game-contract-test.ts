@@ -183,7 +183,7 @@ describe("Game Contract", function () {
     expect(await gameContract.lastResponse()).to.equal(2);
 
     // another question
-    await player2Game.question(2, 3);
+    await player1Game.question(2, 3);
     // false
     expect(await gameContract.lastResponse()).to.equal(0);
   });
@@ -334,7 +334,7 @@ describe("Game Contract", function () {
     await player1Game.start();
     await player2Game.join();
 
-    await player1Game.question(1, 3);
+    await player2Game.question(1, 3);
     await expect(player1Game.question(2, 1)).to.be.revertedWith(
       "Question is pending of answer"
     );
@@ -345,7 +345,7 @@ describe("Game Contract", function () {
     await player1Game.start();
     await player2Game.join();
 
-    await player1Game.guess([1, 2, 3, 0]);
+    await player2Game.guess([1, 2, 3, 0]);
     await expect(player1Game.guess([1, 2, 3, 4])).to.be.revertedWith(
       "Guess is pending of answer"
     );
@@ -356,7 +356,7 @@ describe("Game Contract", function () {
     await player1Game.start();
     await player2Game.join();
 
-    await player1Game.guess([1, 2, 3, 0]);
+    await player2Game.guess([1, 2, 3, 0]);
     await player1Game.guessAnswer();
 
     expect(await gameContract.isStarted()).to.be.equal(false);
@@ -550,6 +550,7 @@ describe("Game Contract", function () {
     await player1Game.answerAll();
     expect(await gameContract.winner()).to.equal(guesser.address);
     expect(await gameContract.won()).to.equal(2);
+    expect(await gameContract.connect(guesser).isWinner()).to.equal(true);
   });
 
   it("should not to allow answer all if not a pending answer (guess or question)", async () => {
