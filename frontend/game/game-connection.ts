@@ -210,6 +210,21 @@ export class GameConnection {
     }
   }
 
+  async answerAll() {
+    const guess = await this.getGame();
+    console.log("ANSWER-ALL: game", guess);
+    console.log("ANSWER-ALL: hash(0)", await this.gameContract?.hash(0));
+    console.log("ANSWER-ALL: hash(1)", await this.gameContract?.hash(1));
+    console.log("ANSWER-ALL: Hash by account", await this.gameContract?.hashByAccount());
+    console.log("ANSWER-ALL: turn", await this.gameContract?.currentTurn());
+    try {
+      await guess.answerAll();
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
   async getLastAnswer() {
     const asw = await this.gameContract?.lastResponse();
     console.log("Last Answer:", asw);

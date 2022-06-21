@@ -110,6 +110,25 @@ const Home: NextPage = () => {
     };
   }
 
+  function onAllAnswered() {
+    return async () => {
+      setIsWaiting(true);
+      setError(false);
+      try {
+        await gameConnection.answerAll();
+        setLastAnswer(await gameConnection.getLastAnswer());
+        setLastGuess(await gameConnection.getLastGuessResponse());
+        await onHandleEndOfGame();
+      } catch (e: any) {
+        setError(true);
+        setErrorMsg(e.message);
+      }
+
+      setIsWaiting(false);
+    };
+  }
+
+
   async function onInit() {
     // console.log("On init..");
     // const provider = new providers.JsonRpcProvider("http://localhost:8545");
@@ -330,6 +349,9 @@ const Home: NextPage = () => {
               <>
                 <QuestionAnswer isGameCreator={isGameCreator} isPendingAnswer={isPendingAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onQuestionAnswered} />
                 <GuessAnswer isGameCreator={isGameCreator} isPendingGuess={isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />{" "}
+                <Button disabled={!isPendingAnswer || !isGameCreator} variant="outlined" onClick={onAllAnswered()}>
+                  ack
+                </Button>
               </>
             ) : (
               <div />

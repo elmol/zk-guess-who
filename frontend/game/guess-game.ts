@@ -66,6 +66,20 @@ export class GuessGame {
     await tx.wait();
   }
 
+  async answerAll() {
+    // question pending answer
+    if ((await this.game.lastResponse()) === 0) {
+      return this.answer();
+    }
+
+    // guess pending answer
+    if ((await this.game.won()) === 0) {
+      return this.guessAnswer();
+    }
+
+    throw new Error("No answer pending");
+  }
+
   async answer() {
     if (!(await this.game.isStarted())) {
       throw new Error("Game not started");
