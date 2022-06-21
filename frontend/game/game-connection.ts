@@ -52,11 +52,12 @@ export class GameConnection {
     handleOnQuestionAnswered: (answer: number) => void,
     handleOnGuess: (guess: number[]) => void,
     handleOnGuessResponse: (response: number) => void,
-    handleOnJoined: () => void
+    handleOnJoined: () => void,
+    handleOnCreated: () => void
   ) {
     if (!this.isRegistered) {
       console.log("Registering handlers...");
-      await this.register(handleOnQuestionAsked, handleOnQuestionAnswered, handleOnGuess, handleOnGuessResponse,handleOnJoined);
+      await this.register(handleOnQuestionAsked, handleOnQuestionAnswered, handleOnGuess, handleOnGuessResponse,handleOnJoined,handleOnCreated);
       this.isRegistered = true;
     }
     console.log("Guess Game Connection initialized");
@@ -67,7 +68,8 @@ export class GameConnection {
     handleOnQuestionAnswered: (answer: number) => void,
     handleOnGuess: (guess: number[]) => void,
     handleOnGuessResponse: (response: number) => void,
-    handleOnJoined: () => void
+    handleOnJoined: () => void,
+    handleOnCreated: () => void
   ) {
     const game = await this.getGame();
 
@@ -111,6 +113,10 @@ export class GameConnection {
 
     game.onPlayerJoined(async () => {
       await handleOnJoined();
+    });
+
+    game.onGameCreated(async () => {
+      await handleOnCreated();
     });
   }
 
@@ -266,6 +272,10 @@ export class GameConnection {
   async isStarted() {
     const game = await this.getGame();
     return await game.isStarted();
+  }
+
+  async isCreated() {
+   return await this.gameContract?.isCreated()
   }
 
   async responseGuess() {

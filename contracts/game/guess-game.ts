@@ -172,6 +172,10 @@ export class GuessGame {
     this.game.on("Joined", callback);
   }
 
+  onGameCreated(callback: () => void) {
+    this.game.on("GameCreated", callback);
+  }
+
   connect(signer: any) {
     this.game = this.game.connect(signer);
   }

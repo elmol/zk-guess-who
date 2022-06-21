@@ -205,10 +205,25 @@ describe("Game Event", function () {
       eventEmmited = true;
       t.cancel();
     };
+    player2Game.onPlayerJoined(callback);
     await player2Game.join();
 
-    player2Game.onPlayerJoined(callback);
-    await player1Game.guessAnswer();
+
+    await t.delay;
+    expect(eventEmmited).to.equal(true);
+  });
+
+  it("should game allow to handle game created event", async function () {
+    // initialize the game
+    const t = timeout(10000);
+    let eventEmmited = false;
+    const callback = () => {
+      eventEmmited = true;
+      t.cancel();
+    };
+    player1Game.onGameCreated(callback);
+    await player1Game.start();
+
 
     await t.delay;
     expect(eventEmmited).to.equal(true);

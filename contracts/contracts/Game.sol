@@ -14,6 +14,7 @@ contract Game {
     event GuessResponse(uint8 _answer);
 
     event Joined();
+    event GameCreated();
 
     address[2] public players;
     uint256[2] public hash;
@@ -81,6 +82,7 @@ contract Game {
         lastResponse = 3;
         won = 3;
         winner = address(0);
+        emit GameCreated();
     }
 
     function join(

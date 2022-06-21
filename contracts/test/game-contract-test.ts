@@ -335,7 +335,7 @@ describe("Game Contract", function () {
     await player2Game.join();
 
     await player2Game.question(1, 3);
-    await expect(player1Game.question(2, 1)).to.be.revertedWith(
+    await expect(player2Game.question(2, 1)).to.be.revertedWith(
       "Question is pending of answer"
     );
   });
@@ -346,7 +346,7 @@ describe("Game Contract", function () {
     await player2Game.join();
 
     await player2Game.guess([1, 2, 3, 0]);
-    await expect(player1Game.guess([1, 2, 3, 4])).to.be.revertedWith(
+    await expect(player2Game.guess([1, 2, 3, 4])).to.be.revertedWith(
       "Guess is pending of answer"
     );
   });

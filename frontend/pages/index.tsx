@@ -54,13 +54,14 @@ const Home: NextPage = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   const [isStarted, setIsStarted] = useState(false);
+  const [isCreated, setIsCreated] = useState(false);
 
   const [open, setOpen] = useState(false);
 
   const [isAnswerTurn, setAnswerTurn] = useState(false);
-  const [isQuestionTurn,setQuestionTurn] = useState(false);
+  const [isQuestionTurn, setQuestionTurn] = useState(false);
 
-  const [isWinner,setIsWinner] = useState(false);
+  const [isWinner, setIsWinner] = useState(false);
 
   const onCreateGame: SubmitHandler<Question> = async (selection) => {
     setIsWaiting(true);
@@ -71,6 +72,8 @@ const Home: NextPage = () => {
       const character = selection.character.split("-").map((n: string) => parseInt(n.trim()));
       console.log("selection", selection.character);
       await gameConnection.selection(character);
+      setIsStarted(await gameConnection.isStarted());
+      setIsCreated(await gameConnection.isCreated())
     } catch (e: any) {
       setError(true);
       setErrorMsg(e.message);
@@ -95,7 +98,6 @@ const Home: NextPage = () => {
 
     setIsWaiting(false);
   };
-
 
   function onGuessAnswered() {
     return async () => {
@@ -142,7 +144,7 @@ const Home: NextPage = () => {
   async function connect(): Promise<void> {
     console.log("connecting...");
 
-    await gameConnection.init(handleOnQuestionAsked, handleOnQuestionAnswered, handleOnGuess, handleOnGuessResponse, handleOnJoined);
+    await gameConnection.init(handleOnQuestionAsked, handleOnQuestionAnswered, handleOnGuess, handleOnGuessResponse, handleOnJoined,handleOnCreated);
 
     // init properties
     setLastAnswer(await gameConnection.getLastAnswer());
@@ -176,7 +178,6 @@ const Home: NextPage = () => {
     }
     setLastAnswer(lastAnswer);
     setQuestionTurn(await gameConnection.isQuestionTurn());
-
   }
 
   async function handleOnGuess(guess: number[]) {
@@ -185,11 +186,21 @@ const Home: NextPage = () => {
   }
 
   async function handleOnJoined() {
-    setIsStarted(true);
+    setIsStarted(await gameConnection.isStarted());
+    setIsCreated(await gameConnection.isCreated());
     console.log("Joined event");
     await updateQuestionState();
     await updateGuessState();
   }
+
+  async function handleOnCreated() {
+    setIsStarted(await gameConnection.isStarted());
+    setIsCreated(await gameConnection.isCreated());
+    console.log("Created event");
+    await updateQuestionState();
+    await updateGuessState();
+  }
+
 
   async function handleOnGuessResponse(answer: number) {
     console.log(`Last Guess Response event: ${answer}`);
@@ -218,7 +229,6 @@ const Home: NextPage = () => {
     }
     setLastGuess(lastAnswer);
     setQuestionTurn(await gameConnection.isQuestionTurn());
-
   }
 
   useEffect(() => {
@@ -345,7 +355,7 @@ const Home: NextPage = () => {
                     ></CharacterSelector>
                   </Typography>
                   <Typography align="center">
-                    <Button type="submit">Create New Game</Button>
+                    <Button type="submit">{isCreated ? "Join Game" : "Create New Game"} </Button>
                   </Typography>
                 </Box>
               </>
@@ -355,10 +365,21 @@ const Home: NextPage = () => {
 
             {isStarted ? (
               <>
-                
-                <QuestionAnswer isQuestionTurn={isQuestionTurn} isPendingAnswer={isPendingAnswer || isPendingGuess} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onQuestionAnswered} />
+                <QuestionAnswer
+                  isQuestionTurn={isQuestionTurn}
+                  isPendingAnswer={isPendingAnswer || isPendingGuess}
+                  lastAnswer={lastAnswer}
+                  onQuestionSubmit={onQuestionSubmit}
+                  onQuestionAnswered={onQuestionAnswered}
+                />
                 <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingAnswer || isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
-                <>{(isAnswerTurn || (isPendingAnswer || isPendingGuess)) && (!(isPendingAnswer || isPendingGuess) || !isAnswerTurn) && <Typography variant="body2" align="center" marginTop={4} >Waiting for the other player...</Typography>}</>
+                <>
+                  {(isAnswerTurn || isPendingAnswer || isPendingGuess) && (!(isPendingAnswer || isPendingGuess) || !isAnswerTurn) && (
+                    <Typography variant="body2" align="center" marginTop={4}>
+                      Waiting for the other player...
+                    </Typography>
+                  )}
+                </>
 
                 <Container component="main" maxWidth="xs">
                   <CssBaseline />
