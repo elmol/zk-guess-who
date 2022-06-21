@@ -28,7 +28,6 @@ contract Game {
 
     address public winner;
 
-
     IVerifierBoard private verifierBoard;
     IVerifierQuestion private verifierQuestion;
     IVerifierGuess private verifierGuess;
@@ -56,6 +55,11 @@ contract Game {
 
     modifier onlyAnswerTurn() {
         require(isAnswerTurn(), "Only current player turn can answer");
+        _;
+    }
+
+    modifier onlyQuestionTurn() {
+        require(isQuestionTurn(), "Not player turn");
         _;
     }
 
@@ -101,8 +105,9 @@ contract Game {
         emit Joined();
     }
 
-    function ask(uint8 _type, uint8 _characteristic) external gameStarted {
+    function ask(uint8 _type, uint8 _characteristic) external gameStarted onlyQuestionTurn {
         require(lastResponse != 0, "Question is pending of answer");
+        require(won != 0, "Pending guess answer");
         lastType = _type;
         lastCharacteristic = _characteristic;
         lastResponse = 0; // set last response to 0, not answered
@@ -130,8 +135,9 @@ contract Game {
         emit QuestionAnswered(lastResponse);
     }
 
-    function guess(uint8[4] memory _guess) external gameStarted {
+    function guess(uint8[4] memory _guess) external gameStarted onlyQuestionTurn {
         require(won != 0, "Guess is pending of answer");
+        require(lastResponse != 0, "Pending question answer");
         lastGuess = _guess;
         won = 0;
         emit Guess(lastGuess);
@@ -180,24 +186,27 @@ contract Game {
         return msg.sender == players[currentTurn()];
     }
 
+    function isQuestionTurn() public view returns (bool) {
+        return msg.sender == players[previousTurn()];
+    }
+
     function hashByAccount() external view returns (uint256) {
-         if(msg.sender == players[1]) {
+        if (msg.sender == players[1]) {
             return hash[1];
-         }
-         if(msg.sender == players[0]) {
+        }
+        if (msg.sender == players[0]) {
             return hash[0];
-         }
-         return 0;
+        }
+        return 0;
     }
 
     // PRIVATE FUNCTIONS
 
     function end() private gameStarted {
-
-        if(won == 2) {
+        if (won == 2) {
             winner = players[previousTurn()];
-        } 
-        if( won == 1) {
+        }
+        if (won == 1) {
             winner = players[currentTurn()];
         }
         // free room

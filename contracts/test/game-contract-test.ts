@@ -532,4 +532,122 @@ describe("Game Contract", function () {
 
     expect(await gameContract.winner()).to.equal(creator.address);
   });
+
+  it("should answer all (question and guess) on the same time", async () => {
+    // initialize the game
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await player2Game.question(1, 3);
+    await player1Game.answerAll();
+    expect(await gameContract.lastResponse()).to.equal(1);
+
+    await player1Game.question(1, 1);
+    await player2Game.answerAll();
+    expect(await gameContract.lastResponse()).to.equal(2);
+
+    await player2Game.guess([3, 2, 1, 0]);
+    await player1Game.answerAll();
+    expect(await gameContract.winner()).to.equal(guesser.address);
+    expect(await gameContract.won()).to.equal(2);
+  });
+
+  it("should not to allow answer all if not a pending answer (guess or question)", async () => {
+    // initialize the game
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await expect(player1Game.answerAll()).to.be.rejectedWith(
+      "No answer pending"
+    );
+
+    await player2Game.question(1, 3);
+    await player1Game.answerAll();
+    expect(await gameContract.lastResponse()).to.equal(1);
+
+    await expect(player2Game.answerAll()).to.be.rejectedWith(
+      "No answer pending"
+    );
+
+    await player1Game.question(1, 1);
+    await player2Game.answerAll();
+    expect(await gameContract.lastResponse()).to.equal(2);
+
+    await player2Game.guess([3, 2, 1, 0]);
+    await player1Game.answerAll();
+    expect(await gameContract.winner()).to.equal(guesser.address);
+    expect(await gameContract.won()).to.equal(2);
+
+    await expect(player1Game.answerAll()).to.be.rejectedWith(
+      "No answer pending"
+    );
+  });
+
+  it("should not allow to guess if there is a pending question", async () => {
+    // initialize the game
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await player2Game.question(1, 3);
+    await expect(player2Game.guess([3, 2, 1, 0])).to.be.rejectedWith(
+      "Pending question answer"
+    );
+  });
+
+  it("should not allow to question if there is a pending guess", async () => {
+    // initialize the game
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await player2Game.guess([3, 2, 1, 0]);
+    await expect(player2Game.question(1, 3)).to.be.rejectedWith(
+      "Pending guess answer"
+    );
+  });
+
+  it("should not allow to question if is not the turn", async () => {
+    // initialize the game
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await expect(player1Game.question(1, 3)).to.be.rejectedWith(
+      "Not player turn"
+    );
+  });
+
+  it("should not allow to guess if is not the turn", async () => {
+    // initialize the game
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await expect(player1Game.guess([3, 2, 1, 0])).to.be.rejectedWith(
+      "Not player turn"
+    );
+  });
+
+  it("should not allow to guess player 2 if is not the turn", async () => {
+    // initialize the game
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await player2Game.question(1, 3);
+    await player1Game.answerAll();
+
+    await expect(player2Game.guess([3, 2, 1, 0])).to.be.rejectedWith(
+      "Not player turn"
+    );
+  });
+
+  it("should not allow to question player 2 if is not the turn", async () => {
+    // initialize the game
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await player2Game.question(1, 3);
+    await player1Game.answerAll();
+
+    await expect(player2Game.question(1, 3)).to.be.rejectedWith(
+      "Not player turn"
+    );
+  });
 });

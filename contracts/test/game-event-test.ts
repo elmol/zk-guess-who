@@ -122,7 +122,7 @@ describe("Game Event", function () {
     };
 
     player1Game.onQuestionAsked(callback);
-    await gameContract.ask(0, 3);
+    await player2Game.question(0, 3);
 
     // wait until event
     await t.delay;
@@ -134,7 +134,7 @@ describe("Game Event", function () {
     await player1Game.start();
     await player2Game.join();
 
-    await gameContract.ask(0, 3);
+    await player2Game.question(0, 3);
 
     const t = timeout(8000);
     let eventEmmited = false;
@@ -169,7 +169,7 @@ describe("Game Event", function () {
     };
 
     player1Game.onGuess(callback);
-    await gameContract.guess([3, 2, 1, 0]);
+    await player2Game.guess([3, 2, 1, 0]);
 
     await t.delay;
     expect(eventEmmited).to.equal(true);
@@ -180,7 +180,7 @@ describe("Game Event", function () {
     await player1Game.start();
     await player2Game.join();
 
-    await gameContract.guess([3, 2, 1, 0]);
+    await player2Game.guess([3, 2, 1, 0]);
 
     const t = timeout(10000);
     let eventEmmited = false;
