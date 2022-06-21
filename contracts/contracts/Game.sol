@@ -26,6 +26,8 @@ contract Game {
     uint8 public lastResponse; //last response 0:not answered, 1:wrong, 2:correct 3:never response
     uint8 public won; //last guess 0:not answered, 1:wrong, 2:correct 3:never guess
 
+    address public winner;
+
 
     IVerifierBoard private verifierBoard;
     IVerifierQuestion private verifierQuestion;
@@ -74,6 +76,7 @@ contract Game {
         players[0] = msg.sender;
         lastResponse = 3;
         won = 3;
+        winner = address(0);
     }
 
     function join(
@@ -94,6 +97,7 @@ contract Game {
         players[1] = msg.sender;
         lastResponse = 3;
         won = 3;
+        winner = address(0);
         emit Joined();
     }
 
@@ -168,6 +172,10 @@ contract Game {
         return turn % 2;
     }
 
+    function previousTurn() public view returns (uint256) {
+        return (turn + 1) % 2;
+    }
+
     function isAnswerTurn() public view returns (bool) {
         return msg.sender == players[currentTurn()];
     }
@@ -185,6 +193,13 @@ contract Game {
     // PRIVATE FUNCTIONS
 
     function end() private gameStarted {
+
+        if(won == 2) {
+            winner = players[previousTurn()];
+        } 
+        if( won == 1) {
+            winner = players[currentTurn()];
+        }
         // free room
         hash[0] = 0;
         hash[1] = 0;

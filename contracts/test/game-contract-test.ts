@@ -441,6 +441,7 @@ describe("Game Contract", function () {
     // allow to start a new game
     await player1Game.start();
     await player2Game.join();
+    expect(await gameContract.winner()).to.equal(ethers.constants.AddressZero);
   });
 
   it("should is ready to join true if the game was created but not joined", async () => {
@@ -494,5 +495,41 @@ describe("Game Contract", function () {
     await player1Game.guess([0, 1, 2, 3]);
     await player2Game.guessAnswer();
     expect(await gameContract.won()).to.equal(2);
+  });
+
+  it("should winner player 2 when player 2 guess the character", async () => {
+    // initialize the game
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await player2Game.guess([3, 2, 1, 0]);
+    await player1Game.guessAnswer();
+
+    expect(await gameContract.winner()).to.equal(guesser.address);
+  });
+
+  it("should winner player 1 when player 2 not guess the character", async () => {
+    // initialize the game
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await player2Game.guess([0, 2, 1, 0]);
+    await player1Game.guessAnswer();
+
+    expect(await gameContract.winner()).to.equal(creator.address);
+  });
+
+  it("should winner player 1 when player 1 guess the character", async () => {
+    // initialize the game
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+
+    await player2Game.question(1, 3);
+    await player1Game.answer();
+
+    await player1Game.guess([0, 1, 2, 3]);
+    await player2Game.guessAnswer();
+
+    expect(await gameContract.winner()).to.equal(creator.address);
   });
 });
