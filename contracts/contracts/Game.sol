@@ -13,19 +13,19 @@ contract Game {
     event Guess(uint256[4] _guess);
     event GuessResponse(uint8 _answer);
 
-     event Joined();
+    event Joined();
+
+    address[2] public players;
+    uint256[2] public hash;
+    uint256 private turn;
+
+    uint256[4] public lastGuess;
 
     uint8 public lastType;
     uint8 public lastCharacteristic;
     uint8 public lastResponse; //last response 0:not answered, 1:wrong, 2:correct 3:never response
-
-    uint256[4] public lastGuess;
     uint8 public won; //last guess 0:not answered, 1:wrong, 2:correct 3:never guess
 
-    address[2] public players;
-    uint256[2] public hash;
-
-    uint256 private turn;
 
     IVerifierBoard private verifierBoard;
     IVerifierQuestion private verifierQuestion;

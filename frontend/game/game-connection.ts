@@ -118,6 +118,10 @@ export class GameConnection {
 
     // backup game storage
     const { saltLoaded, characterLoaded }: { saltLoaded: bigint | undefined; characterLoaded: number[] | undefined } = this.loadGame();
+    console.log("CREATE-JOIN: Backup game storage:", saltLoaded, characterLoaded);
+    console.log("CREATE-JOIN: Backup game Hash for this account", await this.gameContract?.hashByAccount());
+    console.log("CREATE-JOIN: hash(0)", await this.gameContract?.hash(0));
+    console.log("CREATE-JOIN: hash(1)", await this.gameContract?.hash(1));
 
     //clear game with the selected character
     this.game = undefined;
@@ -125,15 +129,26 @@ export class GameConnection {
     localStorage.removeItem("character");
     guess = await this.getGame(character);
 
+    console.log("CREATE-JOIN: Game Cleaned:", guess);
+    console.log("CREATE-JOIN: Game Cleaned Hash", await this.gameContract?.hashByAccount());
+    console.log("CREATE-JOIN: hash(0)", await this.gameContract?.hash(0));
+    console.log("CREATE-JOIN: hash(1)", await this.gameContract?.hash(1));
+    
     // create or join to the game
     try {
       await await guess.createOrJoin();
-      console.log("Character selected!");
-      console.log("Game hash:", await this.gameContract?.hash());
+      console.log("CREATE-JOIN: After create or join:", guess);
+      console.log("CREATE-JOIN: create or join Hash", await this.gameContract?.hashByAccount());
+      console.log("CREATE-JOIN: hash(0)", await this.gameContract?.hash(0));
+      console.log("CREATE-JOIN: hash(1)", await this.gameContract?.hash(1));
     } catch (e) {
       //rollback game
       if (saltLoaded && characterLoaded) {
         this.saveGame(characterLoaded, saltLoaded);
+        console.log("CREATE-JOIN: ROLLBACK game storage:", saltLoaded, characterLoaded);
+        console.log("CREATE-JOIN: ROLLBACK game Hash for this account", await this.gameContract?.hashByAccount());
+        console.log("CREATE-JOIN: hash(0)", await this.gameContract?.hash(0));
+        console.log("CREATE-JOIN: hash(1)", await this.gameContract?.hash(1));
       }
       console.log(e);
       throw e;
@@ -142,16 +157,22 @@ export class GameConnection {
 
   async isGameCreator(): Promise<boolean> {
     const guess = await this.getGame();
-    return guess.isGameCreator();
+    return guess.isAnswerTurn();
   }
 
   async askQuestion(position: number, number: number) {
     const guess = await this.getGame();
     console.log("Asking for", position, number);
     try {
+      console.log("ASK-QUESTION: BEFORE game Hash for this account", await this.gameContract?.hashByAccount());
+      console.log("ASK-QUESTION: BEFORE hash(0)", await this.gameContract?.hash(0));
+      console.log("ASK-QUESTION: BEFORE hash(1)", await this.gameContract?.hash(1));
       await guess.question(position, number);
       console.log("Question asked!");
       const lastQuestion = await this.getLastQuestion();
+      console.log("ASK-QUESTION: game Hash for this account", await this.gameContract?.hashByAccount());
+      console.log("ASK-QUESTION: hash(0)", await this.gameContract?.hash(0));
+      console.log("ASK-QUESTION: hash(1)", await this.gameContract?.hash(1));
       console.log("Question done. type:", lastQuestion.type, "characteristic:", lastQuestion.characteristic);
     } catch (e) {
       console.log(e);
@@ -167,6 +188,11 @@ export class GameConnection {
 
   async responseQuestion() {
     const guess = await this.getGame();
+    console.log("ANSWER-QUESTION: game", guess);
+    console.log("ANSWER-QUESTION: hash(0)", await this.gameContract?.hash(0));
+    console.log("ANSWER-QUESTION: hash(1)", await this.gameContract?.hash(1));
+    console.log("ANSWER-QUESTION: Hash by account", await this.gameContract?.hashByAccount());
+    console.log("ANSWER-QUESTION: turn", await this.gameContract?.currentTurn());
     try {
       await guess.answer();
       console.log("Question respond!");
@@ -297,6 +323,5 @@ export class GameConnection {
 }
 
 const randomGenerator = function randomBigInt(): bigint {
-  // eslint-disable-next-line node/no-unsupported-features/es-builtins
   return BigInt(Math.floor(Math.random() * 10 ** 8));
 };

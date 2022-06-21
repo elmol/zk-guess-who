@@ -71,13 +71,13 @@ export class GuessGame {
       throw new Error("Game not started");
     }
 
-    if (!(await this.game.isGameCreator())) {
-      throw new Error("Only game creator can answer");
+    if (!(await this.game.isAnswerTurn())) {
+      throw new Error("Only current player turn can answer");
     }
 
     const type = await this.game.lastType();
     const characteristic = await this.game.lastCharacteristic();
-    const hash = await this.game.hash();
+    const hash = await this.game.hashByAccount();
 
     // generate question proof
     const question = await this.gameZK.questionProof(
@@ -110,11 +110,11 @@ export class GuessGame {
       throw new Error("Game not started");
     }
 
-    if (!(await this.game.isGameCreator())) {
-      throw new Error("Only game creator can answer");
+    if (!(await this.game.isAnswerTurn())) {
+      throw new Error("Only current player turn can answer");
     }
 
-    const hash = await this.game.hash();
+    const hash = await this.game.hashByAccount();
     const guess = [
       (await this.game.lastGuess(0)).toNumber(),
       (await this.game.lastGuess(1)).toNumber(),
@@ -154,6 +154,10 @@ export class GuessGame {
     this.game.on("GuessResponse", callback);
   }
 
+  onPlayerJoined(callback: () => void) {
+    this.game.on("Joined", callback);
+  }
+
   connect(signer: any) {
     this.game = this.game.connect(signer);
   }
@@ -162,8 +166,8 @@ export class GuessGame {
     return await this.game.isStarted();
   }
 
-  async isGameCreator(): Promise<boolean> {
-    return await this.game.isGameCreator();
+  async isAnswerTurn(): Promise<boolean> {
+    return await this.game.isAnswerTurn();
   }
 }
 
