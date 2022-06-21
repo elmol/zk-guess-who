@@ -48,8 +48,7 @@ export default function AlertDialogSlide(props: EndGameDialogProps) {
         <DialogTitle>{"zk Guess Who Game End"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
-            zk Guess Who Game End. You have win/lose the game!!!
-            Play Again!
+            You have win/lose the game.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

@@ -161,7 +161,7 @@ export class GameConnection {
     }
   }
 
-  async isGameCreator(): Promise<boolean> {
+  async isAnswerTurn(): Promise<boolean> {
     const guess = await this.getGame();
     return guess.isAnswerTurn();
   }
@@ -223,6 +223,10 @@ export class GameConnection {
       console.log(e);
       throw e;
     }
+  }
+
+  async isQuestionTurn() {
+     return await this.gameContract?.isQuestionTurn();
   }
 
   async getLastAnswer() {

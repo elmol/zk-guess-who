@@ -20,7 +20,7 @@ interface GuessAnswerProps {
   lastGuess: number;
   onGuessSubmit: SubmitHandler<Question>;
   onGuessAnswered: () => () => Promise<void>;
-  isGameCreator: boolean | undefined;
+  isQuestionTurn: boolean | undefined;
 }
 
 export const GuessAnswer = (props: GuessAnswerProps) => {
@@ -68,26 +68,20 @@ export const GuessAnswer = (props: GuessAnswerProps) => {
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit(props.onGuessSubmit)} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={6}>
                 <CharacterSelector id="guess" label="Guess" control={control} defaultValue={"0-1-2-3"} variant="outlined" size="small" characters={board} {...register("guess")}></CharacterSelector>
               </Grid>
-              <Grid item xs={12} sm={2}>
+              <Grid item xs={12} sm={3}>
                 <Avatar variant="rounded"> {answer(props.lastGuess)}</Avatar>
               </Grid>
               <Grid item xs={12} sm={3}>
-                <Button type="submit" fullWidth variant="contained" disabled={props.isPendingGuess}>
+                <Button type="submit" fullWidth variant="contained" disabled={props.isPendingGuess || !props.isQuestionTurn}>
                   guess
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <Button disabled={!props.isPendingGuess || !props.isGameCreator} variant="outlined" onClick={props.onGuessAnswered()}>
-                  ack
                 </Button>
               </Grid>
             </Grid>
           </Box>
-          <>{props.isPendingGuess && <Typography variant="body2">Pending guess answer. Waiting for the other player...</Typography>}</>
-        </Box>
+         </Box>
       </Container>
     </>
   );

@@ -17,7 +17,7 @@ type Question = {
 
 interface QuestionAnswerProps {
   isPendingAnswer: boolean | undefined;
-  isGameCreator: boolean | undefined;
+  isQuestionTurn: boolean | undefined;
   lastAnswer: number;
   onQuestionSubmit: SubmitHandler<Question>;
   onQuestionAnswered: () => () => Promise<void>;
@@ -60,28 +60,22 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit(props.onQuestionSubmit)} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={2}>
+              <Grid item xs={12} sm={3}>
                 <NumberFormSelect id="position" label="Position" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("position")}></NumberFormSelect>
               </Grid>
-              <Grid item xs={12} sm={2}>
+              <Grid item xs={12} sm={3}>
                 <NumberFormSelect id="number" label="Number" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("number")}></NumberFormSelect>
               </Grid>
-              <Grid item xs={12} sm={2}>
+              <Grid item xs={12} sm={3}>
                 <Avatar variant="rounded"> {answer(props.lastAnswer)}</Avatar>
               </Grid>
               <Grid item xs={12} sm={3}>
-                <Button type="submit" fullWidth variant="contained" disabled={props.isPendingAnswer || props.isGameCreator}>
+                <Button type="submit" fullWidth variant="contained" disabled={props.isPendingAnswer || !props.isQuestionTurn}>
                   ask
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <Button disabled={!props.isPendingAnswer || !props.isGameCreator} variant="outlined" onClick={props.onQuestionAnswered()}>
-                  ack
                 </Button>
               </Grid>
             </Grid>
           </Box>
-          <>{(props.isGameCreator|| props.isPendingAnswer) && (!props.isPendingAnswer || !props.isGameCreator) && <Typography variant="body2">Pending question answer. Waiting for the other player...</Typography>}</>
         </Box>
       </Container>
     </>

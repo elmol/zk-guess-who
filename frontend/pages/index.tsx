@@ -57,7 +57,8 @@ const Home: NextPage = () => {
 
   const [open, setOpen] = useState(false);
 
-  const [isGameCreator,setIsGameCreator] = useState(false);
+  const [isAnswerTurn, setAnswerTurn] = useState(false);
+  const [isQuestionTurn,setQuestionTurn] = useState(false);
 
   const onCreateGame: SubmitHandler<Question> = async (selection) => {
     setIsWaiting(true);
@@ -128,7 +129,6 @@ const Home: NextPage = () => {
     };
   }
 
-
   async function onInit() {
     // console.log("On init..");
     // const provider = new providers.JsonRpcProvider("http://localhost:8545");
@@ -139,13 +139,14 @@ const Home: NextPage = () => {
   async function connect(): Promise<void> {
     console.log("connecting...");
 
-    await gameConnection.init(handleOnQuestionAsked, handleOnQuestionAnswered, handleOnGuess, handleOnGuessResponse,handleOnJoined);
+    await gameConnection.init(handleOnQuestionAsked, handleOnQuestionAnswered, handleOnGuess, handleOnGuessResponse, handleOnJoined);
 
     // init properties
     setLastAnswer(await gameConnection.getLastAnswer());
     setLastGuess(await gameConnection.getLastGuessResponse());
     setIsStarted(await gameConnection.isStarted());
-    setIsGameCreator(await gameConnection.isGameCreator());
+    setAnswerTurn(await gameConnection.isAnswerTurn());
+    setQuestionTurn(await gameConnection.isQuestionTurn());
 
     console.log("game connection initialized");
   }
@@ -171,6 +172,8 @@ const Home: NextPage = () => {
       setIsPendingAnswer(false);
     }
     setLastAnswer(lastAnswer);
+    setQuestionTurn(await gameConnection.isQuestionTurn());
+
   }
 
   async function handleOnGuess(guess: number[]) {
@@ -178,7 +181,7 @@ const Home: NextPage = () => {
     await updateGuessState();
   }
 
-  async function handleOnJoined(){
+  async function handleOnJoined() {
     setIsStarted(true);
     console.log("Joined event");
     await updateQuestionState();
@@ -193,11 +196,10 @@ const Home: NextPage = () => {
 
   async function onHandleEndOfGame() {
     const lastAnswer = await gameConnection.getLastGuessResponse();
-    if(lastAnswer !== 0 && lastAnswer !== 3) {
+    if (lastAnswer !== 0 && lastAnswer !== 3) {
       console.log("End Game");
       setOpen(true);
     }
-
   }
 
   async function updateGuessState() {
@@ -211,6 +213,8 @@ const Home: NextPage = () => {
       setIsPendingGuess(false);
     }
     setLastGuess(lastAnswer);
+    setQuestionTurn(await gameConnection.isQuestionTurn());
+
   }
 
   useEffect(() => {
@@ -323,35 +327,50 @@ const Home: NextPage = () => {
 
             {!isStarted ? (
               <>
-            <Box component="form" noValidate onSubmit={handleSubmit(onCreateGame)} sx={{ mt: 3 }}>
-              <Typography component="h1" variant="h4" align="center">
-                <CharacterSelector
-                  id="select"
-                  label="select character"
-                  control={control}
-                  defaultValue={"0-1-2-3"}
-                  variant="outlined"
-                  size="small"
-                  characters={board}
-                  {...register("character")}
-                ></CharacterSelector>
-              </Typography>
-              <Typography align="center">
-                <Button type="submit">Create New Game</Button>
-              </Typography>
-            </Box>
-            </>
+                <Box component="form" noValidate onSubmit={handleSubmit(onCreateGame)} sx={{ mt: 3 }}>
+                  <Typography component="h1" variant="h4" align="center">
+                    <CharacterSelector
+                      id="select"
+                      label="select character"
+                      control={control}
+                      defaultValue={"0-1-2-3"}
+                      variant="outlined"
+                      size="small"
+                      characters={board}
+                      {...register("character")}
+                    ></CharacterSelector>
+                  </Typography>
+                  <Typography align="center">
+                    <Button type="submit">Create New Game</Button>
+                  </Typography>
+                </Box>
+              </>
             ) : (
               <div />
             )}
 
             {isStarted ? (
               <>
-                <QuestionAnswer isGameCreator={isGameCreator} isPendingAnswer={isPendingAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onQuestionAnswered} />
-                <GuessAnswer isGameCreator={isGameCreator} isPendingGuess={isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />{" "}
-                <Button disabled={!isPendingAnswer || !isGameCreator} variant="outlined" onClick={onAllAnswered()}>
-                  ack
-                </Button>
+                
+                <QuestionAnswer isQuestionTurn={isQuestionTurn} isPendingAnswer={isPendingAnswer || isPendingGuess} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onQuestionAnswered} />
+                <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingAnswer || isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
+                <>{(isAnswerTurn || (isPendingAnswer || isPendingGuess)) && (!(isPendingAnswer || isPendingGuess) || !isAnswerTurn) && <Typography variant="body2" align="center" marginTop={4} >Waiting for the other player...</Typography>}</>
+
+                <Container component="main" maxWidth="xs">
+                  <CssBaseline />
+                  <Box
+                    sx={{
+                      marginTop: 4,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Button disabled={!(isPendingAnswer || isPendingGuess) || !isAnswerTurn} variant="outlined" onClick={onAllAnswered()}>
+                      Answer
+                    </Button>
+                  </Box>
+                </Container>
               </>
             ) : (
               <div />
