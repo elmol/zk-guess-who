@@ -55,7 +55,7 @@ const Home: NextPage = () => {
 
   const [isStarted, setIsStarted] = useState(false);
   const [isCreated, setIsCreated] = useState(false);
-  const [isPlayerInGame,setIsPlayerInGame] = useState(false);
+  const [isPlayerInGame, setIsPlayerInGame] = useState(false);
 
   const [open, setOpen] = useState(false);
 
@@ -345,10 +345,13 @@ const Home: NextPage = () => {
             {!isStarted ? (
               <>
                 <Box component="form" noValidate onSubmit={handleSubmit(onCreateGame)} sx={{ mt: 3 }}>
-                  <Typography component="h1" variant="h4" align="center">
+                  <Typography component="h4" variant="h5" align="center">
+                    Choose your Number
+                  </Typography>
+                  <Typography component="h4" variant="h4" align="center" marginTop={3}>
                     <CharacterSelector
                       id="select"
-                      label="select character"
+                      label="Number"
                       control={control}
                       defaultValue={"0-1-2-3"}
                       variant="outlined"
@@ -357,13 +360,13 @@ const Home: NextPage = () => {
                       {...register("character")}
                     ></CharacterSelector>
                   </Typography>
-                  <Typography align="center">
+                  <Typography align="center" marginTop={2}>
                     {isPlayerInGame ? (
-                      <Typography variant="body2" align="center" marginTop={4}>
-                        Waiting for another player to join...{" "}
-                      </Typography>
+                      <Alert severity="info">Waiting for another player to join... </Alert>
                     ) : (
-                      <Button type="submit">{isCreated ? "Join Game" : "Create New Game"} </Button>
+                      <Button type="submit" variant="outlined">
+                        {isCreated ? "Join Game" : "Create New Game"}{" "}
+                      </Button>
                     )}
                   </Typography>
                 </Box>
@@ -374,6 +377,13 @@ const Home: NextPage = () => {
 
             {isStarted ? (
               <>
+                <>
+                  {(isAnswerTurn || isPendingAnswer || isPendingGuess) && (!(isPendingAnswer || isPendingGuess) || !isAnswerTurn) && (
+                    <Typography variant="h4" align="center" marginTop={4}>
+                      <Alert severity="info">Opponent Turn. Waiting for the other player...</Alert>
+                    </Typography>
+                  )}
+                </>
                 <QuestionAnswer
                   isQuestionTurn={isQuestionTurn}
                   isPendingAnswer={isPendingAnswer || isPendingGuess}
@@ -382,14 +392,6 @@ const Home: NextPage = () => {
                   onQuestionAnswered={onQuestionAnswered}
                 />
                 <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingAnswer || isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
-                <>
-                  {(isAnswerTurn || isPendingAnswer || isPendingGuess) && (!(isPendingAnswer || isPendingGuess) || !isAnswerTurn) && (
-                    <Typography variant="body2" align="center" marginTop={4}>
-                      Waiting for the other player...
-                    </Typography>
-                  )}
-                </>
-
                 <Container component="main" maxWidth="xs">
                   <CssBaseline />
                   <Box

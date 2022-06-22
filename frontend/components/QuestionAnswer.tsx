@@ -75,7 +75,7 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
         <CssBaseline />
         <Box
           sx={{
-            marginTop: 6,
+            marginTop: 4,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
