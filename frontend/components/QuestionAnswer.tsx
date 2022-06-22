@@ -2,6 +2,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 import { Avatar, Box, Button, Container, CssBaseline, Grid } from "@mui/material";
+import { green, red } from "@mui/material/colors";
 import Typography from "@mui/material/Typography";
 import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -34,10 +35,10 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
 
   function answer(lastAnswer: number) {
     if (lastAnswer === 1) {
-      return <CloseIcon />;
+      return <CloseIcon sx={{ color: red[500] }} />;
     }
     if (lastAnswer === 2) {
-      return <CheckIcon />;
+      return <CheckIcon sx={{ color: green[500] }} />;
     }
     return <QuestionMarkIcon />;
   }
@@ -83,7 +84,7 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
           <Typography component="h1" variant="h5">
             Ask a Question
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit(props.onQuestionSubmit)} sx={{ mt: 3 }} >
+          <Box component="form" noValidate onSubmit={handleSubmit(props.onQuestionSubmit)} sx={{ mt: 3 }}>
             <Grid container>
               <Grid item xs={11} sm={11}>
                 <Typography component="h6" variant="h6">
