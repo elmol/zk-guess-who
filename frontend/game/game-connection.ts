@@ -153,6 +153,8 @@ export class GameConnection {
       console.log("CREATE-JOIN: create or join Hash", await this.gameContract?.hashByAccount());
       console.log("CREATE-JOIN: hash(0)", await this.gameContract?.hash(0));
       console.log("CREATE-JOIN: hash(1)", await this.gameContract?.hash(1));
+      //TODO: HACK TO NOT SHOW END GAME DIALOG IF NOT PLAYING
+       localStorage.setItem("Playing", "true");
     } catch (e) {
       //rollback game
       if (saltLoaded && characterLoaded) {

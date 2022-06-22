@@ -216,7 +216,12 @@ const Home: NextPage = () => {
     if (lastAnswer !== 0 && lastAnswer !== 3) {
       setIsWinner(await gameConnection.isWinner());
       console.log("End Game");
-      setOpen(true);
+      //TODO: WORKAROUND TO HANDLE END OF GAME WHEN INIT
+      const playing = localStorage.getItem("Playing");
+      console.log("END-GAME: playing", playing);
+      if (playing) {
+        setOpen(true);
+      }
     }
   }
 
