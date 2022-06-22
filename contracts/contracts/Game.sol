@@ -29,6 +29,8 @@ contract Game {
 
     address public winner;
 
+    address public owner;
+
     IVerifierBoard private verifierBoard;
     IVerifierQuestion private verifierQuestion;
     IVerifierGuess private verifierGuess;
@@ -41,6 +43,7 @@ contract Game {
         verifierBoard = IVerifierBoard(_verifierBoard);
         verifierQuestion = IVerifierQuestion(_verifierQuestion);
         verifierGuess = IVerifierGuess(_verifierGuess);
+        owner = msg.sender;
     }
 
     modifier gameCreated() {
@@ -205,6 +208,24 @@ contract Game {
         }
         return 0;
     }
+
+    function reset() external {
+        require(msg.sender == owner, "Only owner can reset");
+        hash[0] = 0;
+        hash[1] = 0;
+        players[0] = address(0);
+        players[1] = address(0);
+        turn = 0;
+        lastResponse = 3;
+        won = 3;
+        winner = address(0);
+        lastGuess = [0,0,0,0];
+        lastType=0;
+        lastCharacteristic=0;
+        lastResponse=0;
+    }
+        
+
 
     function isPlayerInGame() public view returns (bool) {
         return msg.sender == players[0] || msg.sender == players[1];
