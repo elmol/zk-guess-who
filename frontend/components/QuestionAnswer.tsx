@@ -42,56 +42,61 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
     return <QuestionMarkIcon />;
   }
 
+  const numberForm = (
+    <NumberFormSelect
+      id="number"
+      label="Number"
+      control={control}
+      defaultValue="0"
+      variant="outlined"
+      size="small"
+      max={4}
+      {...register("number")}
+      disabled={props.isPendingAnswer || !props.isQuestionTurn}
+    ></NumberFormSelect>
+  );
+  const positionForm = (
+    <NumberFormSelect
+      id="position"
+      label="Position"
+      control={control}
+      defaultValue="0"
+      variant="outlined"
+      size="small"
+      max={4}
+      {...register("position")}
+      disabled={props.isPendingAnswer || !props.isQuestionTurn}
+    ></NumberFormSelect>
+  );
   return (
     <>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
           sx={{
-            marginTop: 8,
+            marginTop: 6,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
           }}
         >
           <Typography component="h1" variant="h5">
-            Ask about the position and number
+            Ask a Question
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit(props.onQuestionSubmit)} sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={4} sm={4}>
-                <NumberFormSelect
-                  id="position"
-                  label="Position"
-                  control={control}
-                  defaultValue="0"
-                  variant="outlined"
-                  size="small"
-                  max={4}
-                  {...register("position")}
-                  disabled={props.isPendingAnswer || !props.isQuestionTurn}
-                ></NumberFormSelect>
-              </Grid>
-              <Grid item xs={4} sm={4}>
-                <NumberFormSelect
-                  id="number"
-                  label="Number"
-                  control={control}
-                  defaultValue="0"
-                  variant="outlined"
-                  size="small"
-                  max={4}
-                  {...register("number")}
-                  disabled={props.isPendingAnswer || !props.isQuestionTurn}
-                ></NumberFormSelect>
+          <Box component="form" noValidate onSubmit={handleSubmit(props.onQuestionSubmit)} sx={{ mt: 3 }} >
+            <Grid container>
+              <Grid item xs={11} sm={11}>
+                <Typography component="h6" variant="h6">
+                  Number {numberForm} is in Position {positionForm}
+                </Typography>
               </Grid>
               {(props.isPendingAnswer || !props.isQuestionTurn) && (
-                <Grid item xs={4} sm={4}>
+                <Grid item xs={1} sm={1}>
                   <Avatar variant="rounded"> {answer(props.lastAnswer)}</Avatar>
                 </Grid>
               )}
               {!(props.isPendingAnswer || !props.isQuestionTurn) && (
-                <Grid item xs={4} sm={4}>
+                <Grid item xs={1} sm={1}>
                   <Button type="submit" fullWidth variant="contained" disabled={props.isPendingAnswer || !props.isQuestionTurn}>
                     ask
                   </Button>
