@@ -154,6 +154,8 @@ const Home: NextPage = () => {
     setIsStarted(await gameConnection.isStarted());
     setAnswerTurn(await gameConnection.isAnswerTurn());
     setQuestionTurn(await gameConnection.isQuestionTurn());
+    updateQuestionState();
+    updateGuessState();
 
     console.log("game connection initialized");
   }
@@ -392,7 +394,7 @@ const Home: NextPage = () => {
               zkGuessWho
             </Typography>
 
-            {!isStarted ? (
+            {!isStarted && (
               <>
                 <Box component="form" noValidate onSubmit={handleSubmit(onCreateGame)} sx={{ mt: 3 }}>
                   <Typography component="h4" variant="h5" align="center">
@@ -422,11 +424,9 @@ const Home: NextPage = () => {
                   </Typography>
                 </Box>
               </>
-            ) : (
-              <div />
-            )}
+            ) }
 
-            {isStarted ? (
+            {isStarted && (
               <>
                 <>
                   {(isAnswerTurn || isPendingAnswer || isPendingGuess) && (!(isPendingAnswer || isPendingGuess) || !isAnswerTurn) && (
@@ -436,12 +436,9 @@ const Home: NextPage = () => {
                   )}
                 </>
                 {askBoard}
-
                 {answerComponent}
               </>
-            ) : (
-              <div />
-            )}
+            ) }
           </Paper>
         </Container>
         {logging}

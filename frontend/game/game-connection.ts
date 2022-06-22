@@ -171,7 +171,9 @@ export class GameConnection {
 
   async isAnswerTurn(): Promise<boolean> {
     const guess = await this.getGame();
-    return guess.isAnswerTurn();
+    const isAnswerTurn= await guess.isAnswerTurn();
+    console.log("isAnswerTurn", isAnswerTurn);
+    return isAnswerTurn;
   }
 
   async isWinner(): Promise<boolean> {
