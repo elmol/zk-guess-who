@@ -208,7 +208,6 @@ describe("Game Event", function () {
     player2Game.onPlayerJoined(callback);
     await player2Game.join();
 
-
     await t.delay;
     expect(eventEmmited).to.equal(true);
   });
@@ -223,7 +222,6 @@ describe("Game Event", function () {
     };
     player1Game.onGameCreated(callback);
     await player1Game.start();
-
 
     await t.delay;
     expect(eventEmmited).to.equal(true);

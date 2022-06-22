@@ -187,6 +187,11 @@ export class GuessGame {
   async isAnswerTurn(): Promise<boolean> {
     return await this.game.isAnswerTurn();
   }
+
+
+  async isPlayerInGame(): Promise<boolean> {
+    return await this.game.isPlayerInGame();
+  }
 }
 
 export function createGuessGame(

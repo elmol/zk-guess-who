@@ -278,6 +278,11 @@ export class GameConnection {
    return await this.gameContract?.isCreated()
   }
 
+  async isPlayerInGame() {
+    const game = await this.getGame();
+    return game.isPlayerInGame();
+  }
+
   async responseGuess() {
     const guess = await this.getGame();
     try {

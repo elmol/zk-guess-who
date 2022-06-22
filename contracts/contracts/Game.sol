@@ -206,6 +206,10 @@ contract Game {
         return 0;
     }
 
+    function isPlayerInGame() public view returns (bool) {
+        return msg.sender == players[0] || msg.sender == players[1];
+    }
+
     // PRIVATE FUNCTIONS
 
     function end() private gameStarted {

@@ -651,4 +651,13 @@ describe("Game Contract", function () {
       "Not player turn"
     );
   });
+
+  it("should return true if the player is in game", async () => {
+    expect(await player1Game.isPlayerInGame()).to.equal(false);
+    await player1Game.createOrJoin();
+    expect(await player1Game.isPlayerInGame()).to.equal(true);
+    expect(await player2Game.isPlayerInGame()).to.equal(false);
+    await player2Game.createOrJoin();
+    expect(await player2Game.isPlayerInGame()).to.equal(true);
+  });
 });

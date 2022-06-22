@@ -55,6 +55,7 @@ const Home: NextPage = () => {
 
   const [isStarted, setIsStarted] = useState(false);
   const [isCreated, setIsCreated] = useState(false);
+  const [isPlayerInGame,setIsPlayerInGame] = useState(false);
 
   const [open, setOpen] = useState(false);
 
@@ -73,7 +74,8 @@ const Home: NextPage = () => {
       console.log("selection", selection.character);
       await gameConnection.selection(character);
       setIsStarted(await gameConnection.isStarted());
-      setIsCreated(await gameConnection.isCreated())
+      setIsCreated(await gameConnection.isCreated());
+      setIsPlayerInGame(await gameConnection.isPlayerInGame());
     } catch (e: any) {
       setError(true);
       setErrorMsg(e.message);
@@ -144,7 +146,7 @@ const Home: NextPage = () => {
   async function connect(): Promise<void> {
     console.log("connecting...");
 
-    await gameConnection.init(handleOnQuestionAsked, handleOnQuestionAnswered, handleOnGuess, handleOnGuessResponse, handleOnJoined,handleOnCreated);
+    await gameConnection.init(handleOnQuestionAsked, handleOnQuestionAnswered, handleOnGuess, handleOnGuessResponse, handleOnJoined, handleOnCreated);
 
     // init properties
     setLastAnswer(await gameConnection.getLastAnswer());
@@ -188,6 +190,7 @@ const Home: NextPage = () => {
   async function handleOnJoined() {
     setIsStarted(await gameConnection.isStarted());
     setIsCreated(await gameConnection.isCreated());
+    setIsPlayerInGame(await gameConnection.isPlayerInGame());
     console.log("Joined event");
     await updateQuestionState();
     await updateGuessState();
@@ -196,11 +199,11 @@ const Home: NextPage = () => {
   async function handleOnCreated() {
     setIsStarted(await gameConnection.isStarted());
     setIsCreated(await gameConnection.isCreated());
+    setIsPlayerInGame(await gameConnection.isPlayerInGame());
     console.log("Created event");
     await updateQuestionState();
     await updateGuessState();
   }
-
 
   async function handleOnGuessResponse(answer: number) {
     console.log(`Last Guess Response event: ${answer}`);
@@ -355,7 +358,13 @@ const Home: NextPage = () => {
                     ></CharacterSelector>
                   </Typography>
                   <Typography align="center">
-                    <Button type="submit">{isCreated ? "Join Game" : "Create New Game"} </Button>
+                    {isPlayerInGame ? (
+                      <Typography variant="body2" align="center" marginTop={4}>
+                        Waiting for another player to join...{" "}
+                      </Typography>
+                    ) : (
+                      <Button type="submit">{isCreated ? "Join Game" : "Create New Game"} </Button>
+                    )}
                   </Typography>
                 </Box>
               </>
