@@ -351,7 +351,9 @@ const Home: NextPage = () => {
             onQuestionSubmit={onQuestionSubmit}
             onQuestionAnswered={onQuestionAnswered}
           />
-          <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingAnswer || isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
+          {(!isPendingAnswer && isQuestionTurn) && (
+            <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingAnswer || isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
+          )}
         </>
       )}
     </>
