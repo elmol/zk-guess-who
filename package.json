@@ -6,7 +6,9 @@
   "scripts": {
     "install": "cd circuits && yarn && cd .. && cd contracts && yarn && cd .. && cd frontend && yarn && cd ..",
     "test": ". scripts/build-circuits.sh && scripts/copy-circuit-contract.sh && cd contracts && npx hardhat test && cd ..",
-    "dev-deploy": "cd contracts && yarn dev && yarn deploy"
+    "copy": ". scripts/copy-zk-to-front.sh",
+    "build": "yarn test && yarn copy",
+    "dev-deploy": "cd contracts && yarn deploy && cd .. && cd frontend && yarn dev && cd .."
   },
   "keywords": [
     "game",

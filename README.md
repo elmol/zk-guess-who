@@ -79,7 +79,7 @@ $ npx hardhat node
 In an other console
 
 ```
-$ dev-deploy
+$ yarn dev-deploy
 ```
 
 ### Script Utils
