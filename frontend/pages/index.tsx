@@ -313,6 +313,48 @@ const Home: NextPage = () => {
     control,
   } = useForm<Question>();
 
+  const showAnswerComponent = !(!(isPendingAnswer || isPendingGuess) || !isAnswerTurn);
+  const answerComponent = (
+    <>
+      {showAnswerComponent && (
+        <Container component="main" maxWidth="xs">
+          <CssBaseline />
+          <Box
+            sx={{
+              marginTop: 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Typography component="h1" variant="h5">
+              Answer to your opponent
+            </Typography>
+            <Button variant="outlined" onClick={onAllAnswered()} sx={{ marginTop: 2 }}>
+              Answer
+            </Button>
+          </Box>
+        </Container>
+      )}
+    </>
+  );
+
+  const askBoard = (
+    <>
+      {!showAnswerComponent && (
+        <>
+          <QuestionAnswer
+            isQuestionTurn={isQuestionTurn}
+            isPendingAnswer={isPendingAnswer || isPendingGuess}
+            lastAnswer={lastAnswer}
+            onQuestionSubmit={onQuestionSubmit}
+            onQuestionAnswered={onQuestionAnswered}
+          />
+          <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingAnswer || isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
+        </>
+      )}
+    </>
+  );
   return (
     <div>
       <Head>
@@ -389,29 +431,9 @@ const Home: NextPage = () => {
                     </Typography>
                   )}
                 </>
-                <QuestionAnswer
-                  isQuestionTurn={isQuestionTurn}
-                  isPendingAnswer={isPendingAnswer || isPendingGuess}
-                  lastAnswer={lastAnswer}
-                  onQuestionSubmit={onQuestionSubmit}
-                  onQuestionAnswered={onQuestionAnswered}
-                />
-                <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingAnswer || isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
-                <Container component="main" maxWidth="xs">
-                  <CssBaseline />
-                  <Box
-                    sx={{
-                      marginTop: 4,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Button disabled={!(isPendingAnswer || isPendingGuess) || !isAnswerTurn} variant="outlined" onClick={onAllAnswered()}>
-                      Answer
-                    </Button>
-                  </Box>
-                </Container>
+                {askBoard}
+
+                {answerComponent}
               </>
             ) : (
               <div />
