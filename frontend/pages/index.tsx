@@ -353,7 +353,7 @@ const Home: NextPage = () => {
             onQuestionSubmit={onQuestionSubmit}
             onQuestionAnswered={onQuestionAnswered}
           />
-          {(!isPendingAnswer && isQuestionTurn) && (
+          {!isPendingAnswer && isQuestionTurn && (
             <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingAnswer || isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
           )}
         </>
@@ -424,9 +424,9 @@ const Home: NextPage = () => {
                   </Typography>
                 </Box>
               </>
-            ) }
+            )}
 
-            {isStarted && (
+            {isStarted && isPlayerInGame && (
               <>
                 <>
                   {(isAnswerTurn || isPendingAnswer || isPendingGuess) && (!(isPendingAnswer || isPendingGuess) || !isAnswerTurn) && (
@@ -438,7 +438,13 @@ const Home: NextPage = () => {
                 {askBoard}
                 {answerComponent}
               </>
-            ) }
+            )}
+
+            {isStarted && !isPlayerInGame && (
+              <Typography variant="h4" align="center" marginTop={4}>
+                <Alert severity="warning">Game Room is full, please try later....</Alert>
+              </Typography>
+            )}
           </Paper>
         </Container>
         {logging}
