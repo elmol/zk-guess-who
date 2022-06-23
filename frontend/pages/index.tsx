@@ -212,6 +212,7 @@ const Home: NextPage = () => {
   }
 
   async function onHandleEndOfGame() {
+    setIsPlayerInGame(await gameConnection.isPlayerInGame());
     const lastAnswer = await gameConnection.getLastGuessResponse();
     if (lastAnswer !== 0 && lastAnswer !== 3) {
       setIsWinner(await gameConnection.isWinner());
@@ -404,6 +405,7 @@ const Home: NextPage = () => {
                       variant="outlined"
                       size="small"
                       characters={board}
+                      disabled={isPlayerInGame}
                       {...register("character")}
                     ></CharacterSelector>
                   </Typography>
