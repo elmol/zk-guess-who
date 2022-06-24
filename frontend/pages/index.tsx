@@ -289,13 +289,16 @@ const Home: NextPage = () => {
   } = useForm<Question>();
 
   // GAME BOARD COMPONENT ----------------------------------------------------------------
+  const isPendingSomeAnswer = isPendingAnswer || isPendingGuess;
+  const isOpponentTurn = (isAnswerTurn || isPendingSomeAnswer) && (!isPendingSomeAnswer || !isAnswerTurn);
+  const isAnswerNeeded = !(!isPendingSomeAnswer || !isAnswerTurn);
+  
   const opponentTurnComponent = (
     <Typography variant="h4" align="center" marginTop={4}>
       <Alert severity="info">Opponent Turn. Waiting for the other player...</Alert>
     </Typography>
   );
 
-  const isAnswerNeeded = !(!(isPendingAnswer || isPendingGuess) || !isAnswerTurn);
   const answerComponent = (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -316,28 +319,27 @@ const Home: NextPage = () => {
       </Box>
     </Container>
   );
-
+  
   const askComponent = (
     <>
       <QuestionAnswer
         isQuestionTurn={isQuestionTurn}
-        isPendingAnswer={isPendingAnswer || isPendingGuess}
+        isPendingAnswer={isPendingSomeAnswer}
         lastAnswer={lastAnswer}
         onQuestionSubmit={onQuestionSubmit}
         onQuestionAnswered={onQuestionAnswered}
-      />
+        />
 
       {/* if guessing show guess component */}
       {!isPendingAnswer && isQuestionTurn && (
-        <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingAnswer || isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
-      )}
+        <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingSomeAnswer} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
+        )}
     </>
   );
-
   const gameBoardComponent = (
     <>
       {/* if opponent turn show opponent turn message */}
-      {(isAnswerTurn || isPendingAnswer || isPendingGuess) && (!(isPendingAnswer || isPendingGuess) || !isAnswerTurn) && opponentTurnComponent}
+      {isOpponentTurn && opponentTurnComponent}
       {/* if answer turn show answer component */}
       {isAnswerNeeded && answerComponent}
       {/* if question turn show question component */}
