@@ -290,8 +290,9 @@ const Home: NextPage = () => {
 
   // GAME BOARD COMPONENT ----------------------------------------------------------------
   const isPendingSomeAnswer = isPendingAnswer || isPendingGuess;
-  const isOpponentTurn = (isAnswerTurn || isPendingSomeAnswer) && (!isPendingSomeAnswer || !isAnswerTurn);
-  const isAnswerNeeded = !(!isPendingSomeAnswer || !isAnswerTurn);
+  const isAnswerNeeded = isPendingSomeAnswer && isAnswerTurn;
+  const isCurrentTurn = !isAnswerTurn && !isPendingSomeAnswer || isAnswerNeeded;
+  const isOpponentTurn = !isCurrentTurn;
   
   const opponentTurnComponent = (
     <Typography variant="h4" align="center" marginTop={4}>
