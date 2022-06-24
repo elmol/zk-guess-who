@@ -117,22 +117,22 @@ const Home: NextPage = () => {
     setIsWaiting(false);
   };
 
-  function onGuessAnswered() {
-    return async () => {
-      setIsWaiting(true);
-      setError(false);
-      try {
-        await gameConnection.responseGuess();
-        setLastGuess(await gameConnection.getLastGuessResponse());
-        await onHandleEndOfGame();
-      } catch (e: any) {
-        setError(true);
-        setErrorMsg(e.message);
-      }
+  // function onGuessAnswered() {
+  //   return async () => {
+  //     setIsWaiting(true);
+  //     setError(false);
+  //     try {
+  //       await gameConnection.responseGuess();
+  //       setLastGuess(await gameConnection.getLastGuessResponse());
+  //       await onHandleEndOfGame();
+  //     } catch (e: any) {
+  //       setError(true);
+  //       setErrorMsg(e.message);
+  //     }
 
-      setIsWaiting(false);
-    };
-  }
+  //     setIsWaiting(false);
+  //   };
+  // }
 
   function onAllAnswered() {
     return async () => {
@@ -176,6 +176,8 @@ const Home: NextPage = () => {
     console.log("game connection initialized");
   }
 
+
+  // handle questions
   async function handleOnQuestionAsked(position: number, number: number) {
     console.log(`Question asked: ${position} ${number}`);
     await updateQuestionState();
@@ -200,26 +202,9 @@ const Home: NextPage = () => {
     setQuestionTurn(await gameConnection.isQuestionTurn());
   }
 
+  // handle guesses
   async function handleOnGuess(guess: number[]) {
     console.log(`Last Guess Event: ${guess}`);
-    await updateGuessState();
-  }
-
-  async function handleOnJoined() {
-    setIsStarted(await gameConnection.isStarted());
-    setIsCreated(await gameConnection.isCreated());
-    setIsPlayerInGame(await gameConnection.isPlayerInGame());
-    console.log("Joined event");
-    await updateQuestionState();
-    await updateGuessState();
-  }
-
-  async function handleOnCreated() {
-    setIsStarted(await gameConnection.isStarted());
-    setIsCreated(await gameConnection.isCreated());
-    setIsPlayerInGame(await gameConnection.isPlayerInGame());
-    console.log("Created event");
-    await updateQuestionState();
     await updateGuessState();
   }
 
@@ -227,21 +212,6 @@ const Home: NextPage = () => {
     console.log(`Last Guess Response event: ${answer}`);
     await updateGuessState();
     await onHandleEndOfGame();
-  }
-
-  async function onHandleEndOfGame() {
-    setIsPlayerInGame(await gameConnection.isPlayerInGame());
-    const lastAnswer = await gameConnection.getLastGuessResponse();
-    if (lastAnswer !== 0 && lastAnswer !== 3) {
-      setIsWinner(await gameConnection.isWinner());
-      console.log("End Game");
-      //TODO: WORKAROUND TO HANDLE END OF GAME WHEN INIT
-      const playing = localStorage.getItem("Playing");
-      console.log("END-GAME: playing", playing);
-      if (playing) {
-        setOpen(true);
-      }
-    }
   }
 
   async function updateGuessState() {
@@ -258,26 +228,63 @@ const Home: NextPage = () => {
     setQuestionTurn(await gameConnection.isQuestionTurn());
   }
 
+  async function onHandleEndOfGame() {
+    setIsPlayerInGame(await gameConnection.isPlayerInGame());
+    const lastAnswer = await gameConnection.getLastGuessResponse();
+    if (lastAnswer !== 0 && lastAnswer !== 3) {
+      setIsWinner(await gameConnection.isWinner());
+      console.log("End Game");
+      //TODO: WORKAROUND TO HANDLE END OF GAME WHEN INIT
+      const playing = localStorage.getItem("Playing");
+      console.log("END-GAME: playing", playing);
+      if (playing) {
+        setOpen(true);
+      }
+    }
+  }
+  
+  // handle registration
+  async function handleOnCreated() {
+    setIsStarted(await gameConnection.isStarted());
+    setIsCreated(await gameConnection.isCreated());
+    setIsPlayerInGame(await gameConnection.isPlayerInGame());
+    console.log("Created event");
+    await updateQuestionState();
+    await updateGuessState();
+  }
+
+  async function handleOnJoined() {
+    setIsStarted(await gameConnection.isStarted());
+    setIsCreated(await gameConnection.isCreated());
+    setIsPlayerInGame(await gameConnection.isPlayerInGame());
+    console.log("Joined event");
+    await updateQuestionState();
+    await updateGuessState();
+  }
+
+  
+
+
   useEffect(() => {
     onInit();
   }, []);
 
-  function onQuestionAnswered() {
-    return async () => {
-      setIsWaiting(true);
-      setError(false);
+  // function onQuestionAnswered() {
+  //   return async () => {
+  //     setIsWaiting(true);
+  //     setError(false);
 
-      try {
-        await gameConnection.responseQuestion();
-        setLastAnswer(await gameConnection.getLastAnswer());
-      } catch (e: any) {
-        setError(true);
-        setErrorMsg(e.message);
-      }
+  //     try {
+  //       await gameConnection.responseQuestion();
+  //       setLastAnswer(await gameConnection.getLastAnswer());
+  //     } catch (e: any) {
+  //       setError(true);
+  //       setErrorMsg(e.message);
+  //     }
 
-      setIsWaiting(false);
-    };
-  }
+  //     setIsWaiting(false);
+  //   };
+  // }
 
   //VIEW COMPONENTS ----------------------------------------------------------------
   const {
@@ -291,9 +298,9 @@ const Home: NextPage = () => {
   // GAME BOARD COMPONENT ----------------------------------------------------------------
   const isPendingSomeAnswer = isPendingAnswer || isPendingGuess;
   const isAnswerNeeded = isPendingSomeAnswer && isAnswerTurn;
-  const isCurrentTurn = !isAnswerTurn && !isPendingSomeAnswer || isAnswerNeeded;
+  const isCurrentTurn = (!isAnswerTurn && !isPendingSomeAnswer) || isAnswerNeeded;
   const isOpponentTurn = !isCurrentTurn;
-  
+
   const opponentTurnComponent = (
     <Typography variant="h4" align="center" marginTop={4}>
       <Alert severity="info">Opponent Turn. Waiting for the other player...</Alert>
@@ -320,21 +327,15 @@ const Home: NextPage = () => {
       </Box>
     </Container>
   );
-  
+
   const askComponent = (
     <>
-      <QuestionAnswer
-        isQuestionTurn={isQuestionTurn}
-        isPendingAnswer={isPendingSomeAnswer}
-        lastAnswer={lastAnswer}
-        onQuestionSubmit={onQuestionSubmit}
-        onQuestionAnswered={onQuestionAnswered}
-        />
+      <QuestionAnswer isQuestionTurn={isQuestionTurn} isPendingAnswer={isPendingSomeAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onAllAnswered} />
 
       {/* if guessing show guess component */}
       {!isPendingAnswer && isQuestionTurn && (
-        <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingSomeAnswer} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
-        )}
+        <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingSomeAnswer} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onAllAnswered} />
+      )}
     </>
   );
   const gameBoardComponent = (
