@@ -117,23 +117,6 @@ const Home: NextPage = () => {
     setIsWaiting(false);
   };
 
-  // function onGuessAnswered() {
-  //   return async () => {
-  //     setIsWaiting(true);
-  //     setError(false);
-  //     try {
-  //       await gameConnection.responseGuess();
-  //       setLastGuess(await gameConnection.getLastGuessResponse());
-  //       await onHandleEndOfGame();
-  //     } catch (e: any) {
-  //       setError(true);
-  //       setErrorMsg(e.message);
-  //     }
-
-  //     setIsWaiting(false);
-  //   };
-  // }
-
   function onAllAnswered() {
     return async () => {
       setIsWaiting(true);
@@ -175,7 +158,6 @@ const Home: NextPage = () => {
 
     console.log("game connection initialized");
   }
-
 
   // handle questions
   async function handleOnQuestionAsked(position: number, number: number) {
@@ -242,7 +224,7 @@ const Home: NextPage = () => {
       }
     }
   }
-  
+
   // handle registration
   async function handleOnCreated() {
     setIsStarted(await gameConnection.isStarted());
@@ -262,29 +244,9 @@ const Home: NextPage = () => {
     await updateGuessState();
   }
 
-  
-
-
   useEffect(() => {
     onInit();
   }, []);
-
-  // function onQuestionAnswered() {
-  //   return async () => {
-  //     setIsWaiting(true);
-  //     setError(false);
-
-  //     try {
-  //       await gameConnection.responseQuestion();
-  //       setLastAnswer(await gameConnection.getLastAnswer());
-  //     } catch (e: any) {
-  //       setError(true);
-  //       setErrorMsg(e.message);
-  //     }
-
-  //     setIsWaiting(false);
-  //   };
-  // }
 
   //VIEW COMPONENTS ----------------------------------------------------------------
   const {
@@ -330,7 +292,10 @@ const Home: NextPage = () => {
 
   const askComponent = (
     <>
-      <QuestionAnswer isQuestionTurn={isQuestionTurn} isPendingAnswer={isPendingSomeAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onAllAnswered} />
+      {/* if not guessing show question component */}
+      {!isPendingGuess &&  (
+        <QuestionAnswer isQuestionTurn={isQuestionTurn} isPendingAnswer={isPendingSomeAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onAllAnswered} />
+      )}
 
       {/* if guessing show guess component */}
       {!isPendingAnswer && isQuestionTurn && (
