@@ -40,16 +40,9 @@ export const GuessAnswer = (props: GuessAnswerProps) => {
   [1,3,2,0],[1,3,0,2],[2,1,0,1],[3,2,0,1],[0,1,3,1],[3,2,1,2]
 ];
   /* eslint-enable */
-
-  function answer(lastAnswer: number) {
-    if (lastAnswer === 1) {
-      return <CloseIcon />;
-    }
-    if (lastAnswer === 2) {
-      return <CheckIcon />;
-    }
-    return <QuestionMarkIcon />;
-  }
+  
+  // guess is disable is not the turn for guessing
+  const isDisableGuess = props.isPendingGuess || !props.isQuestionTurn;
 
   return (
     <>
@@ -67,18 +60,29 @@ export const GuessAnswer = (props: GuessAnswerProps) => {
             Guess a Number
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit(props.onGuessSubmit)} sx={{ mt: 3 }}>
-            <Grid container >
+            <Grid container>
               <Grid item xs={8} sm={8}>
-                <CharacterSelector disabled={props.isPendingGuess || !props.isQuestionTurn} align="center" id="guess" label="Guess" control={control} defaultValue={"0-1-2-3"} variant="outlined" size="small" characters={board} {...register("guess")}></CharacterSelector>
+                <CharacterSelector
+                  disabled={isDisableGuess}
+                  align="center"
+                  id="guess"
+                  label="Guess"
+                  control={control}
+                  defaultValue={"0-1-2-3"}
+                  variant="outlined"
+                  size="small"
+                  characters={board}
+                  {...register("guess")}
+                ></CharacterSelector>
               </Grid>
               <Grid item xs={4} sm={4}>
-                <Button type="submit" fullWidth variant="contained" disabled={props.isPendingGuess || !props.isQuestionTurn}>
+                <Button type="submit" fullWidth variant="contained" disabled={isDisableGuess}>
                   guess
                 </Button>
               </Grid>
             </Grid>
           </Box>
-         </Box>
+        </Box>
       </Container>
     </>
   );
