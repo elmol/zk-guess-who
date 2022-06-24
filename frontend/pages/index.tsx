@@ -170,6 +170,9 @@ const Home: NextPage = () => {
     setIsStarted(await gameConnection.isStarted());
     setAnswerTurn(await gameConnection.isAnswerTurn());
     setQuestionTurn(await gameConnection.isQuestionTurn());
+    setIsCreated(await gameConnection.isCreated());
+    setIsPlayerInGame(await gameConnection.isPlayerInGame());
+    setIsWinner(await gameConnection.isWinner());
     updateQuestionState();
     updateGuessState();
 

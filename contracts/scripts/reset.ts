@@ -14,7 +14,7 @@ async function main() {
   const gameFactory = (await ethers.getContractFactory(
     "Game"
   )) as Game__factory;
-  const game = gameFactory.attach("0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9");
+  const game = gameFactory.attach("0xd09f1D18e4013DB38Bf298946F1E1A994F813DE6");
   console.log("Game deployed to:", game.address);
   await game.reset();
   console.log("Game Reseted");
