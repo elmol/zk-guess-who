@@ -81,8 +81,7 @@ const Home: NextPage = () => {
     setIsWaiting(false);
   };
 
-  
-  // GAME BOARD CONTROLLERS ---------------------------------------------------------------- 
+  // GAME BOARD CONTROLLERS ----------------------------------------------------------------
   const onGuessSubmit: SubmitHandler<Question> = async (question) => {
     setIsWaiting(true);
     setError(false);
@@ -153,11 +152,9 @@ const Home: NextPage = () => {
     };
   }
 
-
   //////////////////////////////////////////////////////////////////////////////
-  
-  async function onInit() {
-  }
+
+  async function onInit() {}
 
   async function connect(): Promise<void> {
     console.log("connecting...");
@@ -265,7 +262,6 @@ const Home: NextPage = () => {
     onInit();
   }, []);
 
-  
   function onQuestionAnswered() {
     return async () => {
       setIsWaiting(true);
@@ -418,6 +414,13 @@ const Home: NextPage = () => {
     </>
   );
 
+  //MAIN FLOW
+  /* if not started show registration component  */
+  const isShowRegister = !isStarted;
+  /* if the player is playing show game board */
+  const isShowGameBoard = isStarted && isPlayerInGame;
+  /* if the Game Room is full show game room full alert */
+  const isShowGameRoomFull = isStarted && !isPlayerInGame;
   return (
     <div>
       <Head>
@@ -452,14 +455,9 @@ const Home: NextPage = () => {
               zkGuessWho
             </Typography>
 
-            {/* if not started show registration component  */}
-            {!isStarted && registrationComponent}
-
-            {/* if the player is playing show game board */}
-            {isStarted && isPlayerInGame && gameBoardComponent}
-
-            {/* if the Game Room is full show game room full alert */}
-            {isStarted && !isPlayerInGame && gameRoomFullComponent}
+            {isShowRegister && registrationComponent}
+            {isShowGameBoard && gameBoardComponent}
+            {isShowGameRoomFull && gameRoomFullComponent}
           </Paper>
         </Container>
 
