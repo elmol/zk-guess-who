@@ -1,12 +1,7 @@
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
-import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
-import { Avatar, Box, Button, Container, CssBaseline, Grid } from "@mui/material";
+import { Box, Button, Container, CssBaseline, Grid } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import CharacterSelector from "./CharacterSelector";
-import NumberFormSelect from "./NumberFormSelect";
 
 type Question = {
   position: number;
@@ -40,7 +35,7 @@ export const GuessAnswer = (props: GuessAnswerProps) => {
   [1,3,2,0],[1,3,0,2],[2,1,0,1],[3,2,0,1],[0,1,3,1],[3,2,1,2]
 ];
   /* eslint-enable */
-  
+
   // guess is disable is not the turn for guessing
   const isDisableGuess = props.isPendingGuess || !props.isQuestionTurn;
 

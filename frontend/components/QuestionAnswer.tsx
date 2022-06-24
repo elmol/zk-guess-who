@@ -4,10 +4,8 @@ import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 import { Avatar, Box, Button, Container, CssBaseline, Grid } from "@mui/material";
 import { green, red } from "@mui/material/colors";
 import Typography from "@mui/material/Typography";
-import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import NumberFormSelect from "../components/NumberFormSelect";
-import { GameConnection } from "../game/game-connection";
 
 type Question = {
   position: number;
@@ -43,19 +41,12 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
     return <QuestionMarkIcon />;
   }
 
+  const isDisableQuestion = props.isPendingAnswer || !props.isQuestionTurn;
+
   const numberForm = (
-    <NumberFormSelect
-      id="number"
-      label="Number"
-      control={control}
-      defaultValue="0"
-      variant="outlined"
-      size="small"
-      max={4}
-      {...register("number")}
-      disabled={props.isPendingAnswer || !props.isQuestionTurn}
-    ></NumberFormSelect>
+    <NumberFormSelect id="number" label="Number" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("number")} disabled={isDisableQuestion}></NumberFormSelect>
   );
+
   const positionForm = (
     <NumberFormSelect
       id="position"
@@ -66,9 +57,10 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
       size="small"
       max={4}
       {...register("position")}
-      disabled={props.isPendingAnswer || !props.isQuestionTurn}
+      disabled={isDisableQuestion}
     ></NumberFormSelect>
   );
+
   return (
     <>
       <Container component="main" maxWidth="xs">
@@ -91,14 +83,14 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
                   Number {numberForm} is in Position {positionForm}
                 </Typography>
               </Grid>
-              {(props.isPendingAnswer || !props.isQuestionTurn) && (
+              {isDisableQuestion && (
                 <Grid item xs={1} sm={1}>
                   <Avatar variant="rounded"> {answer(props.lastAnswer)}</Avatar>
                 </Grid>
               )}
-              {!(props.isPendingAnswer || !props.isQuestionTurn) && (
+              {!isDisableQuestion && (
                 <Grid item xs={1} sm={1}>
-                  <Button type="submit" fullWidth variant="contained" disabled={props.isPendingAnswer || !props.isQuestionTurn}>
+                  <Button type="submit" fullWidth variant="contained" disabled={isDisableQuestion}>
                     ask
                   </Button>
                 </Grid>
