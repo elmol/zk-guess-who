@@ -360,6 +360,55 @@ const Home: NextPage = () => {
       )}
     </>
   );
+  const registrationComponent = (
+    <>
+      <Box component="form" noValidate onSubmit={handleSubmit(onCreateGame)} sx={{ mt: 3 }}>
+        <Typography component="h4" variant="h5" align="center">
+          Choose your Number
+        </Typography>
+        <Typography component="h4" variant="h4" align="center" marginTop={3}>
+          <CharacterSelector
+            id="select"
+            label="Number"
+            control={control}
+            defaultValue={"0-1-2-3"}
+            variant="outlined"
+            size="small"
+            characters={board}
+            disabled={isPlayerInGame}
+            {...register("character")}
+          ></CharacterSelector>
+        </Typography>
+        <Typography align="center" marginTop={2}>
+          {isPlayerInGame ? (
+            <Alert severity="info">Waiting for another player to join... </Alert>
+          ) : (
+            <Button type="submit" variant="outlined">
+              {isCreated ? "Join Game" : "Create New Game"}{" "}
+            </Button>
+          )}
+        </Typography>
+      </Box>
+    </>
+  );
+  const gameBoardComponent = (
+    <>
+      <>
+        {(isAnswerTurn || isPendingAnswer || isPendingGuess) && (!(isPendingAnswer || isPendingGuess) || !isAnswerTurn) && (
+          <Typography variant="h4" align="center" marginTop={4}>
+            <Alert severity="info">Opponent Turn. Waiting for the other player...</Alert>
+          </Typography>
+        )}
+      </>
+      {askBoard}
+      {answerComponent}
+    </>
+  );
+  const gameRoomFullComponent = (
+    <Typography variant="h4" align="center" marginTop={4}>
+      <Alert severity="warning">Game Room is full, please try later....</Alert>
+    </Typography>
+  );
   return (
     <div>
       <Head>
@@ -394,59 +443,17 @@ const Home: NextPage = () => {
               zkGuessWho
             </Typography>
 
-            {!isStarted && (
-              <>
-                <Box component="form" noValidate onSubmit={handleSubmit(onCreateGame)} sx={{ mt: 3 }}>
-                  <Typography component="h4" variant="h5" align="center">
-                    Choose your Number
-                  </Typography>
-                  <Typography component="h4" variant="h4" align="center" marginTop={3}>
-                    <CharacterSelector
-                      id="select"
-                      label="Number"
-                      control={control}
-                      defaultValue={"0-1-2-3"}
-                      variant="outlined"
-                      size="small"
-                      characters={board}
-                      disabled={isPlayerInGame}
-                      {...register("character")}
-                    ></CharacterSelector>
-                  </Typography>
-                  <Typography align="center" marginTop={2}>
-                    {isPlayerInGame ? (
-                      <Alert severity="info">Waiting for another player to join... </Alert>
-                    ) : (
-                      <Button type="submit" variant="outlined">
-                        {isCreated ? "Join Game" : "Create New Game"}{" "}
-                      </Button>
-                    )}
-                  </Typography>
-                </Box>
-              </>
-            )}
+            {/* if not started show registration component  */}
+            {!isStarted && registrationComponent}
 
-            {isStarted && isPlayerInGame && (
-              <>
-                <>
-                  {(isAnswerTurn || isPendingAnswer || isPendingGuess) && (!(isPendingAnswer || isPendingGuess) || !isAnswerTurn) && (
-                    <Typography variant="h4" align="center" marginTop={4}>
-                      <Alert severity="info">Opponent Turn. Waiting for the other player...</Alert>
-                    </Typography>
-                  )}
-                </>
-                {askBoard}
-                {answerComponent}
-              </>
-            )}
+            {/* if the player is playing show game board */}
+            {isStarted && isPlayerInGame && gameBoardComponent}
 
-            {isStarted && !isPlayerInGame && (
-              <Typography variant="h4" align="center" marginTop={4}>
-                <Alert severity="warning">Game Room is full, please try later....</Alert>
-              </Typography>
-            )}
+            {/* if the Game Room is full show game room full alert */}
+            {isStarted && !isPlayerInGame && gameRoomFullComponent}
           </Paper>
         </Container>
+
         {logging}
         {error ? (
           <Alert severity="error" sx={{ textAlign: "left" }}>
