@@ -1,23 +1,17 @@
-import { Contract, providers } from "ethers";
+import { Alert, AppBar, Backdrop, Box, Button, CircularProgress, Container, createTheme, CssBaseline, Paper, ThemeProvider, Toolbar } from "@mui/material";
+import Typography from "@mui/material/Typography";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { FormEvent, useEffect, useState } from "react";
-import styles from "../styles/Home.module.css";
-import Game from "../public/Game.json";
-import { GameConnection } from "../game/game-connection";
-import { Alert, AppBar, Avatar, Backdrop, Box, Button, CircularProgress, Container, createTheme, CssBaseline, Grid, Paper, TextField, ThemeProvider, Toolbar } from "@mui/material";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import Typography from "@mui/material/Typography";
-import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
-import NumberFormSelect from "../components/NumberFormSelect";
 import CharacterSelector from "../components/CharacterSelector";
-import WalletConnector from "../components/WalletConnector";
-import { QuestionAnswer } from "../components/QuestionAnswer";
-import { GuessAnswer } from "../components/GuessAnswer";
 import AlertDialogSlide from "../components/EndGameDialog";
+import { GuessAnswer } from "../components/GuessAnswer";
+import { QuestionAnswer } from "../components/QuestionAnswer";
+import WalletConnector from "../components/WalletConnector";
+import { GameConnection } from "../game/game-connection";
+import styles from "../styles/Home.module.css";
 
 type Question = {
   position: number;
@@ -39,31 +33,35 @@ const board = [
 const gameConnection = new GameConnection();
 
 const Home: NextPage = () => {
-  const theme = createTheme();
-  console.log("new game connection", gameConnection);
+  // Game Flow states
+  const [isStarted, setIsStarted] = useState(false);
+  const [isCreated, setIsCreated] = useState(false);
+  const [isPlayerInGame, setIsPlayerInGame] = useState(false);
+  const [isWinner, setIsWinner] = useState(false);
 
+  // Game Board states
   const [lastAnswer, setLastAnswer] = useState(0);
   const [lastGuess, setLastGuess] = useState(0);
 
   const [isPendingAnswer, setIsPendingAnswer] = useState(false);
   const [isPendingGuess, setIsPendingGuess] = useState(false);
 
+  const [isAnswerTurn, setAnswerTurn] = useState(false);
+  const [isQuestionTurn, setQuestionTurn] = useState(false);
+
+  // Main Board states
+  const [open, setOpen] = useState(false);
+
   const [isWaiting, setIsWaiting] = useState(false);
 
   const [error, setError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [isStarted, setIsStarted] = useState(false);
-  const [isCreated, setIsCreated] = useState(false);
-  const [isPlayerInGame, setIsPlayerInGame] = useState(false);
+  //////////////////////////////////////////////////////////////////////////////
 
-  const [open, setOpen] = useState(false);
+  const theme = createTheme();
 
-  const [isAnswerTurn, setAnswerTurn] = useState(false);
-  const [isQuestionTurn, setQuestionTurn] = useState(false);
-
-  const [isWinner, setIsWinner] = useState(false);
-
+  // REGISTRATION CONTROLLERS ----------------------------------------------------------------
   const onCreateGame: SubmitHandler<Question> = async (selection) => {
     setIsWaiting(true);
     setError(false);
@@ -83,6 +81,8 @@ const Home: NextPage = () => {
     setIsWaiting(false);
   };
 
+  
+  // GAME BOARD CONTROLLERS ---------------------------------------------------------------- 
   const onGuessSubmit: SubmitHandler<Question> = async (question) => {
     setIsWaiting(true);
     setError(false);
@@ -93,6 +93,23 @@ const Home: NextPage = () => {
     const guess = question.guess.split("-").map((n: string) => parseInt(n.trim()));
     try {
       await gameConnection.guess(guess);
+    } catch (e: any) {
+      setError(true);
+      setErrorMsg(e.message);
+    }
+
+    setIsWaiting(false);
+  };
+
+  const onQuestionSubmit: SubmitHandler<Question> = async (question) => {
+    setIsWaiting(true);
+    setError(false);
+
+    //set defaults question
+    question.number = question.number ? question.number : 0;
+    question.position = question.position ? question.position : 0;
+    try {
+      await gameConnection.askQuestion(question.position, question.number);
     } catch (e: any) {
       setError(true);
       setErrorMsg(e.message);
@@ -136,11 +153,10 @@ const Home: NextPage = () => {
     };
   }
 
+
+  //////////////////////////////////////////////////////////////////////////////
+  
   async function onInit() {
-    // console.log("On init..");
-    // const provider = new providers.JsonRpcProvider("http://localhost:8545");
-    // const contract = new Contract("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", Game.abi, provider);
-    // console.log("Game contract address", contract.address);
   }
 
   async function connect(): Promise<void> {
@@ -246,23 +262,7 @@ const Home: NextPage = () => {
     onInit();
   }, []);
 
-  const onQuestionSubmit: SubmitHandler<Question> = async (question) => {
-    setIsWaiting(true);
-    setError(false);
-
-    //set defaults question
-    question.number = question.number ? question.number : 0;
-    question.position = question.position ? question.position : 0;
-    try {
-      await gameConnection.askQuestion(question.position, question.number);
-    } catch (e: any) {
-      setError(true);
-      setErrorMsg(e.message);
-    }
-
-    setIsWaiting(false);
-  };
-
+  
   function onQuestionAnswered() {
     return async () => {
       setIsWaiting(true);
@@ -280,34 +280,7 @@ const Home: NextPage = () => {
     };
   }
 
-  const logging = (
-    <>
-      {isWaiting ? (
-        <Backdrop open={true}>
-          <CircularProgress size={100} disableShrink />
-          <Box
-            sx={{
-              top: 0,
-              left: 0,
-              bottom: 0,
-              right: 0,
-              position: "absolute",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Typography variant="caption" component="div" color="common.white">
-              Waiting
-            </Typography>
-          </Box>
-        </Backdrop>
-      ) : (
-        <div />
-      )}
-    </>
-  );
-
+  //VIEW COMPONENTS ----------------------------------------------------------------
   const {
     register,
     handleSubmit,
@@ -316,50 +289,64 @@ const Home: NextPage = () => {
     control,
   } = useForm<Question>();
 
-  const showAnswerComponent = !(!(isPendingAnswer || isPendingGuess) || !isAnswerTurn);
+  // GAME BOARD COMPONENT ----------------------------------------------------------------
+  const opponentTurnComponent = (
+    <Typography variant="h4" align="center" marginTop={4}>
+      <Alert severity="info">Opponent Turn. Waiting for the other player...</Alert>
+    </Typography>
+  );
+
+  const isAnswerNeeded = !(!(isPendingAnswer || isPendingGuess) || !isAnswerTurn);
   const answerComponent = (
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <Box
+        sx={{
+          marginTop: 4,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Typography component="h1" variant="h5">
+          Answer to your opponent
+        </Typography>
+        <Button variant="outlined" onClick={onAllAnswered()} sx={{ marginTop: 2 }}>
+          Answer
+        </Button>
+      </Box>
+    </Container>
+  );
+
+  const askComponent = (
     <>
-      {showAnswerComponent && (
-        <Container component="main" maxWidth="xs">
-          <CssBaseline />
-          <Box
-            sx={{
-              marginTop: 4,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Typography component="h1" variant="h5">
-              Answer to your opponent
-            </Typography>
-            <Button variant="outlined" onClick={onAllAnswered()} sx={{ marginTop: 2 }}>
-              Answer
-            </Button>
-          </Box>
-        </Container>
+      <QuestionAnswer
+        isQuestionTurn={isQuestionTurn}
+        isPendingAnswer={isPendingAnswer || isPendingGuess}
+        lastAnswer={lastAnswer}
+        onQuestionSubmit={onQuestionSubmit}
+        onQuestionAnswered={onQuestionAnswered}
+      />
+
+      {/* if guessing show guess component */}
+      {!isPendingAnswer && isQuestionTurn && (
+        <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingAnswer || isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
       )}
     </>
   );
 
-  const askBoard = (
+  const gameBoardComponent = (
     <>
-      {!showAnswerComponent && (
-        <>
-          <QuestionAnswer
-            isQuestionTurn={isQuestionTurn}
-            isPendingAnswer={isPendingAnswer || isPendingGuess}
-            lastAnswer={lastAnswer}
-            onQuestionSubmit={onQuestionSubmit}
-            onQuestionAnswered={onQuestionAnswered}
-          />
-          {!isPendingAnswer && isQuestionTurn && (
-            <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingAnswer || isPendingGuess} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onGuessAnswered} />
-          )}
-        </>
-      )}
+      {/* if opponent turn show opponent turn message */}
+      {(isAnswerTurn || isPendingAnswer || isPendingGuess) && (!(isPendingAnswer || isPendingGuess) || !isAnswerTurn) && opponentTurnComponent}
+      {/* if answer turn show answer component */}
+      {isAnswerNeeded && answerComponent}
+      {/* if question turn show question component */}
+      {!isAnswerNeeded && askComponent}
     </>
   );
+
+  // REGISTRATION COMPONENT ----------------------------------------------------------------
   const registrationComponent = (
     <>
       <Box component="form" noValidate onSubmit={handleSubmit(onCreateGame)} sx={{ mt: 3 }}>
@@ -391,24 +378,43 @@ const Home: NextPage = () => {
       </Box>
     </>
   );
-  const gameBoardComponent = (
-    <>
-      <>
-        {(isAnswerTurn || isPendingAnswer || isPendingGuess) && (!(isPendingAnswer || isPendingGuess) || !isAnswerTurn) && (
-          <Typography variant="h4" align="center" marginTop={4}>
-            <Alert severity="info">Opponent Turn. Waiting for the other player...</Alert>
-          </Typography>
-        )}
-      </>
-      {askBoard}
-      {answerComponent}
-    </>
-  );
+
+  // GAME FULL COMPONENT ----------------------------------------------------------------
   const gameRoomFullComponent = (
     <Typography variant="h4" align="center" marginTop={4}>
       <Alert severity="warning">Game Room is full, please try later....</Alert>
     </Typography>
   );
+
+  // MAIN PAGE  ----------------------------------------------------------------
+  const loggingComponent = (
+    <>
+      {isWaiting ? (
+        <Backdrop open={true}>
+          <CircularProgress size={100} disableShrink />
+          <Box
+            sx={{
+              top: 0,
+              left: 0,
+              bottom: 0,
+              right: 0,
+              position: "absolute",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Typography variant="caption" component="div" color="common.white">
+              Waiting
+            </Typography>
+          </Box>
+        </Backdrop>
+      ) : (
+        <div />
+      )}
+    </>
+  );
+
   return (
     <div>
       <Head>
@@ -454,7 +460,7 @@ const Home: NextPage = () => {
           </Paper>
         </Container>
 
-        {logging}
+        {loggingComponent}
         {error ? (
           <Alert severity="error" sx={{ textAlign: "left" }}>
             {errorMsg}
