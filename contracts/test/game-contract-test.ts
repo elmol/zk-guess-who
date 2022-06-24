@@ -86,12 +86,12 @@ describe("Game Contract", function () {
     player2Game.connect(guesser);
   });
 
-  xit("should allow to create a new game", async function () {
+  it("should allow to create a new game", async function () {
     const hash = await player1Game.start();
     expect(await gameContract.hash(0)).to.equal(hash);
   });
 
-  xit("should allow to ask a question", async function () {
+  it("should allow to ask a question", async function () {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -108,7 +108,7 @@ describe("Game Contract", function () {
     expect(await gameContract.lastResponse()).to.equal(response);
   });
 
-  xit("should allow to guess the character", async function () {
+  it("should allow to guess the character", async function () {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -130,7 +130,7 @@ describe("Game Contract", function () {
   // 0: not answered yet
   // 1: wrong answer
   // 2: correct answer
-  xit("should set last answer 1 if the question is wrong", async function () {
+  it("should set last answer 1 if the question is wrong", async function () {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -147,7 +147,7 @@ describe("Game Contract", function () {
     expect(await gameContract.lastResponse()).to.equal(1);
   });
 
-  xit("should set last answer 2 if the question is correct", async function () {
+  it("should set last answer 2 if the question is correct", async function () {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -164,7 +164,7 @@ describe("Game Contract", function () {
     expect(await gameContract.lastResponse()).to.equal(2);
   });
 
-  xit("should the last answer be 0 if the question was not answered", async function () {
+  it("should the last answer be 0 if the question was not answered", async function () {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -191,7 +191,7 @@ describe("Game Contract", function () {
   // 0: not answered yet
   // 1: wrong answer
   // 2: correct answer
-  xit("should set last guess response to  1 if it was not guessed", async function () {
+  it("should set last guess response to  1 if it was not guessed", async function () {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -214,7 +214,7 @@ describe("Game Contract", function () {
     expect(await gameContract.won()).to.equal(1);
   });
 
-  xit("should set last guess response to  2 if it was guessed", async function () {
+  it("should set last guess response to  2 if it was guessed", async function () {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -231,7 +231,7 @@ describe("Game Contract", function () {
     expect(await gameContract.won()).to.equal(2);
   });
 
-  xit("should set last guess response to 0 if is pending to respond", async function () {
+  it("should set last guess response to 0 if is pending to respond", async function () {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -255,7 +255,7 @@ describe("Game Contract", function () {
     expect(await gameContract.won()).to.equal(0);
   });
 
-  xit("should allow to configure salt generator as random", async () => {
+  it("should allow to configure salt generator as random", async () => {
     const character = VALID_CHARACTER;
 
     const randomGameSalt = createGuessGame(
@@ -276,7 +276,7 @@ describe("Game Contract", function () {
     expect(await gameContract.won()).to.equal(1);
   });
 
-  xit("should not allow to create a game if is already created", async () => {
+  it("should not allow to create a game if is already created", async () => {
     // initialize the game
     await player1Game.start();
 
@@ -285,29 +285,29 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should not allow to ask a question if is not started", async () => {
+  it("should not allow to ask a question if is not started", async () => {
     await expect(player1Game.question(1, 3)).to.be.revertedWith(
       "Game not started"
     );
   });
 
-  xit("should not allow to answer a question if is not started", async () => {
+  it("should not allow to answer a question if is not started", async () => {
     await expect(player1Game.answer()).to.be.rejectedWith("Game not started");
   });
 
-  xit("should not allow to guess if is not started", async () => {
+  it("should not allow to guess if is not started", async () => {
     await expect(player1Game.guess([1, 2, 3, 0])).to.be.revertedWith(
       "Game not started"
     );
   });
 
-  xit("should not allow to answer a guess if is not started", async () => {
+  it("should not allow to answer a guess if is not started", async () => {
     await expect(player1Game.guessAnswer()).to.be.rejectedWith(
       "Game not started"
     );
   });
 
-  xit("should only the turn answer player can respond to a guess", async () => {
+  it("should only the turn answer player can respond to a guess", async () => {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -318,7 +318,7 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should only the turn answer player can respond to a question", async () => {
+  it("should only the turn answer player can respond to a question", async () => {
     // initialize the game
     await player2Game.start();
     await player1Game.join();
@@ -329,7 +329,7 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should not ask a question if is pending of answer", async () => {
+  it("should not ask a question if is pending of answer", async () => {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -340,7 +340,7 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should not guess if is pending of guess answer", async () => {
+  it("should not guess if is pending of guess answer", async () => {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -351,7 +351,7 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("it should finish the game after guess response", async () => {
+  it("it should finish the game after guess response", async () => {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -362,14 +362,14 @@ describe("Game Contract", function () {
     expect(await gameContract.isStarted()).to.be.equal(false);
   });
 
-  xit("it should return true if signer is the creator", async () => {
+  it("it should return true if signer is the creator", async () => {
     // initialize the game
     await player1Game.start();
 
     expect(await player1Game.isAnswerTurn()).to.be.equal(true);
   });
 
-  xit("it should return false if signer is not the creator", async () => {
+  it("it should return false if signer is not the creator", async () => {
     // initialize the game
     await player1Game.start();
     // connect with guesser
@@ -377,7 +377,7 @@ describe("Game Contract", function () {
     expect(await player1Game.isAnswerTurn()).to.be.equal(false);
   });
 
-  xit("should not allow to join if the game is full", async () => {
+  it("should not allow to join if the game is full", async () => {
     // initialize the game
     await player1Game.start();
 
@@ -385,7 +385,7 @@ describe("Game Contract", function () {
     player1Game.connect(guesser);
   });
 
-  xit("should not allow to question if the player 2 is not join", async () => {
+  it("should not allow to question if the player 2 is not join", async () => {
     // initialize the game
     await player1Game.start();
 
@@ -397,7 +397,7 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should player 1 to join a game if the game is not created yet", async () => {
+  it("should player 1 to join a game if the game is not created yet", async () => {
     // initialize the game
     await player1Game.start();
 
@@ -405,7 +405,7 @@ describe("Game Contract", function () {
     expect(await gameContract.players(0)).to.be.equal(creator.address);
   });
 
-  xit("should not allow to join a game if the room is full", async () => {
+  it("should not allow to join a game if the room is full", async () => {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -415,7 +415,7 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should player 2 to join a game if the game is not created yet", async () => {
+  it("should player 2 to join a game if the game is not created yet", async () => {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -424,11 +424,11 @@ describe("Game Contract", function () {
     expect(await gameContract.players(1)).to.be.equal(guesser.address);
   });
 
-  xit("should not allow to join a game if the game was not created", async () => {
+  it("should not allow to join a game if the game was not created", async () => {
     await expect(player2Game.join()).to.be.revertedWith("Game not started");
   });
 
-  xit("should free the room when game finished", async () => {
+  it("should free the room when game finished", async () => {
     // initialize the game
     await player1Game.start();
     await player2Game.join();
@@ -444,14 +444,14 @@ describe("Game Contract", function () {
     expect(await gameContract.winner()).to.equal(ethers.constants.AddressZero);
   });
 
-  xit("should is ready to join true if the game was created but not joined", async () => {
+  it("should is ready to join true if the game was created but not joined", async () => {
     // initialize the game
     await player1Game.start();
 
     expect(await gameContract.isCreated()).to.be.equal(true);
   });
 
-  xit("should not allow to start or join if the game was started", async () => {
+  it("should not allow to start or join if the game was started", async () => {
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
 
@@ -460,14 +460,14 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should not allow to join the same player who create the game", async () => {
+  it("should not allow to join the same player who create the game", async () => {
     await player1Game.createOrJoin();
     await expect(player1Game.createOrJoin()).to.be.rejectedWith(
       "Player already join"
     );
   });
 
-  xit("should player 2 to question answer when is its turn", async () => {
+  it("should player 2 to question answer when is its turn", async () => {
     // initialize the game
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
@@ -482,7 +482,7 @@ describe("Game Contract", function () {
     expect(await gameContract.lastResponse()).to.equal(2);
   });
 
-  xit("should player 2 to guess answer when is its turn", async () => {
+  it("should player 2 to guess answer when is its turn", async () => {
     // initialize the game
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
@@ -497,7 +497,7 @@ describe("Game Contract", function () {
     expect(await gameContract.won()).to.equal(2);
   });
 
-  xit("should winner player 2 when player 2 guess the character", async () => {
+  it("should winner player 2 when player 2 guess the character", async () => {
     // initialize the game
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
@@ -508,7 +508,7 @@ describe("Game Contract", function () {
     expect(await gameContract.winner()).to.equal(guesser.address);
   });
 
-  xit("should winner player 1 when player 2 not guess the character", async () => {
+  it("should winner player 1 when player 2 not guess the character", async () => {
     // initialize the game
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
@@ -519,7 +519,7 @@ describe("Game Contract", function () {
     expect(await gameContract.winner()).to.equal(creator.address);
   });
 
-  xit("should winner player 1 when player 1 guess the character", async () => {
+  it("should winner player 1 when player 1 guess the character", async () => {
     // initialize the game
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
@@ -533,7 +533,7 @@ describe("Game Contract", function () {
     expect(await gameContract.winner()).to.equal(creator.address);
   });
 
-  xit("should answer all (question and guess) on the same time", async () => {
+  it("should answer all (question and guess) on the same time", async () => {
     // initialize the game
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
@@ -553,7 +553,7 @@ describe("Game Contract", function () {
     expect(await gameContract.connect(guesser).isWinner()).to.equal(true);
   });
 
-  xit("should not to allow answer all if not a pending answer (guess or question)", async () => {
+  it("should not to allow answer all if not a pending answer (guess or question)", async () => {
     // initialize the game
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
@@ -584,7 +584,7 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should not allow to guess if there is a pending question", async () => {
+  it("should not allow to guess if there is a pending question", async () => {
     // initialize the game
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
@@ -595,7 +595,7 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should not allow to question if there is a pending guess", async () => {
+  it("should not allow to question if there is a pending guess", async () => {
     // initialize the game
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
@@ -606,7 +606,7 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should not allow to question if is not the turn", async () => {
+  it("should not allow to question if is not the turn", async () => {
     // initialize the game
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
@@ -616,7 +616,7 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should not allow to guess if is not the turn", async () => {
+  it("should not allow to guess if is not the turn", async () => {
     // initialize the game
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
@@ -626,7 +626,7 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should not allow to guess player 2 if is not the turn", async () => {
+  it("should not allow to guess player 2 if is not the turn", async () => {
     // initialize the game
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
@@ -639,7 +639,7 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should not allow to question player 2 if is not the turn", async () => {
+  it("should not allow to question player 2 if is not the turn", async () => {
     // initialize the game
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
@@ -652,7 +652,7 @@ describe("Game Contract", function () {
     );
   });
 
-  xit("should return true if the player is in game", async () => {
+  it("should return true if the player is in game", async () => {
     expect(await player1Game.isPlayerInGame()).to.equal(false);
     await player1Game.createOrJoin();
     expect(await player1Game.isPlayerInGame()).to.equal(true);
