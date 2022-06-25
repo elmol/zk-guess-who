@@ -215,7 +215,7 @@ export function createGuessGame(
   return new GuessGame(game, gameZK, character);
 }
 
-const randomGenerator = function randomBigInt(): bigint {
+export const randomGenerator = function randomBigInt(): bigint {
   // eslint-disable-next-line node/no-unsupported-features/es-builtins
   return BigInt(Math.floor(Math.random() * 10 ** 8));
 };

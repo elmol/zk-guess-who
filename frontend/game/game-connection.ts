@@ -2,7 +2,7 @@ import detectEthereumProvider from "@metamask/detect-provider";
 import { Contract, providers } from "ethers";
 import Game from "../public/Game.json";
 import networks from "../public/networks.json";
-import { createGuessGame, GuessGame } from "./guess-game";
+import { createGuessGame, GuessGame, randomGenerator } from "./guess-game";
 
 const VALID_CHARACTER: number[] = [3, 2, 1, 0]; //HARDCODED
 
@@ -265,7 +265,3 @@ export class GameConnection {
     });
   }
 }
-
-const randomGenerator = function randomBigInt(): bigint {
-  return BigInt(Math.floor(Math.random() * 10 ** 8));
-};
