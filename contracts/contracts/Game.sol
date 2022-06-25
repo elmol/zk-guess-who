@@ -67,50 +67,24 @@ contract Game {
         _;
     }
 
-    function start(
+    function createOrJoin(
         uint256 _hash, //al inputs
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c
     ) external {
-        require(players[0] == address(0), "Game already created");
-        require(hash[0] == 0, "Game already created");
-        uint256[1] memory inputs = [_hash];
-        require(
-            verifierBoard.verifyProof(a, b, c, inputs),
-            "Invalid character selection!"
-        );
-        hash[0] = _hash;
-        players[0] = msg.sender;
-        lastResponse = 3;
-        won = 3;
-        winner = address(0);
-        emit GameCreated();
+        require(!isStarted(), "Game Room already full");
+        if (isCreated()) {
+            return join(_hash, a, b, c);
+        }
+        return create(_hash, a, b, c);
     }
 
-    function join(
-        uint256 _hash, //al inputs
-        uint256[2] memory a,
-        uint256[2][2] memory b,
-        uint256[2] memory c
-    ) external gameCreated {
-        require(players[1] == address(0), "Game Room already full");
-        require(players[0] != msg.sender, "Player already join");
-        require(hash[1] == 0, "Game already started");
-        uint256[1] memory inputs = [_hash];
-        require(
-            verifierBoard.verifyProof(a, b, c, inputs),
-            "Invalid character selection!"
-        );
-        hash[1] = _hash;
-        players[1] = msg.sender;
-        lastResponse = 3;
-        won = 3;
-        winner = address(0);
-        emit Joined();
-    }
-
-    function ask(uint8 _type, uint8 _characteristic) external gameStarted onlyQuestionTurn {
+    function ask(uint8 _type, uint8 _characteristic)
+        external
+        gameStarted
+        onlyQuestionTurn
+    {
         require(lastResponse != 0, "Question is pending of answer");
         require(won != 0, "Pending guess answer");
         lastType = _type;
@@ -140,7 +114,11 @@ contract Game {
         emit QuestionAnswered(lastResponse);
     }
 
-    function guess(uint8[4] memory _guess) external gameStarted onlyQuestionTurn {
+    function guess(uint8[4] memory _guess)
+        external
+        gameStarted
+        onlyQuestionTurn
+    {
         require(won != 0, "Guess is pending of answer");
         require(lastResponse != 0, "Pending question answer");
         lastGuess = _guess;
@@ -171,11 +149,11 @@ contract Game {
         emit GuessResponse(won);
     }
 
-    function isStarted() external view returns (bool) {
+    function isStarted() public view returns (bool) {
         return hash[0] != 0 && players[1] != address(0);
     }
 
-    function isCreated() external view returns (bool) {
+    function isCreated() public view returns (bool) {
         return players[0] != address(0) && players[1] == address(0);
     }
 
@@ -209,6 +187,10 @@ contract Game {
         return 0;
     }
 
+    function isPlayerInGame() public view returns (bool) {
+        return msg.sender == players[0] || msg.sender == players[1];
+    }
+
     function reset() external {
         require(msg.sender == owner, "Only owner can reset");
         hash[0] = 0;
@@ -219,19 +201,55 @@ contract Game {
         lastResponse = 3;
         won = 3;
         winner = address(0);
-        lastGuess = [0,0,0,0];
-        lastType=0;
-        lastCharacteristic=0;
-        lastResponse=0;
-    }
-        
-
-
-    function isPlayerInGame() public view returns (bool) {
-        return msg.sender == players[0] || msg.sender == players[1];
+        lastGuess = [0, 0, 0, 0];
+        lastType = 0;
+        lastCharacteristic = 0;
+        lastResponse = 0;
     }
 
     // PRIVATE FUNCTIONS
+    function create(
+        uint256 _hash, //al inputs
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c
+    ) private {
+        require(players[0] == address(0), "Game already created");
+        require(hash[0] == 0, "Game already created");
+        uint256[1] memory inputs = [_hash];
+        require(
+            verifierBoard.verifyProof(a, b, c, inputs),
+            "Invalid character selection!"
+        );
+        hash[0] = _hash;
+        players[0] = msg.sender;
+        lastResponse = 3;
+        won = 3;
+        winner = address(0);
+        emit GameCreated();
+    }
+
+    function join(
+        uint256 _hash, //al inputs
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c
+    ) private gameCreated {
+        require(players[1] == address(0), "Game Room already full");
+        require(players[0] != msg.sender, "Player already join");
+        require(hash[1] == 0, "Game already started");
+        uint256[1] memory inputs = [_hash];
+        require(
+            verifierBoard.verifyProof(a, b, c, inputs),
+            "Invalid character selection!"
+        );
+        hash[1] = _hash;
+        players[1] = msg.sender;
+        lastResponse = 3;
+        won = 3;
+        winner = address(0);
+        emit Joined();
+    }
 
     function end() private gameStarted {
         if (won == 2) {

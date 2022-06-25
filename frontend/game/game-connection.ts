@@ -81,9 +81,9 @@ export class GameConnection {
   }
 
   async answerAll() {
-    const guess = await this.getGame();
+    const game = await this.getGame();
     try {
-      await guess.answerAll();
+      await game.answerAll();
     } catch (e) {
       console.log(e);
       throw e;

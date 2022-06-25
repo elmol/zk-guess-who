@@ -1,27 +1,23 @@
-import { Contract, ethers } from "ethers";
+import { Contract } from "ethers";
 import { GameZK, ZKFiles } from "./game-zk";
 
 export class GuessGame {
   // eslint-disable-next-line no-useless-constructor
   constructor(
-    private game: Contract,
+    private gameContract: Contract,
     private gameZK: GameZK,
     private character: number[],
     private salt: bigint = randomGenerator()
   ) {}
 
+  get contract(): Contract {
+    return this.gameContract;
+  }
+
   async createOrJoin(): Promise<String> {
-    if (await this.game.isStarted()) {
+    if (await this.gameContract.isStarted()) {
       throw new Error("Game Room already full");
     }
-    if (await this.game.isCreated()) {
-      return await this.join();
-    } else {
-      return await this.start();
-    }
-  }
-
-  async start(): Promise<String> {
     // generating proof character selection
     const selection = await this.gameZK.selectionProof(
       this.character,
@@ -30,27 +26,7 @@ export class GuessGame {
     const hash = selection.input[0];
 
     // sending proof to contract
-    const tx = await this.game.start(
-      hash,
-      selection.piA,
-      selection.piB,
-      selection.piC
-    );
-    await tx.wait();
-
-    return hash;
-  }
-
-  async join(): Promise<String> {
-    // generating proof character selection
-    const selection = await this.gameZK.selectionProof(
-      this.character,
-      this.salt
-    );
-    const hash = selection.input[0];
-
-    // sending proof to contract
-    const tx = await this.game.join(
+    const tx = await this.gameContract.createOrJoin(
       hash,
       selection.piA,
       selection.piB,
@@ -62,36 +38,89 @@ export class GuessGame {
   }
 
   async question(type: number, characteristic: number) {
-    const tx = await this.game.ask(type, characteristic);
+    const tx = await this.gameContract.ask(type, characteristic);
+    await tx.wait();
+  }
+
+  async guess(guess: number[]) {
+    const tx = await this.gameContract.guess(guess);
     await tx.wait();
   }
 
   async answerAll() {
     // question pending answer
-    if ((await this.game.lastResponse()) === 0) {
+    if ((await this.gameContract.lastResponse()) === 0) {
       return this.answer();
     }
 
     // guess pending answer
-    if ((await this.game.won()) === 0) {
+    if ((await this.gameContract.won()) === 0) {
       return this.guessAnswer();
     }
 
     throw new Error("No answer pending");
   }
 
-  async answer() {
-    if (!(await this.game.isStarted())) {
+  connect(signer: any) {
+    this.gameContract = this.gameContract.connect(signer);
+  }
+
+  // Game State methods
+
+  async isWon(): Promise<boolean> {
+    return await this.gameContract.isWon();
+  }
+
+  // Game Flow methods
+  async isStarted(): Promise<boolean> {
+    return await this.gameContract.isStarted();
+  }
+
+  async isAnswerTurn(): Promise<boolean> {
+    return await this.gameContract.isAnswerTurn();
+  }
+
+  async isPlayerInGame(): Promise<boolean> {
+    return await this.gameContract.isPlayerInGame();
+  }
+
+  // Event Handling
+  onQuestionAsked(callback: (type: number, characteristic: number) => void) {
+    this.gameContract.on("QuestionAsked", callback);
+  }
+
+  onQuestionAnswered(callback: (answer: number) => void) {
+    this.gameContract.on("QuestionAnswered", callback);
+  }
+
+  onGuess(callback: (guess: number[]) => void) {
+    this.gameContract.on("Guess", callback);
+  }
+
+  onGuessResponse(callback: (answer: number) => void) {
+    this.gameContract.on("GuessResponse", callback);
+  }
+
+  onPlayerJoined(callback: () => void) {
+    this.gameContract.on("Joined", callback);
+  }
+
+  onGameCreated(callback: () => void) {
+    this.gameContract.on("GameCreated", callback);
+  }
+
+  private async answer() {
+    if (!(await this.gameContract.isStarted())) {
       throw new Error("Game not started");
     }
 
-    if (!(await this.game.isAnswerTurn())) {
+    if (!(await this.gameContract.isAnswerTurn())) {
       throw new Error("Only current player turn can answer");
     }
 
-    const type = await this.game.lastType();
-    const characteristic = await this.game.lastCharacteristic();
-    const hash = await this.game.hashByAccount();
+    const type = await this.gameContract.lastType();
+    const characteristic = await this.gameContract.lastCharacteristic();
+    const hash = await this.gameContract.hashByAccount();
 
     // generate question proof
     const question = await this.gameZK.questionProof(
@@ -103,7 +132,7 @@ export class GuessGame {
     );
     const answer = parseInt(question.input[0]);
 
-    const tx = await this.game.response(
+    const tx = await this.gameContract.response(
       answer,
       question.piA,
       question.piB,
@@ -114,26 +143,21 @@ export class GuessGame {
     return answer + 1; // 0 is not anwered, 1 is incorrect, 2 is correct
   }
 
-  async guess(guess: number[]) {
-    const tx = await this.game.guess(guess);
-    await tx.wait();
-  }
-
-  async guessAnswer() {
-    if (!(await this.game.isStarted())) {
+  private async guessAnswer() {
+    if (!(await this.gameContract.isStarted())) {
       throw new Error("Game not started");
     }
 
-    if (!(await this.game.isAnswerTurn())) {
+    if (!(await this.gameContract.isAnswerTurn())) {
       throw new Error("Only current player turn can answer");
     }
 
-    const hash = await this.game.hashByAccount();
+    const hash = await this.gameContract.hashByAccount();
     const guess = [
-      (await this.game.lastGuess(0)).toNumber(),
-      (await this.game.lastGuess(1)).toNumber(),
-      (await this.game.lastGuess(2)).toNumber(),
-      (await this.game.lastGuess(3)).toNumber(),
+      (await this.gameContract.lastGuess(0)).toNumber(),
+      (await this.gameContract.lastGuess(1)).toNumber(),
+      (await this.gameContract.lastGuess(2)).toNumber(),
+      (await this.gameContract.lastGuess(3)).toNumber(),
     ];
 
     // generate question proof
@@ -145,52 +169,15 @@ export class GuessGame {
     );
     const won = parseInt(proof.input[0]);
 
-    const tx = await this.game.isWon(won, proof.piA, proof.piB, proof.piC);
+    const tx = await this.gameContract.isWon(
+      won,
+      proof.piA,
+      proof.piB,
+      proof.piC
+    );
     await tx.wait();
 
     return won + 1;
-  }
-
-  // on event handle
-  onQuestionAsked(callback: (type: number, characteristic: number) => void) {
-    this.game.on("QuestionAsked", callback);
-  }
-
-  onQuestionAnswered(callback: (answer: number) => void) {
-    this.game.on("QuestionAnswered", callback);
-  }
-
-  onGuess(callback: (guess: number[]) => void) {
-    this.game.on("Guess", callback);
-  }
-
-  onGuessResponse(callback: (answer: number) => void) {
-    this.game.on("GuessResponse", callback);
-  }
-
-  onPlayerJoined(callback: () => void) {
-    this.game.on("Joined", callback);
-  }
-
-  onGameCreated(callback: () => void) {
-    this.game.on("GameCreated", callback);
-  }
-
-  connect(signer: any) {
-    this.game = this.game.connect(signer);
-  }
-
-  async isStarted(): Promise<boolean> {
-    return await this.game.isStarted();
-  }
-
-  async isAnswerTurn(): Promise<boolean> {
-    return await this.game.isAnswerTurn();
-  }
-
-
-  async isPlayerInGame(): Promise<boolean> {
-    return await this.game.isPlayerInGame();
   }
 }
 
@@ -215,7 +202,7 @@ export function createGuessGame(
   return new GuessGame(game, gameZK, character);
 }
 
-const randomGenerator = function randomBigInt(): bigint {
+export const randomGenerator = function randomBigInt(): bigint {
   // eslint-disable-next-line node/no-unsupported-features/es-builtins
   return BigInt(Math.floor(Math.random() * 10 ** 8));
 };

@@ -83,8 +83,8 @@ describe("Game Event", function () {
 
   it("should emit event when question is answer", async function () {
     // initialize the game
-    await player1Game.start();
-    await player2Game.join();
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
 
     // guesser player fist ask
     // true question
@@ -99,7 +99,7 @@ describe("Game Event", function () {
     });
 
     // selector player respond
-    const response = await player1Game.answer();
+    const response = await player1Game.answerAll();
     expect(response).to.equal(2);
 
     // wait until event
@@ -109,8 +109,8 @@ describe("Game Event", function () {
 
   it("should game allow to handle question asked event", async function () {
     // initialize the game
-    await player1Game.start();
-    await player2Game.join();
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
 
     const t = timeout(5000);
     let eventEmmited = false;
@@ -131,8 +131,8 @@ describe("Game Event", function () {
 
   it("should game allow to handle question answered event", async function () {
     // initialize the game
-    await player1Game.start();
-    await player2Game.join();
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
 
     await player2Game.question(0, 3);
 
@@ -145,7 +145,7 @@ describe("Game Event", function () {
     };
 
     player1Game.onQuestionAnswered(callback);
-    await player1Game.answer();
+    await player1Game.answerAll();
 
     // wait until event
     await t.delay;
@@ -154,8 +154,8 @@ describe("Game Event", function () {
 
   it("should game allow to handle guess event", async function () {
     // initialize the game
-    await player1Game.start();
-    await player2Game.join();
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
 
     const t = timeout(5000);
     let eventEmmited = false;
@@ -177,8 +177,8 @@ describe("Game Event", function () {
 
   it("should game allow to handle guess response event", async function () {
     // initialize the game
-    await player1Game.start();
-    await player2Game.join();
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
 
     await player2Game.guess([3, 2, 1, 0]);
 
@@ -190,7 +190,7 @@ describe("Game Event", function () {
       t.cancel();
     };
     player1Game.onGuessResponse(callback);
-    await player1Game.guessAnswer();
+    await player1Game.answerAll();
 
     await t.delay;
     expect(eventEmmited).to.equal(true);
@@ -198,7 +198,7 @@ describe("Game Event", function () {
 
   it("should game allow to handle game joined event", async function () {
     // initialize the game
-    await player1Game.start();
+    await player1Game.createOrJoin();
     const t = timeout(10000);
     let eventEmmited = false;
     const callback = () => {
@@ -206,7 +206,7 @@ describe("Game Event", function () {
       t.cancel();
     };
     player2Game.onPlayerJoined(callback);
-    await player2Game.join();
+    await player2Game.createOrJoin();
 
     await t.delay;
     expect(eventEmmited).to.equal(true);
@@ -221,7 +221,7 @@ describe("Game Event", function () {
       t.cancel();
     };
     player1Game.onGameCreated(callback);
-    await player1Game.start();
+    await player1Game.createOrJoin();
 
     await t.delay;
     expect(eventEmmited).to.equal(true);
