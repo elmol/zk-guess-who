@@ -69,8 +69,7 @@ const Home: NextPage = () => {
       //set defaults selection
       selection.character = selection.character ? selection.character : "0-1-2-3";
       const character = selection.character.split("-").map((n: string) => parseInt(n.trim()));
-      console.log("selection", selection.character);
-      await gameConnection.selection(character);
+      await gameConnection.createOrJoin(character);
       setIsStarted(await gameConnection.isStarted());
       setIsCreated(await gameConnection.isCreated());
       setIsPlayerInGame(await gameConnection.isPlayerInGame());
@@ -108,7 +107,7 @@ const Home: NextPage = () => {
     question.number = question.number ? question.number : 0;
     question.position = question.position ? question.position : 0;
     try {
-      await gameConnection.askQuestion(question.position, question.number);
+      await gameConnection.question(question.position, question.number);
     } catch (e: any) {
       setError(true);
       setErrorMsg(e.message);
@@ -124,7 +123,7 @@ const Home: NextPage = () => {
       try {
         await gameConnection.answerAll();
         setLastAnswer(await gameConnection.getLastAnswer());
-        setLastGuess(await gameConnection.getLastGuessResponse());
+        setLastGuess(await gameConnection.getLastGuessAnswer());
         await onHandleEndOfGame();
       } catch (e: any) {
         setError(true);
@@ -146,7 +145,7 @@ const Home: NextPage = () => {
 
     // init properties
     setLastAnswer(await gameConnection.getLastAnswer());
-    setLastGuess(await gameConnection.getLastGuessResponse());
+    setLastGuess(await gameConnection.getLastGuessAnswer());
     setIsStarted(await gameConnection.isStarted());
     setAnswerTurn(await gameConnection.isAnswerTurn());
     setQuestionTurn(await gameConnection.isQuestionTurn());
@@ -171,54 +170,44 @@ const Home: NextPage = () => {
   }
 
   async function updateQuestionState() {
-    const lastQuestion = await gameConnection.getLastQuestion();
-    console.log("Last question", lastQuestion);
     const lastAnswer = await gameConnection.getLastAnswer();
-    console.log(`Answer asked: ${lastAnswer}`);
+    setLastAnswer(lastAnswer);
     if (lastAnswer === 0) {
       setIsPendingAnswer(true);
     } else {
       setIsPendingAnswer(false);
     }
-    setLastAnswer(lastAnswer);
     setQuestionTurn(await gameConnection.isQuestionTurn());
   }
 
   // handle guesses
   async function handleOnGuess(guess: number[]) {
-    console.log(`Last Guess Event: ${guess}`);
     await updateGuessState();
   }
 
   async function handleOnGuessResponse(answer: number) {
-    console.log(`Last Guess Response event: ${answer}`);
     await updateGuessState();
     await onHandleEndOfGame();
   }
 
   async function updateGuessState() {
-    const lastQuestion = await gameConnection.getLastGuess();
-    console.log("Last Guess", lastQuestion);
-    const lastAnswer = await gameConnection.getLastGuessResponse();
-    console.log(`Last Guess Response: ${lastAnswer}`);
-    if (lastAnswer === 0) {
+    const lastGuess = await gameConnection.getLastGuessAnswer();
+    if (lastGuess === 0) {
       setIsPendingGuess(true);
     } else {
       setIsPendingGuess(false);
     }
-    setLastGuess(lastAnswer);
+    setLastGuess(lastGuess);
     setQuestionTurn(await gameConnection.isQuestionTurn());
   }
 
   async function onHandleEndOfGame() {
     setIsPlayerInGame(await gameConnection.isPlayerInGame());
-    const lastAnswer = await gameConnection.getLastGuessResponse();
+    const lastAnswer = await gameConnection.getLastGuessAnswer();
     if (lastAnswer !== 0 && lastAnswer !== 3) {
       setIsWinner(await gameConnection.isWinner());
-      console.log("End Game");
       //TODO: WORKAROUND TO HANDLE END OF GAME WHEN INIT
       const playing = localStorage.getItem("Playing");
-      console.log("END-GAME: playing", playing);
       if (playing) {
         setOpen(true);
       }
@@ -230,7 +219,6 @@ const Home: NextPage = () => {
     setIsStarted(await gameConnection.isStarted());
     setIsCreated(await gameConnection.isCreated());
     setIsPlayerInGame(await gameConnection.isPlayerInGame());
-    console.log("Created event");
     await updateQuestionState();
     await updateGuessState();
   }
@@ -239,7 +227,6 @@ const Home: NextPage = () => {
     setIsStarted(await gameConnection.isStarted());
     setIsCreated(await gameConnection.isCreated());
     setIsPlayerInGame(await gameConnection.isPlayerInGame());
-    console.log("Joined event");
     await updateQuestionState();
     await updateGuessState();
   }
