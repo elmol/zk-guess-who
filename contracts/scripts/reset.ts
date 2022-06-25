@@ -14,10 +14,10 @@ async function main() {
   const gameFactory = (await ethers.getContractFactory(
     "Game"
   )) as Game__factory;
-  const game = gameFactory.attach("0xd09f1D18e4013DB38Bf298946F1E1A994F813DE6");
+  const game = gameFactory.attach("0xf185aaa56aE39bBA37BB0ee2be0540d4065804c6");
   console.log("Game deployed to:", game.address);
   await game.reset();
-  console.log("Game Reseted");
+  console.log("Game was reset");
 }
 
 // We recommend this pattern to be able to use async/await everywhere

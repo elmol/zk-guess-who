@@ -113,6 +113,14 @@ $ yarn install
 
 You can find the networks and contract address in [networks.json](frontend/public/networks.json)
 
+## __`WARNING!!!`__
+
+Browser Storage is used to store the salt + selected character if you use the same browser to play the game with different accounts storage data will be inconsistent and you may __`BLOCK the GAME`__. 
+
+Only Game contract owner can reset the game, in this case please let me know.
+
+TODO: this will be fixed in multi room game also adding a map by account and allowing to backup the salt + selected character.
+
 ## Future Work
 
 - UI/UX improvements
