@@ -57,6 +57,9 @@ const Home: NextPage = () => {
   const [error, setError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  const [lastNumber, setLastNumber] = useState("0");
+  const [lastPosition, setLastPosition] = useState("0");
+
   //////////////////////////////////////////////////////////////////////////////
 
   const theme = createTheme();
@@ -152,6 +155,9 @@ const Home: NextPage = () => {
     setIsCreated(await gameConnection.isCreated());
     setIsPlayerInGame(await gameConnection.isPlayerInGame());
     setIsWinner(await gameConnection.isWinner());
+    const lastQuestion = await gameConnection.getLastQuestion();
+    setLastPosition(lastQuestion.type);
+    setLastNumber(lastQuestion.characteristic);
     updateQuestionState();
     updateGuessState();
 
@@ -280,8 +286,16 @@ const Home: NextPage = () => {
   const askComponent = (
     <>
       {/* if not guessing show question component */}
-      {!isPendingGuess &&  (
-        <QuestionAnswer isQuestionTurn={isQuestionTurn} isPendingAnswer={isPendingSomeAnswer} lastAnswer={lastAnswer} onQuestionSubmit={onQuestionSubmit} onQuestionAnswered={onAllAnswered} />
+      {!isPendingGuess && (
+        <QuestionAnswer
+          lastPosition={lastPosition}
+          lastNumber={lastNumber}
+          isQuestionTurn={isQuestionTurn}
+          isPendingAnswer={isPendingSomeAnswer}
+          lastAnswer={lastAnswer}
+          onQuestionSubmit={onQuestionSubmit}
+          onQuestionAnswered={onAllAnswered}
+        />
       )}
 
       {/* if guessing show guess component */}
@@ -321,15 +335,19 @@ const Home: NextPage = () => {
             {...register("character")}
           ></CharacterSelector>
         </Typography>
-        <Typography align="center" marginTop={2}>
-          {isPlayerInGame ? (
-            <Alert severity="info">Waiting for another player to join... </Alert>
-          ) : (
+        {isPlayerInGame ? (
+          <>
+            <Typography align="center" component={"span"} variant="body2" marginTop={2}>
+              <Alert severity="info">Waiting for another player to join...</Alert>
+            </Typography>
+          </>
+        ) : (
+          <Typography align="center" marginTop={2}>
             <Button type="submit" variant="outlined">
-              {isCreated ? "Join Game" : "Create New Game"}{" "}
+              {isCreated ? "Join Game" : "Create New Game"}
             </Button>
-          )}
-        </Typography>
+          </Typography>
+        )}
       </Box>
     </>
   );

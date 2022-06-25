@@ -6,6 +6,7 @@ import { green, red } from "@mui/material/colors";
 import Typography from "@mui/material/Typography";
 import { SubmitHandler, useForm } from "react-hook-form";
 import NumberFormSelect from "../components/NumberFormSelect";
+import { GameConnection } from "../game/game-connection";
 
 type Question = {
   position: number;
@@ -15,6 +16,8 @@ type Question = {
 };
 
 interface QuestionAnswerProps {
+  lastNumber: String;
+  lastPosition: String;
   isPendingAnswer: boolean | undefined;
   isQuestionTurn: boolean | undefined;
   lastAnswer: number;
@@ -42,23 +45,34 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
   }
 
   const isDisableQuestion = props.isPendingAnswer || !props.isQuestionTurn;
-
   const numberForm = (
-    <NumberFormSelect id="number" label="Number" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("number")} disabled={isDisableQuestion}></NumberFormSelect>
+    <>
+      {isDisableQuestion ? (
+        <b>{props.lastAnswer===3?"?":props.lastNumber}</b>
+      ) : (
+        <NumberFormSelect id="number" label="Number" control={control} defaultValue="0" variant="outlined" size="small" max={4} {...register("number")} disabled={isDisableQuestion}></NumberFormSelect>
+      )}
+    </>
   );
 
   const positionForm = (
-    <NumberFormSelect
-      id="position"
-      label="Position"
-      control={control}
-      defaultValue="0"
-      variant="outlined"
-      size="small"
-      max={4}
-      {...register("position")}
-      disabled={isDisableQuestion}
-    ></NumberFormSelect>
+    <>
+      {isDisableQuestion ? (
+        <b>{props.lastAnswer===3?"?":props.lastPosition}</b>
+      ) : (
+        <NumberFormSelect
+          id="position"
+          label="Position"
+          control={control}
+          defaultValue="0"
+          variant="outlined"
+          size="small"
+          max={4}
+          {...register("position")}
+          disabled={isDisableQuestion}
+        ></NumberFormSelect>
+      )}
+    </>
   );
 
   return (

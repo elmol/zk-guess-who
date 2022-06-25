@@ -1,7 +1,6 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
 import "./IVerifierBoard.sol";
 import "./IVerifierQuestion.sol";
 import "./IVerifierGuess.sol";
@@ -193,6 +192,10 @@ contract Game {
 
     function reset() external {
         require(msg.sender == owner, "Only owner can reset");
+        cleanup();
+    }
+
+    function cleanup() private {
         hash[0] = 0;
         hash[1] = 0;
         players[0] = address(0);
@@ -221,6 +224,7 @@ contract Game {
             verifierBoard.verifyProof(a, b, c, inputs),
             "Invalid character selection!"
         );
+        cleanup();
         hash[0] = _hash;
         players[0] = msg.sender;
         lastResponse = 3;
