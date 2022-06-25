@@ -109,6 +109,10 @@ Run yarn install instead of npm install
 $ yarn install
 ```
 
+## Networks and Contracts Addresses
+
+You can find the networks and contract address in [networks.json](frontend/public/networks.json)
+
 ## Future Work
 
 - UI/UX improvements
