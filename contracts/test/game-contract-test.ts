@@ -1,10 +1,10 @@
 /* eslint-disable node/no-unsupported-features/es-builtins */
-import { expect } from "chai";
-import { ethers } from "hardhat";
-import { Game, Game__factory } from "../typechain";
-import { createGuessGame, GuessGame } from "../game/guess-game";
 import * as chai from "chai";
+import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { ethers } from "hardhat";
+import { createGuessGame, GuessGame } from "../game/guess-game";
+import { Game, Game__factory } from "../typechain";
 
 chai.use(chaiAsPromised);
 
@@ -661,4 +661,87 @@ describe("Game Contract", function () {
     await player1Game.createOrJoin();
     await player2Game.createOrJoin();
   });
+
+  it("Should be able to save a game", async () => {
+    const storage = new MockStorage();
+
+    player1Game.save(storage);
+
+    expect(storage.getItem("character")).to.equal("[3,2,1,0]");
+    expect(storage.getItem("salt")).to.equal('"231"');
+  });
+
+  it("Should be able to load a game", async () => {
+    const storage = new MockStorage();
+
+    player1Game.save(storage);
+
+    const { saltLoaded, characterLoaded } = player1Game.load(storage);
+
+    expect(characterLoaded).to.deep.equal([3, 2, 1, 0]);
+    expect(saltLoaded).to.equal(BigInt(231));
+  });
+
+  it("Should be able to clean a game", async () => {
+    const storage = new MockStorage();
+
+    player1Game.save(storage);
+    player1Game.clean(storage);
+
+    expect(storage.getItem("character")).to.equal(null);
+    expect(storage.getItem("salt")).to.equal(null);
+  });
+
+  it("Should be able to set is playing flag", async () => {
+    const storage = new MockStorage();
+    player1Game.storeIsPlaying(storage);
+    expect(storage.getItem("Playing")).to.equal("true");
+  });
+
+  it("Should be playing flag true if is playing", async () => {
+    const storage = new MockStorage();
+    player1Game.storeIsPlaying(storage);
+    expect(player1Game.isStoredPlaying(storage)).to.equal(true);
+  });
+
+  it("Should be playing flag flag if is not playing", async () => {
+    const storage = new MockStorage();
+    expect(player1Game.isStoredPlaying(storage)).to.equal(false);
+  });
+
+  it("Should be able to remove playing flag if is not playing", async () => {
+    const storage = new MockStorage();
+    player1Game.storeIsPlaying(storage);
+    expect(player1Game.isStoredPlaying(storage)).to.equal(true);
+    player1Game.storeNotPlaying(storage);
+    expect(player1Game.isStoredPlaying(storage)).to.equal(false);
+  });
 });
+
+// eslint-disable-next-line no-undef
+class MockStorage implements Storage {
+  private store: { [key: string]: string } = {};
+  get length(): number {
+    return Object.keys(this.store).length;
+  }
+
+  clear(): void {
+    this.store = {};
+  }
+
+  getItem(key: string): string | null {
+    return this.store[key] || null;
+  }
+
+  key(index: number): string | null {
+    return Object.keys(this.store)[index] || null;
+  }
+
+  removeItem(key: string): void {
+    delete this.store[key];
+  }
+
+  setItem(key: string, value: string): void {
+    this.store[key] = value;
+  }
+}

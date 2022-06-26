@@ -212,8 +212,7 @@ const Home: NextPage = () => {
     const lastAnswer = await gameConnection.getLastGuessAnswer();
     if (lastAnswer !== 0 && lastAnswer !== 3) {
       setIsWinner(await gameConnection.isWinner());
-      //TODO: WORKAROUND TO HANDLE END OF GAME WHEN INIT
-      const playing = localStorage.getItem("Playing");
+      const playing = gameConnection.isStoredPlaying();
       if (playing) {
         setOpen(true);
       }
@@ -443,7 +442,7 @@ const Home: NextPage = () => {
         ) : (
           <div />
         )}
-        <AlertDialogSlide open={open} setOpen={setOpen} win={isWinner}></AlertDialogSlide>
+        <AlertDialogSlide open={open} setOpen={setOpen} win={isWinner} gameConnection={gameConnection}></AlertDialogSlide>
       </ThemeProvider>
       <footer className={styles.footer}>
         <a href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app" target="_blank" rel="noopener noreferrer">

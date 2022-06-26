@@ -109,6 +109,63 @@ export class GuessGame {
     this.gameContract.on("GameCreated", callback);
   }
 
+  // GAME STORAGE HANDLING
+  // eslint-disable-next-line no-undef
+  save(storage: Storage) {
+    storage.setItem("salt", JSON.stringify(this.salt.toString()));
+    storage.setItem("character", JSON.stringify(this.character));
+  }
+
+  // eslint-disable-next-line no-undef
+  load(storage: Storage): {
+    saltLoaded: bigint | undefined;
+    characterLoaded: number[] | undefined;
+  } {
+    let saltLoaded: bigint | undefined;
+    const saltStorage = storage.getItem("salt");
+    if (saltStorage) {
+      // eslint-disable-next-line node/no-unsupported-features/es-builtins
+      saltLoaded = BigInt(JSON.parse(saltStorage));
+    }
+
+    const characterStorage = storage.getItem("character");
+    let characterLoaded: number[] | undefined;
+    if (characterStorage) {
+      const characterParsed = JSON.parse(characterStorage);
+      characterLoaded = [
+        characterParsed[0],
+        characterParsed[1],
+        characterParsed[2],
+        characterParsed[3],
+      ] as number[];
+    }
+    return { saltLoaded, characterLoaded };
+  }
+
+  // eslint-disable-next-line no-undef
+  clean(storage: Storage) {
+    storage.removeItem("salt");
+    storage.removeItem("character");
+  }
+
+  // eslint-disable-next-line no-undef
+  storeIsPlaying(storage: Storage) {
+    storage.setItem("Playing", "true");
+  }
+
+  // eslint-disable-next-line no-undef
+  isStoredPlaying(storage: Storage): boolean {
+    // TODO: WORKAROUND TO HANDLE END OF GAME WHEN INIT
+    const playing = storage.getItem("Playing");
+    return playing === "true";
+  }
+
+  // eslint-disable-next-line no-undef
+  storeNotPlaying(storage: Storage) {
+    storage.removeItem("Playing");
+  }
+
+  // PRIVATE METHODS
   private async answer() {
     if (!(await this.gameContract.isStarted())) {
       throw new Error("Game not started");

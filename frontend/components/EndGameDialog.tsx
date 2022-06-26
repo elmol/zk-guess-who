@@ -7,6 +7,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
+import { GameConnection } from "../game/game-connection";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -21,16 +22,12 @@ interface EndGameDialogProps {
   open: boolean;
   win: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  gameConnection: GameConnection;
 }
 
 export default function AlertDialogSlide(props: EndGameDialogProps) {
   const handleClose = () => {
-    //TODO: HACK TO NOT SHOW GAME OVER NEW GAME
-    const finished = localStorage.getItem("Playing");
-    console.log("END-GAME: AFTER REMOVE characterStorage", finished);
-    localStorage.removeItem("Playing");
-    const finished2 = localStorage.getItem("Playing");
-    console.log("END-GAME: BEFORE REMOVE characterStorage", finished2);
+    props.gameConnection.storeNotPlaying();
     props.setOpen(false);
   };
 

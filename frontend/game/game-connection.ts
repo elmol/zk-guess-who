@@ -38,15 +38,14 @@ export class GameConnection {
 
     //clear game with the selected character
     this.game = undefined;
-    localStorage.removeItem("salt");
-    localStorage.removeItem("character");
+    this.cleanGame();
     game = await this.getGame(character);
 
     // create or join to the game
     try {
       await game.createOrJoin();
       //TODO: HACK TO NOT SHOW END GAME DIALOG IF NOT PLAYING
-      localStorage.setItem("Playing", "true");
+      this.storeIsPlaying();
     } catch (e) {
       //rollback game
       if (saltLoaded && characterLoaded) {
@@ -88,6 +87,25 @@ export class GameConnection {
       console.log(e);
       throw e;
     }
+  }
+
+  private storeIsPlaying() {
+    localStorage.setItem("Playing", "true");
+  }
+
+  storeNotPlaying() {
+    //TODO: HACK TO NOT SHOW GAME OVER NEW GAME
+    const finished = localStorage.getItem("Playing");
+    console.log("END-GAME: AFTER REMOVE characterStorage", finished);
+    localStorage.removeItem("Playing");
+    const finished2 = localStorage.getItem("Playing");
+    console.log("END-GAME: BEFORE REMOVE characterStorage", finished2);
+  }
+
+  isStoredPlaying() {
+    //TODO: WORKAROUND TO HANDLE END OF GAME WHEN INIT
+    const playing = localStorage.getItem("Playing");
+    return playing === "true";
   }
 
   // Game State Getters
@@ -205,6 +223,11 @@ export class GameConnection {
   private saveGame(character: number[], salt: bigint) {
     localStorage.setItem("salt", JSON.stringify(salt.toString()));
     localStorage.setItem("character", JSON.stringify(character));
+  }
+
+  private cleanGame() {
+    localStorage.removeItem("salt");
+    localStorage.removeItem("character");
   }
 
   private async createGame(character: number[], salt: bigint) {
