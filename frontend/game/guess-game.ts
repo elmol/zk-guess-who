@@ -112,12 +112,17 @@ export class GuessGame {
   // GAME STORAGE HANDLING
   // eslint-disable-next-line no-undef
   save(storage: Storage) {
-    storage.setItem("salt", JSON.stringify(this.salt.toString()));
-    storage.setItem("character", JSON.stringify(this.character));
+    GuessGame.saveGame(storage, this.character, this.salt);
   }
 
   // eslint-disable-next-line no-undef
-  load(storage: Storage): {
+  static saveGame(storage: Storage, character: number[], salt: bigint) {
+    storage.setItem("character", JSON.stringify(character));
+    storage.setItem("salt", JSON.stringify(salt.toString()));
+  }
+
+  // eslint-disable-next-line no-undef
+  static load(storage: Storage): {
     saltLoaded: bigint | undefined;
     characterLoaded: number[] | undefined;
   } {
@@ -143,9 +148,74 @@ export class GuessGame {
   }
 
   // eslint-disable-next-line no-undef
-  clean(storage: Storage) {
+  static clean(storage: Storage) {
     storage.removeItem("salt");
     storage.removeItem("character");
+  }
+
+  static async createOrLoad(
+    // eslint-disable-next-line no-undef
+    storage: Storage,
+    character: number[],
+    gameCreate: (character: number[], salt: bigint) => Promise<GuessGame>
+  ) {
+    const {
+      saltLoaded,
+      characterLoaded,
+    }: {
+      saltLoaded: bigint | undefined;
+      characterLoaded: number[] | undefined;
+    } = GuessGame.load(storage);
+
+    // in case does not exist create a random salt
+    // eslint-disable-next-line node/no-unsupported-features/es-builtins
+    const saltToSave = saltLoaded || randomGenerator();
+    const characterToSave = characterLoaded || character;
+
+    // create new game instance
+    const newGame = await gameCreate(characterToSave, saltToSave);
+
+    // save to localStorage
+    GuessGame.saveGame(storage, characterToSave, saltToSave);
+
+    return newGame;
+  }
+
+  static async createFresh(
+    // eslint-disable-next-line no-undef
+    storage: Storage,
+    character: number[],
+    gameCreate: (character: number[], salt: bigint) => Promise<GuessGame>
+  ) {
+    const {
+      saltLoaded,
+      characterLoaded,
+    }: {
+      saltLoaded: bigint | undefined;
+      characterLoaded: number[] | undefined;
+    } = GuessGame.load(storage);
+
+    // clear game with the selected character and generate new
+    GuessGame.clean(storage);
+    const newGame = await GuessGame.createOrLoad(
+      storage,
+      character,
+      gameCreate
+    );
+
+    // create or join to the game
+    try {
+      await newGame.createOrJoin();
+      // TODO: HACK TO NOT SHOW END GAME DIALOG IF NOT PLAYING
+      newGame.storeIsPlaying(storage);
+    } catch (e) {
+      // rollback game
+      if (saltLoaded && characterLoaded) {
+        GuessGame.saveGame(storage, characterLoaded, saltLoaded);
+      }
+      throw e;
+    }
+    return newGame;
   }
 
   // eslint-disable-next-line no-undef

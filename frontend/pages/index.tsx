@@ -212,7 +212,7 @@ const Home: NextPage = () => {
     const lastAnswer = await gameConnection.getLastGuessAnswer();
     if (lastAnswer !== 0 && lastAnswer !== 3) {
       setIsWinner(await gameConnection.isWinner());
-      const playing = gameConnection.isStoredPlaying();
+      const playing = await gameConnection.isStoredPlaying();
       if (playing) {
         setOpen(true);
       }

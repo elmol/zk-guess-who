@@ -1,6 +1,6 @@
 /* eslint-disable node/no-unsupported-features/es-builtins */
 import * as chai from "chai";
-import { expect } from "chai";
+import { expect, should } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { ethers } from "hardhat";
 import { createGuessGame, GuessGame } from "../game/guess-game";
@@ -676,7 +676,7 @@ describe("Game Contract", function () {
 
     player1Game.save(storage);
 
-    const { saltLoaded, characterLoaded } = player1Game.load(storage);
+    const { saltLoaded, characterLoaded } = GuessGame.load(storage);
 
     expect(characterLoaded).to.deep.equal([3, 2, 1, 0]);
     expect(saltLoaded).to.equal(BigInt(231));
@@ -686,7 +686,7 @@ describe("Game Contract", function () {
     const storage = new MockStorage();
 
     player1Game.save(storage);
-    player1Game.clean(storage);
+    GuessGame.clean(storage);
 
     expect(storage.getItem("character")).to.equal(null);
     expect(storage.getItem("salt")).to.equal(null);
@@ -715,6 +715,185 @@ describe("Game Contract", function () {
     expect(player1Game.isStoredPlaying(storage)).to.equal(true);
     player1Game.storeNotPlaying(storage);
     expect(player1Game.isStoredPlaying(storage)).to.equal(false);
+  });
+
+  it("Should be able create a new game if not exist", async () => {
+    const storage = new MockStorage();
+    const { saltLoaded, characterLoaded } = GuessGame.load(storage);
+    expect(saltLoaded).to.equal(undefined);
+    expect(characterLoaded).to.equal(undefined);
+    const newGame = await GuessGame.createOrLoad(
+      storage,
+      [0, 1, 2, 3],
+      async (character, salt) => {
+        return createGuessGame(
+          gameContract,
+          boardZKFiles,
+          questionZKFiles,
+          guessZKFiles,
+          character,
+          salt
+        );
+      }
+    );
+    const result = GuessGame.load(storage);
+    expect(result.characterLoaded).to.deep.equal([0, 1, 2, 3]);
+    // eslint-disable-next-line no-unused-expressions
+    expect(result.saltLoaded).to.be.not.undefined;
+    // eslint-disable-next-line no-unused-expressions
+    expect(newGame).to.be.not.undefined;
+  });
+
+  it("Should be able load a new game if exist in storage", async () => {
+    const storage = new MockStorage();
+    await GuessGame.createOrLoad(
+      storage,
+      [0, 1, 2, 3],
+      async (character, salt) => {
+        return createGuessGame(
+          gameContract,
+          boardZKFiles,
+          questionZKFiles,
+          guessZKFiles,
+          character,
+          salt
+        );
+      }
+    );
+    const result = GuessGame.load(storage);
+
+    const loadedGame = await GuessGame.createOrLoad(
+      storage,
+      [1, 1, 1, 1], // loaded form storage
+      async (character, salt) => {
+        return createGuessGame(
+          gameContract,
+          boardZKFiles,
+          questionZKFiles,
+          guessZKFiles,
+          character,
+          salt // loaded form storage
+        );
+      }
+    );
+
+    const resultLoad = GuessGame.load(storage);
+    expect(result.characterLoaded).to.deep.equal([0, 1, 2, 3]);
+    // eslint-disable-next-line no-unused-expressions
+    expect(result.saltLoaded).to.equal(resultLoad.saltLoaded);
+    // eslint-disable-next-line no-unused-expressions
+    expect(loadedGame).to.be.not.undefined;
+  });
+
+  it("Should be able to create new fresh game when there is not game", async () => {
+    const storage = new MockStorage();
+    const { saltLoaded, characterLoaded } = GuessGame.load(storage);
+    expect(saltLoaded).to.equal(undefined);
+    expect(characterLoaded).to.equal(undefined);
+
+    const newGame = await GuessGame.createFresh(
+      storage,
+      [0, 1, 2, 3],
+      async (character, salt) => {
+        return createGuessGame(
+          gameContract,
+          boardZKFiles,
+          questionZKFiles,
+          guessZKFiles,
+          character,
+          salt
+        );
+      }
+    );
+    const result = GuessGame.load(storage);
+    expect(result.characterLoaded).to.deep.equal([0, 1, 2, 3]);
+    // eslint-disable-next-line no-unused-expressions
+    expect(result.saltLoaded).to.be.not.undefined;
+    // eslint-disable-next-line no-unused-expressions
+    expect(newGame).to.be.not.undefined;
+  });
+
+  it("Should be able to create new fresh game when last one was finished", async () => {
+    const storage = new MockStorage();
+
+    // create a fresh game for player 1
+    player1Game = await GuessGame.createFresh(
+      storage,
+      [0, 1, 2, 3],
+      async (character, salt) => {
+        return createGuessGame(
+          gameContract,
+          boardZKFiles,
+          questionZKFiles,
+          guessZKFiles,
+          character,
+          salt
+        );
+      }
+    );
+    const storagedAfter = GuessGame.load(storage);
+    await player2Game.createOrJoin();
+    await player2Game.guess([0, 1, 2, 3]);
+    await player1Game.answerAll();
+    const storagedBefore = GuessGame.load(storage);
+    expect(storagedBefore).to.deep.equal(storagedAfter);
+
+    player1Game = await GuessGame.createFresh(
+      storage,
+      [0, 1, 2, 3],
+      async (character, salt) => {
+        return createGuessGame(
+          gameContract,
+          boardZKFiles,
+          questionZKFiles,
+          guessZKFiles,
+          character,
+          salt
+        );
+      }
+    );
+    const storagedBeforeCreation = GuessGame.load(storage);
+    expect(storagedBeforeCreation).to.not.deep.equal(storagedAfter);
+  });
+
+  it("Should be able to create new fresh game when fail", async () => {
+    const storage = new MockStorage();
+
+    // create a fresh game for player 1
+    player1Game = await GuessGame.createFresh(
+      storage,
+      [0, 1, 2, 3],
+      async (character, salt) => {
+        return createGuessGame(
+          gameContract,
+          boardZKFiles,
+          questionZKFiles,
+          guessZKFiles,
+          character,
+          salt
+        );
+      }
+    );
+    const storagedAfter = GuessGame.load(storage);
+    try {
+      await GuessGame.createFresh(
+        storage,
+        [0, 1, 2, 3],
+        async (character, salt) => {
+          return createGuessGame(
+            gameContract,
+            boardZKFiles,
+            questionZKFiles,
+            guessZKFiles,
+            character,
+            salt
+          );
+        }
+      );
+      throw new Error("Should not be able to create a new game");
+    } catch (error) {}
+    const storagedBefore = GuessGame.load(storage);
+    expect(storagedBefore).to.deep.equal(storagedAfter);
   });
 });
 

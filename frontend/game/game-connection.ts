@@ -10,6 +10,10 @@ export class GameConnection {
   private gameContract: Contract | undefined;
   private game: GuessGame | undefined;
   private isRegistered = false;
+  private gameCreationMethod = async (character: number[], salt: bigint) => {
+    const connection = await this.gameConnection();
+    return factoryCreateGuessGame(connection, character, salt);
+  };
 
   async init(
     handleOnQuestionAsked: (position: number, number: number) => void,
@@ -26,31 +30,15 @@ export class GameConnection {
   }
 
   async createOrJoin(character: number[]) {
-    let game = await this.getGame(character);
+    const game = await this.getGame(character);
 
     // if the game is started should be not started
     if (await game.isStarted()) {
       throw new Error("Game already started");
     }
-
-    // backup game storage
-    const { saltLoaded, characterLoaded }: { saltLoaded: bigint | undefined; characterLoaded: number[] | undefined } = this.loadGame();
-
-    //clear game with the selected character
-    this.game = undefined;
-    this.cleanGame();
-    game = await this.getGame(character);
-
-    // create or join to the game
     try {
-      await game.createOrJoin();
-      //TODO: HACK TO NOT SHOW END GAME DIALOG IF NOT PLAYING
-      this.storeIsPlaying();
+      this.game = await GuessGame.createFresh(localStorage, character, this.gameCreationMethod);
     } catch (e) {
-      //rollback game
-      if (saltLoaded && characterLoaded) {
-        this.saveGame(characterLoaded, saltLoaded);
-      }
       console.log(e);
       throw e;
     }
@@ -89,23 +77,14 @@ export class GameConnection {
     }
   }
 
-  private storeIsPlaying() {
-    localStorage.setItem("Playing", "true");
+  async storeNotPlaying() {
+    const game = await this.getGame();
+    game.storeNotPlaying(localStorage);
   }
 
-  storeNotPlaying() {
-    //TODO: HACK TO NOT SHOW GAME OVER NEW GAME
-    const finished = localStorage.getItem("Playing");
-    console.log("END-GAME: AFTER REMOVE characterStorage", finished);
-    localStorage.removeItem("Playing");
-    const finished2 = localStorage.getItem("Playing");
-    console.log("END-GAME: BEFORE REMOVE characterStorage", finished2);
-  }
-
-  isStoredPlaying() {
-    //TODO: WORKAROUND TO HANDLE END OF GAME WHEN INIT
-    const playing = localStorage.getItem("Playing");
-    return playing === "true";
+  async isStoredPlaying() {
+    const game = await this.getGame();
+    return game.isStoredPlaying(localStorage);
   }
 
   // Game State Getters
@@ -189,64 +168,10 @@ export class GameConnection {
       return this.game;
     }
 
-    //try to load form localStorage
-    const { saltLoaded, characterLoaded }: { saltLoaded: bigint | undefined; characterLoaded: number[] | undefined } = this.loadGame();
-
-    const salt = saltLoaded ? saltLoaded : randomGenerator();
-    character = characterLoaded ? characterLoaded : character;
-
-    // generate new game
-    this.game = await this.createGame(character, salt);
-
-    // save to localStorage
-    this.saveGame(character, salt);
+    //try to load form localStorage or create in case does not exist
+    this.game = await GuessGame.createOrLoad(localStorage, character, this.gameCreationMethod);
 
     return this.game;
-  }
-
-  private loadGame() {
-    let saltLoaded: bigint | undefined;
-    const saltStorage = localStorage.getItem("salt");
-    if (saltStorage) {
-      saltLoaded = BigInt(JSON.parse(saltStorage));
-    }
-
-    const characterStorage = localStorage.getItem("character");
-    let characterLoaded: number[] | undefined;
-    if (characterStorage) {
-      const characterParsed = JSON.parse(characterStorage);
-      characterLoaded = [characterParsed[0], characterParsed[1], characterParsed[2], characterParsed[3]] as number[];
-    }
-    return { saltLoaded, characterLoaded };
-  }
-
-  private saveGame(character: number[], salt: bigint) {
-    localStorage.setItem("salt", JSON.stringify(salt.toString()));
-    localStorage.setItem("character", JSON.stringify(character));
-  }
-
-  private cleanGame() {
-    localStorage.removeItem("salt");
-    localStorage.removeItem("character");
-  }
-
-  private async createGame(character: number[], salt: bigint) {
-    const connection = await this.gameConnection();
-    const boardZKFiles = {
-      wasm: "./board.wasm",
-      zkey: "./circuit_final_board.zkey",
-    };
-
-    const questionZKFiles = {
-      wasm: "./question.wasm",
-      zkey: "./circuit_final_question.zkey",
-    };
-
-    const guessZKFiles = {
-      wasm: "./guess.wasm",
-      zkey: "./circuit_final_guess.zkey",
-    };
-    return createGuessGame(connection, boardZKFiles, questionZKFiles, guessZKFiles, character, salt);
   }
 
   private async register(
@@ -287,4 +212,22 @@ export class GameConnection {
       await handleOnCreated();
     });
   }
+}
+
+function factoryCreateGuessGame(connection: Contract, character: number[], salt: bigint) {
+  const boardZKFiles = {
+    wasm: "./board.wasm",
+    zkey: "./circuit_final_board.zkey",
+  };
+
+  const questionZKFiles = {
+    wasm: "./question.wasm",
+    zkey: "./circuit_final_question.zkey",
+  };
+
+  const guessZKFiles = {
+    wasm: "./guess.wasm",
+    zkey: "./circuit_final_guess.zkey",
+  };
+  return createGuessGame(connection, boardZKFiles, questionZKFiles, guessZKFiles, character, salt);
 }

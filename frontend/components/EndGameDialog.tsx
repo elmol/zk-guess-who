@@ -26,8 +26,9 @@ interface EndGameDialogProps {
 }
 
 export default function AlertDialogSlide(props: EndGameDialogProps) {
-  const handleClose = () => {
-    props.gameConnection.storeNotPlaying();
+  const handleClose = async () => {
+    //TODO: HACK TO NOT SHOW GAME OVER NEW GAME
+    await props.gameConnection.storeNotPlaying();
     props.setOpen(false);
   };
 
