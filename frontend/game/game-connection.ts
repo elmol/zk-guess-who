@@ -4,8 +4,6 @@ import Game from "../public/Game.json";
 import networks from "../public/networks.json";
 import { createGuessGame, GuessGame, randomGenerator } from "./guess-game";
 
-const VALID_CHARACTER: number[] = [3, 2, 1, 0]; //HARDCODED
-
 export class GameConnection {
   private gameContract: Contract | undefined;
   private game: GuessGame | undefined;
@@ -30,14 +28,8 @@ export class GameConnection {
   }
 
   async createOrJoin(character: number[]) {
-    const game = await this.getGame(character);
-
-    // if the game is started should be not started
-    if (await game.isStarted()) {
-      throw new Error("Game already started");
-    }
     try {
-      this.game = await GuessGame.createFresh(localStorage, character, this.gameCreationMethod);
+      this.game = await GuessGame.create(localStorage, character, this.gameCreationMethod);
     } catch (e) {
       console.log(e);
       throw e;
@@ -78,13 +70,11 @@ export class GameConnection {
   }
 
   async storeNotPlaying() {
-    const game = await this.getGame();
-    game.storeNotPlaying(localStorage);
+    GuessGame.storeNotPlaying(localStorage);
   }
 
   async isStoredPlaying() {
-    const game = await this.getGame();
-    return game.isStoredPlaying(localStorage);
+    return GuessGame.isStoredPlaying(localStorage);
   }
 
   // Game State Getters
@@ -112,8 +102,7 @@ export class GameConnection {
 
   // Game Flow methods
   async isStarted() {
-    const game = await this.getGame();
-    return await game.isStarted();
+    return await this.gameContract?.isStarted();
   }
 
   async isCreated() {
@@ -121,14 +110,11 @@ export class GameConnection {
   }
 
   async isPlayerInGame() {
-    const game = await this.getGame();
-    return game.isPlayerInGame();
+    return await this.gameContract?.isPlayerInGame();
   }
 
   async isAnswerTurn(): Promise<boolean> {
-    const guess = await this.getGame();
-    const isAnswerTurn = await guess.isAnswerTurn();
-    return isAnswerTurn;
+    return this.gameContract?.isAnswerTurn();
   }
 
   async isQuestionTurn() {
@@ -162,14 +148,19 @@ export class GameConnection {
     return contract;
   }
 
-  private async getGame(character: number[] = VALID_CHARACTER) {
+  private async getGame() {
     // try to load form memory
     if (this.game) {
       return this.game;
     }
 
-    //try to load form localStorage or create in case does not exist
-    this.game = await GuessGame.createOrLoad(localStorage, character, this.gameCreationMethod);
+    //try to load form localStorage
+    try {
+      this.game = await GuessGame.load(localStorage, this.gameCreationMethod);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
 
     return this.game;
   }
@@ -182,7 +173,10 @@ export class GameConnection {
     handleOnJoined: () => void,
     handleOnCreated: () => void
   ) {
-    const game = await this.getGame();
+    // HARCODED: hardcoded just for creating the event Handling
+    // need to move to another classes
+    const VALID_CHARACTER: number[] = [3, 2, 1, 0]; //HARDCODED
+    const game = await this.gameCreationMethod(VALID_CHARACTER,BigInt(123))
 
     game.onQuestionAsked(async (position: number, number: number) => {
       console.log("On Question Asked:", position, number);

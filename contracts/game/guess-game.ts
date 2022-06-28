@@ -131,7 +131,7 @@ export class GuessGame {
   }
 
   // eslint-disable-next-line no-undef
-  static gameLoad(storage: Storage): GameData | undefined {
+  static loadGameData(storage: Storage): GameData | undefined {
     let saltLoaded: bigint | undefined;
     const saltStorage = storage.getItem("salt");
     if (saltStorage) {
@@ -169,16 +169,15 @@ export class GuessGame {
     storage.removeItem("character");
   }
 
-  static async createOrLoad(
+  static async load(
     // eslint-disable-next-line no-undef
     storage: Storage,
-    character: number[],
     gameCreate: (character: number[], salt: bigint) => Promise<GuessGame>
   ) {
-    const storedGame = GuessGame.gameLoad(storage);
+    const storedGame = GuessGame.loadGameData(storage);
 
     if (!storedGame) {
-      return GuessGame.createFresh(storage, character, gameCreate);
+      throw new Error("Game not found");
     }
 
     // in case does not exist create a random salt
@@ -190,7 +189,7 @@ export class GuessGame {
     return await gameCreate(characterToSave, saltToSave);
   }
 
-  static async createFresh(
+  static async create(
     // eslint-disable-next-line no-undef
     storage: Storage,
     character: number[],
@@ -220,14 +219,14 @@ export class GuessGame {
   }
 
   // eslint-disable-next-line no-undef
-  isStoredPlaying(storage: Storage): boolean {
+  static isStoredPlaying(storage: Storage): boolean {
     // TODO: WORKAROUND TO HANDLE END OF GAME WHEN INIT
     const playing = storage.getItem("Playing");
     return playing === "true";
   }
 
   // eslint-disable-next-line no-undef
-  storeNotPlaying(storage: Storage) {
+  static storeNotPlaying(storage: Storage) {
     storage.removeItem("Playing");
   }
 
