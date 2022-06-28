@@ -1,6 +1,11 @@
 import { Contract } from "ethers";
 import { GameZK, ZKFiles } from "./game-zk";
 
+interface GameData {
+  character: number[];
+  salt: bigint;
+}
+
 export class GuessGame {
   // eslint-disable-next-line no-useless-constructor
   constructor(
@@ -112,25 +117,29 @@ export class GuessGame {
   // GAME STORAGE HANDLING
   // eslint-disable-next-line no-undef
   save(storage: Storage) {
-    GuessGame.saveGame(storage, this.character, this.salt);
+    const gameData: GameData = {
+      character: this.character,
+      salt: this.salt,
+    };
+    GuessGame.saveGameData(storage, gameData);
   }
 
   // eslint-disable-next-line no-undef
-  static saveGame(storage: Storage, character: number[], salt: bigint) {
-    storage.setItem("character", JSON.stringify(character));
-    storage.setItem("salt", JSON.stringify(salt.toString()));
+  private static saveGameData(storage: Storage, gameData: GameData) {
+    storage.setItem("character", JSON.stringify(gameData.character));
+    storage.setItem("salt", JSON.stringify(gameData.salt.toString()));
   }
 
   // eslint-disable-next-line no-undef
-  static load(storage: Storage): {
-    saltLoaded: bigint | undefined;
-    characterLoaded: number[] | undefined;
-  } {
+  static gameLoad(storage: Storage): GameData | undefined {
     let saltLoaded: bigint | undefined;
     const saltStorage = storage.getItem("salt");
     if (saltStorage) {
       // eslint-disable-next-line node/no-unsupported-features/es-builtins
       saltLoaded = BigInt(JSON.parse(saltStorage));
+    }
+    if (!saltLoaded) {
+      return undefined;
     }
 
     const characterStorage = storage.getItem("character");
@@ -144,7 +153,14 @@ export class GuessGame {
         characterParsed[3],
       ] as number[];
     }
-    return { saltLoaded, characterLoaded };
+    if (!characterLoaded) {
+      return undefined;
+    }
+
+    return {
+      character: characterLoaded,
+      salt: saltLoaded,
+    };
   }
 
   // eslint-disable-next-line no-undef
@@ -159,26 +175,19 @@ export class GuessGame {
     character: number[],
     gameCreate: (character: number[], salt: bigint) => Promise<GuessGame>
   ) {
-    const {
-      saltLoaded,
-      characterLoaded,
-    }: {
-      saltLoaded: bigint | undefined;
-      characterLoaded: number[] | undefined;
-    } = GuessGame.load(storage);
+    const storedGame = GuessGame.gameLoad(storage);
+
+    if (!storedGame) {
+      return GuessGame.createFresh(storage, character, gameCreate);
+    }
 
     // in case does not exist create a random salt
     // eslint-disable-next-line node/no-unsupported-features/es-builtins
-    const saltToSave = saltLoaded || randomGenerator();
-    const characterToSave = characterLoaded || character;
+    const saltToSave = storedGame.salt;
+    const characterToSave = storedGame.character;
 
     // create new game instance
-    const newGame = await gameCreate(characterToSave, saltToSave);
-
-    // save to localStorage
-    GuessGame.saveGame(storage, characterToSave, saltToSave);
-
-    return newGame;
+    return await gameCreate(characterToSave, saltToSave);
   }
 
   static async createFresh(
@@ -187,34 +196,21 @@ export class GuessGame {
     character: number[],
     gameCreate: (character: number[], salt: bigint) => Promise<GuessGame>
   ) {
-    const {
-      saltLoaded,
-      characterLoaded,
-    }: {
-      saltLoaded: bigint | undefined;
-      characterLoaded: number[] | undefined;
-    } = GuessGame.load(storage);
-
-    // clear game with the selected character and generate new
-    GuessGame.clean(storage);
-    const newGame = await GuessGame.createOrLoad(
-      storage,
-      character,
-      gameCreate
-    );
+    // create new game instance
+    const characterToSave = character;
+    const saltToSave = randomGenerator();
+    const newGame = await gameCreate(characterToSave, saltToSave);
 
     // create or join to the game
-    try {
-      await newGame.createOrJoin();
-      // TODO: HACK TO NOT SHOW END GAME DIALOG IF NOT PLAYING
-      newGame.storeIsPlaying(storage);
-    } catch (e) {
-      // rollback game
-      if (saltLoaded && characterLoaded) {
-        GuessGame.saveGame(storage, characterLoaded, saltLoaded);
-      }
-      throw e;
-    }
+    await newGame.createOrJoin();
+    // TODO: HACK TO NOT SHOW END GAME DIALOG IF NOT PLAYING
+    newGame.storeIsPlaying(storage);
+    // save to localStorage
+    GuessGame.saveGameData(storage, {
+      character: characterToSave,
+      salt: saltToSave,
+    });
+
     return newGame;
   }
 
