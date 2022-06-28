@@ -15,15 +15,17 @@ async function main() {
   const VerifierBoard = await ethers.getContractFactory("VerifierBoard");
   const verifierBoard = await VerifierBoard.deploy();
   await verifierBoard.deployed();
+  console.log("VerifierBoard deployed to:", verifierBoard.address);
 
   const VerifierQuestion = await ethers.getContractFactory("VerifierQuestion");
   const verifierQuestion = await VerifierQuestion.deploy();
   await verifierQuestion.deployed();
+  console.log("VerifierQuestion deployed to:", verifierQuestion.address);
 
   const VerifierGuess = await ethers.getContractFactory("VerifierGuess");
   const verifierGuess = await VerifierGuess.deploy();
   await verifierGuess.deployed();
-
+  console.log("VerifierGuess deployed to:", verifierGuess.address);
   const gameFactory = (await ethers.getContractFactory(
     "Game"
     // eslint-disable-next-line camelcase
@@ -35,6 +37,10 @@ async function main() {
   );
   await game.deployed();
   console.log("Game deployed to:", game.address);
+  console.log(
+    "Account balance after deploy:",
+    (await deployer.getBalance()).toString()
+  );
 }
 
 // We recommend this pattern to be able to use async/await everywhere

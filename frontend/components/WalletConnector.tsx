@@ -7,6 +7,7 @@ import { GameConnection } from '../game/game-connection';
 const localChainId = '0x7a69' //31337
 const devnetChainId = '0x635ae020' //1666900000
 const testnetChainId = devnetChainId; //because is disabled
+const mainnetChainId='0x63564c40' // 1666600000 
 
 // const testnetConfig = {
 //   chainId: testnetChainId,
@@ -31,6 +32,19 @@ const devnetConfig = {
   },
   rpcUrls: ['https://api.s0.ps.hmny.io'],
   blockExplorerUrls: ['https://explorer.ps.hmny.io/']
+};
+
+const mainnetConfig = {
+  chainId: mainnetChainId,
+  chainName: 'Harmony Mainnet',
+  nativeCurrency: {
+    name: 'ONE',
+    symbol: 'ONE',
+    decimals: 18
+  },
+  // rpcUrls: ['https://api.harmony.one'], // not working
+  rpcUrls: ['https://harmony-mainnet.chainstacklabs.com'],
+  blockExplorerUrls: ['https://explorer.harmony.one/']
 };
 
 const testnetConfig=devnetConfig; //because is disabled
@@ -85,11 +99,15 @@ export default function WalletConnector(props: IMyProps) {
     }
   }
 
+  function isValidChain(chainId: any) {
+    return chainId === testnetChainId || chainId === localChainId || chainId === devnetChainId || chainId === mainnetChainId;
+  }
+
   const checkChainId = async () => {
     let chainId = await ethereum.request({ method: 'eth_chainId' });
     console.log("Chain ID:", chainId, parseInt(chainId));
 
-    setCorrectChain(chainId === testnetChainId || chainId === localChainId || chainId === devnetChainId); ;
+    setCorrectChain(isValidChain(chainId));
   }
 
   const checkConnection = async () => {
@@ -107,7 +125,7 @@ export default function WalletConnector(props: IMyProps) {
   const changeChainId = async () => {
     let chainId = await ethereum.request({ method: 'eth_chainId' });
 
-    if (chainId !== testnetChainId) {
+    if (!isValidChain(chainId)) {
       try {
         await ethereum.request({
           method: 'wallet_switchEthereumChain',
@@ -136,7 +154,7 @@ export default function WalletConnector(props: IMyProps) {
       window.location.reload();
     }
     console.log(chainId);
-    setCorrectChain(chainId === testnetChainId);
+    setCorrectChain(isValidChain(chainId));
   }
 
   const changeAccount = async () => {

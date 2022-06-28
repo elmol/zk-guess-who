@@ -6,5 +6,9 @@
   "1666900000": {
     "name": "zk Game Contract - devnet",
     "address": "0xf185aaa56aE39bBA37BB0ee2be0540d4065804c6"
+  },
+  "1666600000": {
+    "name": "zk Game Contract - mainnet",
+    "address": "0xab409973de0A3f29F92B8c5138472227F0eb7F94"
   }
 }
