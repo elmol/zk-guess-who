@@ -440,7 +440,7 @@ const Home: NextPage = () => {
         >
           <Toolbar sx={{ flexWrap: "wrap" }}>
             <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
-              zkGuessWho
+               <Image src="/guesswho.svg" alt="zkGuessWho" width={250} height={50} />
             </Typography>
             <WalletConnector connectionHandle={connect} />
           </Toolbar>
