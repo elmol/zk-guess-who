@@ -1,4 +1,4 @@
-import { Alert, AppBar, Backdrop, Box, Button, CircularProgress, Container, createTheme, CssBaseline, Paper, ThemeProvider, Toolbar } from "@mui/material";
+import { Alert, AppBar, Backdrop, Box, Button, CircularProgress, Container, createTheme, CssBaseline, Link, Paper, ThemeProvider, Toolbar } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import type { NextPage } from "next";
 import Head from "next/head";
@@ -128,6 +128,24 @@ const Home: NextPage = () => {
         setLastAnswer(await gameConnection.getLastAnswer());
         setLastGuess(await gameConnection.getLastGuessAnswer());
         await onHandleEndOfGame();
+      } catch (e: any) {
+        setError(true);
+        setErrorMsg(e.message);
+      }
+
+      setIsWaiting(false);
+    };
+  }
+
+  function onQuitGame() {
+    return async () => {
+      setIsWaiting(true);
+      setError(false);
+      try {
+        await gameConnection.quit();
+        setIsStarted(false);
+        setIsCreated(false);
+        setIsPlayerInGame(false);
       } catch (e: any) {
         setError(true);
         setErrorMsg(e.message);
@@ -311,6 +329,12 @@ const Home: NextPage = () => {
       {isAnswerNeeded && answerComponent}
       {/* if question turn show question component */}
       {!isAnswerNeeded && askComponent}
+      {/* link to quit the game */}
+      <Typography align="right">
+        <Link component="button" variant="body1" onClick={onQuitGame()} sx={{ marginTop: 2 }}>
+          Quit the game
+        </Link>
+      </Typography>
     </>
   );
 

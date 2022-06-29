@@ -66,6 +66,11 @@ export class GuessGame {
     throw new Error("No answer pending");
   }
 
+  async quit() {
+    const tx = await this.gameContract.reset();
+    await tx.wait();
+  }
+
   connect(signer: any) {
     this.gameContract = this.gameContract.connect(signer);
   }

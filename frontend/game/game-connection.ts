@@ -68,6 +68,15 @@ export class GameConnection {
       throw e;
     }
   }
+  async quit() {
+    const game = await this.getGame();
+    try {
+      await game.quit();
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
 
   async storeNotPlaying() {
     const connection = await this.gameConnection();
