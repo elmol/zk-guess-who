@@ -81,14 +81,14 @@ export const QuestionAnswer = (props: QuestionAnswerProps) => {
         <CssBaseline />
         <Box
           sx={{
-            marginTop: 4,
+            marginTop: 2,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
           }}
         >
           <Typography component="h1" variant="h5">
-            Ask a Question
+          {isDisableQuestion? "Last Question": "Ask a Question"}
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit(props.onQuestionSubmit)} sx={{ mt: 3 }}>
             <Grid container>

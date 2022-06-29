@@ -62,7 +62,25 @@ const Home: NextPage = () => {
 
   //////////////////////////////////////////////////////////////////////////////
 
-  const theme = createTheme();
+  const theme = createTheme({
+    typography: {
+      fontFamily: `"Caveat Brush", "Helvetica", "Arial", sans-serif`,
+      fontSize: 22,
+
+      fontWeightLight: 300,
+      fontWeightRegular: 400,
+      fontWeightMedium: 500,
+    },
+    palette: {
+      background: {
+        paper: "#e0f8f4",
+      },
+      primary: {
+        main: "#97266E",
+      },
+    },
+   
+  });
 
   // REGISTRATION CONTROLLERS ----------------------------------------------------------------
   const onCreateGame: SubmitHandler<Question> = async (selection) => {
@@ -431,25 +449,25 @@ const Home: NextPage = () => {
 
         <AppBar
           position="absolute"
-          color="default"
-          elevation={0}
+          color="transparent"
+          elevation={10}
           sx={{
             position: "relative",
             borderBottom: (t) => `1px solid ${t.palette.divider}`,
           }}
         >
           <Toolbar sx={{ flexWrap: "wrap" }}>
-            <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
-               <Image src="/guesswho.svg" alt="zkGuessWho" width={250} height={50} />
+            <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}  marginTop={2}>
+              <Image src="/guesswho.svg" alt="zkGuessWho" width={200} height={50} />
             </Typography>
             <WalletConnector connectionHandle={connect} />
           </Toolbar>
         </AppBar>
 
         <Container component="main" maxWidth="sm" sx={{ mb: 4 }}>
-          <Paper variant="outlined" sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>
-            <Typography component="h1" variant="h4" align="center">
-              zkGuessWho
+          <Paper elevation={15} sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>
+            <Typography component="h1" variant="h4" align="center" margin={2}>
+              <Image src="/guesswho.svg" alt="zkGuessWho" width={500} height={150} />
             </Typography>
 
             {isShowRegister && registrationComponent}
