@@ -115,11 +115,8 @@ You can find the networks and contract address in [networks.json](frontend/publi
 
 ## __`WARNING!!!`__
 
-Browser Storage is used to store the salt + selected character if you use the same browser to play the game with different accounts storage data will be inconsistent and you may __`BLOCK the GAME`__. 
+Browser Local Storage is used to store the game (the salt and selected character) per account if you clear the local store data could be inconsistent and you may __`BLOCK the GAME`__. In this case, please "Quit the game" through the game board link or let me know to free the Room.  
 
-Only Game contract owner can reset the game, in this case please let me know.
-
-TODO: this will be fixed in multi room game also adding a map by account and allowing to backup the salt + selected character.
 
 ## Future Work
 
