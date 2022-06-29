@@ -662,6 +662,23 @@ describe("Game Contract", function () {
     await player2Game.createOrJoin();
   });
 
+  it("should be able to quit the game by a player", async () => {
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+    await player2Game.quit();
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+  });
+
+  it("should be rejected to quit if is not a player", async () => {
+    await player1Game.createOrJoin();
+    await player2Game.createOrJoin();
+    player2Game.connect(other); // other
+    await expect(player2Game.quit()).to.be.rejectedWith(
+      "Only owner or players can reset"
+    );
+  });
+
   it("Should be able to save a game", async () => {
     const storage = new MockStorage();
 

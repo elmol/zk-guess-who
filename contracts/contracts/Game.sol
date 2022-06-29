@@ -191,7 +191,7 @@ contract Game {
     }
 
     function reset() external {
-        require(msg.sender == owner, "Only owner can reset");
+        require(msg.sender == owner ||  isPlayerInGame(), "Only owner or players can reset");
         cleanup();
     }
 
