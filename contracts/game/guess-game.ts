@@ -116,24 +116,34 @@ export class GuessGame {
 
   // GAME STORAGE HANDLING
   // eslint-disable-next-line no-undef
-  save(storage: Storage) {
+  async save(storage: Storage) {
+    const address = await this.gameContract.signer.getAddress();
     const gameData: GameData = {
       character: this.character,
       salt: this.salt,
     };
-    GuessGame.saveGameData(storage, gameData);
+    GuessGame.saveDataByAccount(storage, gameData, address);
+    // TODO: HACK TO NOT SHOW END GAME DIALOG IF NOT PLAYING
+    this.storeIsPlaying(storage, address);
+  }
+
+  private static saveDataByAccount(
+    // eslint-disable-next-line no-undef
+    storage: Storage,
+    gameData: GameData,
+    account: string
+  ) {
+    storage.setItem(account + "-character", JSON.stringify(gameData.character));
+    storage.setItem(
+      account + "-salt",
+      JSON.stringify(gameData.salt.toString())
+    );
   }
 
   // eslint-disable-next-line no-undef
-  private static saveGameData(storage: Storage, gameData: GameData) {
-    storage.setItem("character", JSON.stringify(gameData.character));
-    storage.setItem("salt", JSON.stringify(gameData.salt.toString()));
-  }
-
-  // eslint-disable-next-line no-undef
-  static loadGameData(storage: Storage): GameData | undefined {
+  static loadDataByAccount(storage: Storage, account: string) {
     let saltLoaded: bigint | undefined;
-    const saltStorage = storage.getItem("salt");
+    const saltStorage = storage.getItem(account + "-salt");
     if (saltStorage) {
       // eslint-disable-next-line node/no-unsupported-features/es-builtins
       saltLoaded = BigInt(JSON.parse(saltStorage));
@@ -142,7 +152,7 @@ export class GuessGame {
       return undefined;
     }
 
-    const characterStorage = storage.getItem("character");
+    const characterStorage = storage.getItem(account + "-character");
     let characterLoaded: number[] | undefined;
     if (characterStorage) {
       const characterParsed = JSON.parse(characterStorage);
@@ -163,18 +173,14 @@ export class GuessGame {
     };
   }
 
-  // eslint-disable-next-line no-undef
-  static clean(storage: Storage) {
-    storage.removeItem("salt");
-    storage.removeItem("character");
-  }
-
+  // Need a connection;
   static async load(
     // eslint-disable-next-line no-undef
     storage: Storage,
+    address: string,
     gameCreate: (character: number[], salt: bigint) => Promise<GuessGame>
   ) {
-    const storedGame = GuessGame.loadGameData(storage);
+    const storedGame = GuessGame.loadDataByAccount(storage, address);
 
     if (!storedGame) {
       throw new Error("Game not found");
@@ -202,32 +208,27 @@ export class GuessGame {
 
     // create or join to the game
     await newGame.createOrJoin();
-    // TODO: HACK TO NOT SHOW END GAME DIALOG IF NOT PLAYING
-    newGame.storeIsPlaying(storage);
-    // save to localStorage
-    GuessGame.saveGameData(storage, {
-      character: characterToSave,
-      salt: saltToSave,
-    });
+
+    await newGame.save(storage);
 
     return newGame;
   }
 
   // eslint-disable-next-line no-undef
-  storeIsPlaying(storage: Storage) {
-    storage.setItem("Playing", "true");
+  private storeIsPlaying(storage: Storage, address: string) {
+    storage.setItem(address + "-Playing", "true");
   }
 
   // eslint-disable-next-line no-undef
-  static isStoredPlaying(storage: Storage): boolean {
+  static isStoredPlaying(storage: Storage, address: string): boolean {
     // TODO: WORKAROUND TO HANDLE END OF GAME WHEN INIT
-    const playing = storage.getItem("Playing");
+    const playing = storage.getItem(address + "-Playing");
     return playing === "true";
   }
 
   // eslint-disable-next-line no-undef
-  static storeNotPlaying(storage: Storage) {
-    storage.removeItem("Playing");
+  static storeNotPlaying(storage: Storage, address: string) {
+    storage.removeItem(address + "-Playing");
   }
 
   // PRIVATE METHODS

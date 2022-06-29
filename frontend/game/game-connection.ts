@@ -70,11 +70,15 @@ export class GameConnection {
   }
 
   async storeNotPlaying() {
-    GuessGame.storeNotPlaying(localStorage);
+    const connection = await this.gameConnection();
+    const address = await connection.signer.getAddress();
+    GuessGame.storeNotPlaying(localStorage,address);
   }
 
   async isStoredPlaying() {
-    return GuessGame.isStoredPlaying(localStorage);
+    const connection = await this.gameConnection();
+    const address = await connection.signer.getAddress();
+    return GuessGame.isStoredPlaying(localStorage,address);
   }
 
   // Game State Getters
@@ -156,7 +160,9 @@ export class GameConnection {
 
     //try to load form localStorage
     try {
-      this.game = await GuessGame.load(localStorage, this.gameCreationMethod);
+      const connection = await this.gameConnection();
+      const address = await connection.signer.getAddress();
+      this.game = await GuessGame.load(localStorage, address, this.gameCreationMethod);
     } catch (error) {
       console.log(error);
       throw error;
@@ -176,7 +182,7 @@ export class GameConnection {
     // HARCODED: hardcoded just for creating the event Handling
     // need to move to another classes
     const VALID_CHARACTER: number[] = [3, 2, 1, 0]; //HARDCODED
-    const game = await this.gameCreationMethod(VALID_CHARACTER,BigInt(123))
+    const game = await this.gameCreationMethod(VALID_CHARACTER, BigInt(123));
 
     game.onQuestionAsked(async (position: number, number: number) => {
       console.log("On Question Asked:", position, number);
