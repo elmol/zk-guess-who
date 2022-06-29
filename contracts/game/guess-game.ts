@@ -119,6 +119,10 @@ export class GuessGame {
     this.gameContract.on("GameCreated", callback);
   }
 
+  onGameQuitted(callback: () => void) {
+    this.gameContract.on("GameQuitted", callback);
+  }
+
   // GAME STORAGE HANDLING
   // eslint-disable-next-line no-undef
   async save(storage: Storage) {

@@ -226,6 +226,21 @@ describe("Game Event", function () {
     await t.delay;
     expect(eventEmmited).to.equal(true);
   });
+
+  it("should game allow to handle quit game event", async function () {
+    // initialize the game
+    const t = timeout(10000);
+    let eventEmmited = false;
+    const callback = () => {
+      eventEmmited = true;
+      t.cancel();
+    };
+    player1Game.onGameQuitted(callback);
+    await player1Game.quit();
+
+    await t.delay;
+    expect(eventEmmited).to.equal(true);
+  });
 });
 
 // HELPERS

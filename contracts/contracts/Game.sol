@@ -14,6 +14,7 @@ contract Game {
 
     event Joined();
     event GameCreated();
+    event GameQuitted();
 
     address[2] public players;
     uint256[2] public hash;
@@ -191,8 +192,12 @@ contract Game {
     }
 
     function reset() external {
-        require(msg.sender == owner ||  isPlayerInGame(), "Only owner or players can reset");
+        require(
+            msg.sender == owner || isPlayerInGame(),
+            "Only owner or players can reset"
+        );
         cleanup();
+        emit GameQuitted();
     }
 
     function cleanup() private {
