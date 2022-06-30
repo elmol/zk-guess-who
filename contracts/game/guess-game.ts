@@ -4,6 +4,7 @@ import { GameZK, ZKFiles } from "./game-zk";
 interface GameData {
   character: number[];
   salt: bigint;
+  playing: boolean;
 }
 
 export class GuessGame {
@@ -130,10 +131,11 @@ export class GuessGame {
     const gameData: GameData = {
       character: this.character,
       salt: this.salt,
+      playing: true,
     };
     GuessGame.saveDataByAccount(storage, gameData, address);
     // TODO: HACK TO NOT SHOW END GAME DIALOG IF NOT PLAYING
-    this.storeIsPlaying(storage, address);
+    // this.storeIsPlaying(storage, address);
   }
 
   private static saveDataByAccount(
@@ -150,6 +152,7 @@ export class GuessGame {
     return JSON.stringify({
       character: data.character,
       salt: data.salt.toString(),
+      playing: data.playing,
     });
   }
 
@@ -159,6 +162,7 @@ export class GuessGame {
       character: gameDataLoaded.character,
       // eslint-disable-next-line node/no-unsupported-features/es-builtins
       salt: BigInt(gameDataLoaded.salt),
+      playing: gameDataLoaded.playing,
     };
   }
 
@@ -214,20 +218,19 @@ export class GuessGame {
   }
 
   // eslint-disable-next-line no-undef
-  private storeIsPlaying(storage: Storage, address: string) {
-    storage.setItem(address + "-Playing", "true");
-  }
-
-  // eslint-disable-next-line no-undef
   static isStoredPlaying(storage: Storage, address: string): boolean {
     // TODO: WORKAROUND TO HANDLE END OF GAME WHEN INIT
-    const playing = storage.getItem(address + "-Playing");
-    return playing === "true";
+    const gameData = storage.getItem(address + "-game");
+    if (!gameData) {
+      return false;
+    }
+    const gameDataLoaded = JSON.parse(gameData);
+    return gameDataLoaded.playing;
   }
 
   // eslint-disable-next-line no-undef
   static storeNotPlaying(storage: Storage, address: string) {
-    storage.removeItem(address + "-Playing");
+    storage.removeItem(address + "-game");
   }
 
   // PRIVATE METHODS
