@@ -119,6 +119,10 @@ export class GuessGame {
     this.gameContract.on("GameCreated", callback);
   }
 
+  onGameQuitted(callback: () => void) {
+    this.gameContract.on("GameQuitted", callback);
+  }
+
   // GAME STORAGE HANDLING
   // eslint-disable-next-line no-undef
   async save(storage: Storage) {
@@ -138,44 +142,34 @@ export class GuessGame {
     gameData: GameData,
     account: string
   ) {
-    storage.setItem(account + "-character", JSON.stringify(gameData.character));
-    storage.setItem(
-      account + "-salt",
-      JSON.stringify(gameData.salt.toString())
-    );
+    storage.setItem(account + "-game", this.toJson(gameData));
+  }
+
+  // because Do not know how to serialize a BigInt Error
+  private static toJson(data: GameData) {
+    return JSON.stringify({
+      character: data.character,
+      salt: data.salt.toString(),
+    });
+  }
+
+  private static toObject(data: string): GameData {
+    const gameDataLoaded = JSON.parse(data);
+    return {
+      character: gameDataLoaded.character,
+      // eslint-disable-next-line node/no-unsupported-features/es-builtins
+      salt: BigInt(gameDataLoaded.salt),
+    };
   }
 
   // eslint-disable-next-line no-undef
   static loadDataByAccount(storage: Storage, account: string) {
-    let saltLoaded: bigint | undefined;
-    const saltStorage = storage.getItem(account + "-salt");
-    if (saltStorage) {
-      // eslint-disable-next-line node/no-unsupported-features/es-builtins
-      saltLoaded = BigInt(JSON.parse(saltStorage));
-    }
-    if (!saltLoaded) {
+    const gameData = storage.getItem(account + "-game");
+    if (!gameData) {
       return undefined;
     }
 
-    const characterStorage = storage.getItem(account + "-character");
-    let characterLoaded: number[] | undefined;
-    if (characterStorage) {
-      const characterParsed = JSON.parse(characterStorage);
-      characterLoaded = [
-        characterParsed[0],
-        characterParsed[1],
-        characterParsed[2],
-        characterParsed[3],
-      ] as number[];
-    }
-    if (!characterLoaded) {
-      return undefined;
-    }
-
-    return {
-      character: characterLoaded,
-      salt: saltLoaded,
-    };
+    return this.toObject(gameData);
   }
 
   // Need a connection;

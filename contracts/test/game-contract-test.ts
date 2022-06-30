@@ -679,17 +679,6 @@ describe("Game Contract", function () {
     );
   });
 
-  it("Should be able to save a game", async () => {
-    const storage = new MockStorage();
-
-    await player1Game.save(storage);
-
-    expect(storage.getItem(creator.address + "-character")).to.equal(
-      "[3,2,1,0]"
-    );
-    expect(storage.getItem(creator.address + "-salt")).to.equal('"231"');
-  });
-
   it("Should be able to load a game", async () => {
     const storage = new MockStorage();
 
