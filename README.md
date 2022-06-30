@@ -1,5 +1,6 @@
 # zkGuessWho Game
 
+<img src="https://user-images.githubusercontent.com/5402004/176558028-0db5edfb-6355-447e-acb2-d30a4d6c90f5.png" width="1015"/>
 
 **ZKU Cohort 3 Final Project** - [*zkGuessWho*](https://zk-guess-who.vercel.app/) is an on-chain “guess who” game. 
 
