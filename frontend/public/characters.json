@@ -62,11 +62,11 @@
     {
       "id": 3,
       "type": "spots",
-      "name": "skin with",
+      "name": "'s skin spotted with ",
       "options": [
-        { "id": 0, "name": "circle spots" },
-        { "id": 2, "name": "square spots" },
-        { "id": 3, "name": "triangle spots" }
+        { "id": 0, "name": "circles" },
+        { "id": 2, "name": "squares" },
+        { "id": 3, "name": "triangles" }
       ]
     }
   ]

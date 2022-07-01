@@ -295,7 +295,7 @@ const Home: NextPage = () => {
 
   const opponentTurnComponent = (
     <Typography variant="h4" align="center" marginTop={4}>
-      <Alert severity="info">Opponent Turn. Waiting for the other player...</Alert>
+      <Alert severity="info">Opponent's turn. Waiting for the other player...</Alert>
     </Typography>
   );
 
@@ -311,7 +311,7 @@ const Home: NextPage = () => {
         }}
       >
         <Typography component="h1" variant="h5">
-          Answer to your opponent
+          Answer your opponent
         </Typography>
         <Button variant="outlined" onClick={onAllAnswered()} sx={{ marginTop: 2 }}>
           Answer

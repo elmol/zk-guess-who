@@ -48,9 +48,10 @@ const CharacterSelector = forwardRef<any, any>(({ name, label, control, defaultV
     const animal = getCharName(1, guess[1]); // "cat";
     const accessory = getCharName(2, guess[2]); //"a bandana";
     const spots = getCharName(3, guess[3]); //"triangle spots";
-    const withSpots = spots ? ` covered with ${spots}` : "";
+    const withSpots = spots ? ` covered with ${spots} spots` : "";
     const withAccessory = accessory ? ` wearing ${accessory}` : "";  
-    return `It's a ${color} ${animal}${withSpots}${withAccessory}. `;
+    const withSpotsAndAccessory = withSpots && withAccessory ? `${withSpots} and ${withAccessory}` : withSpots || withAccessory;
+    return `It's a ${color} ${animal}${withSpotsAndAccessory}.`;
   }
 
   return (
