@@ -8,6 +8,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import CharacterSelector from "../components/CharacterSelector";
 import AlertDialogSlide from "../components/EndGameDialog";
 import { GuessAnswer } from "../components/GuessAnswer";
+import { GuessCharacter } from "../components/GuessCharacter";
 import { QuestionAnswer } from "../components/QuestionAnswer";
 import { QuestionAskAnswer } from "../components/QuestionAskAnswer";
 import WalletConnector from "../components/WalletConnector";
@@ -336,7 +337,7 @@ const Home: NextPage = () => {
 
       {/* if guessing show guess component */}
       {!isPendingAnswer && isQuestionTurn && (
-        <GuessAnswer isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingSomeAnswer} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onAllAnswered} />
+        <GuessCharacter isQuestionTurn={isQuestionTurn} isPendingGuess={isPendingSomeAnswer} lastGuess={lastGuess} onGuessSubmit={onGuessSubmit} onGuessAnswered={onAllAnswered} />
       )}
     </>
   );
@@ -362,12 +363,11 @@ const Home: NextPage = () => {
     <>
       <Box component="form" noValidate onSubmit={handleSubmit(onCreateGame)} sx={{ mt: 3 }}>
         <Typography component="h4" variant="h5" align="center">
-          Choose your Number
+          Choose your Character
         </Typography>
         <Typography component="h4" variant="h4" align="center" marginTop={3}>
           <CharacterSelector
             id="select"
-            label="Number"
             control={control}
             defaultValue={"0-1-2-3"}
             variant="outlined"

@@ -1,15 +1,41 @@
 {
+  "characters": [
+    { "id": 0, "name": "Carrots", "characteristics": "3-1-0-1" },
+    { "id": 1, "name": "Hershey", "characteristics": "0-1-2-3" },
+    { "id": 2, "name": "Nacho", "characteristics": "2-0-3-0" },
+    { "id": 3, "name": "Sushi", "characteristics": "2-0-1-0" },
+    { "id": 4, "name": "Twinkie", "characteristics": "1-2-3-2" },
+    { "id": 5, "name": "Peanut", "characteristics": "1-3-0-3" },
+    { "id": 6, "name": "Socks", "characteristics": "2-1-3-0" },
+    { "id": 7, "name": "Spot", "characteristics": "3-2-1-0" },
+    { "id": 8, "name": "Tabby", "characteristics": "2-0-1-3" },
+    { "id": 9, "name": "Blue", "characteristics": "0-1-2-1" },
+    { "id": 10, "name": "Checkers", "characteristics": "3-1-0-2" },
+    { "id": 11, "name": "Fluffy", "characteristics": "3-1-2-1" },
+    { "id": 12, "name": "Fuzzy", "characteristics": "3-1-2-0" },
+    { "id": 13, "name": "Kit", "characteristics": "1-3-2-3" },
+    { "id": 14, "name": "Kitty", "characteristics": "2-1-3-1" },
+    { "id": 15, "name": "Lucky", "characteristics": "2-0-3-1" },
+    { "id": 16, "name": "Marbles", "characteristics": "2-1-0-3" },
+    { "id": 17, "name": "Patches", "characteristics": "3-2-0-2" },
+    { "id": 18, "name": "Phantom", "characteristics": "1-3-2-0" },
+    { "id": 19, "name": "Rascal", "characteristics": "1-3-0-2" },
+    { "id": 20, "name": "Chai", "characteristics": "2-1-0-1" },
+    { "id": 21, "name": "Pumpkin", "characteristics": "3-2-0-1" },
+    { "id": 22, "name": "Curry", "characteristics": "0-1-3-1" },
+    { "id": 23, "name": "Popcorn", "characteristics": "3-2-1-2" }
+  ],
   "questions": [
     {
       "id": 0,
       "type": "color",
-      "name": "'s fur", 
-    
+      "name": "'s fur",
+
       "options": [
-        { "id": 0, "name": "purple" },
-        { "id": 1, "name": "green" },
-        { "id": 2, "name": "blue" },
-        { "id": 3, "name": "red" }
+        { "id": 0, "name": "red" },
+        { "id": 1, "name": "purple" },
+        { "id": 2, "name": "green" },
+        { "id": 3, "name": "blue" }
       ]
     },
     {
@@ -17,8 +43,8 @@
       "type": "animal",
       "name": " a",
       "options": [
-        { "id": 0, "name": "cat" },
-        { "id": 1, "name": "dog" },
+        { "id": 0, "name": "dog" },
+        { "id": 1, "name": "cat" },
         { "id": 2, "name": "tortoise" },
         { "id": 3, "name": "rabbit" }
       ]
@@ -29,9 +55,8 @@
       "name": "wearing",
       "options": [
         { "id": 0, "name": "a hat" },
-        { "id": 1, "name": "glasses" },
-        { "id": 2, "name": "shoes" },
-        { "id": 3, "name": "a tie" }
+        { "id": 1, "name": "a tie" },
+        { "id": 3, "name": "glasses" }
       ]
     },
     {
@@ -40,8 +65,8 @@
       "name": "skin with",
       "options": [
         { "id": 0, "name": "circle spots" },
-        { "id": 1, "name": "square spots" },
-        { "id": 2, "name": "triangle spots" }
+        { "id": 2, "name": "square spots" },
+        { "id": 3, "name": "triangle spots" }
       ]
     }
   ]

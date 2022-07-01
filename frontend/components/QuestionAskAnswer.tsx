@@ -153,7 +153,7 @@ export const QuestionAskAnswer = (props: QuestionAskAnswerProps) => {
           <Typography component="h1" variant="h5">
             {isDisableQuestion ? "Last Question" : "Ask a Question"}
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit(props.onQuestionSubmit)} sx={{ mt: 3 }}>
+          <Box component="form" noValidate onSubmit={handleSubmit(props.onQuestionSubmit)} sx={{ mt: 2 }}>
             <Grid container>
               <Grid item xs={11} sm={11}>
                 <Typography component="h6" variant="h6">
