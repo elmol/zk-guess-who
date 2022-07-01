@@ -23,12 +23,12 @@ Account balance after deploy: 20017188437620000000000
 $ npx hardhat run scripts/deploy.ts --network mainnet
 No need to generate any newer typings.
 Deploying contracts with the account: 0x959616dD5CaA900458ED0Af6137Cf1779FF7194F
-Account balance: 917742785140000000000
-VerifierBoard deployed to: 0xa79BEAC818e4c040773a5998b1877c256480a0C8
-VerifierQuestion deployed to: 0x192D322359359A44D7b953790EC5D8CA312723b1
-VerifierGuess deployed to: 0x20aB3Afe643cb5e21e8ECdc2164609b5Dc662083
-Game deployed to: 0xab409973de0A3f29F92B8c5138472227F0eb7F94
-Account balance after deploy: 917444269772000000000
+Account balance: 817410094380000000000
+VerifierBoard deployed to: 0x84382bf52C3672785F278312bEF90057F49EFcf8
+VerifierQuestion deployed to: 0x8dC5F49EdFD2407c2b1eB9A01aaE3f18A044cd4C
+VerifierGuess deployed to: 0xE02fF28829360fE0e2E7F747Ccc6aAf13695f63D
+Game deployed to: 0x64C58Eb858842F1Ab8fdd4105CDE20eE3510393B
+Account balance after deploy: 817111173408000000000
 ```
 ## Others hardhat commands
 
