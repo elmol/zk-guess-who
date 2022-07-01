@@ -9,10 +9,13 @@ Based on typescript HardHat Project
 ## Deploy to devnet
 ```
 $ npx hardhat run scripts/deploy.ts --network devnet
-No need to generate any newer typings.
 Deploying contracts with the account: 0x959616dD5CaA900458ED0Af6137Cf1779FF7194F
-Account balance: 10010000000000000000000
-Game deployed to: 0x192D322359359A44D7b953790EC5D8CA312723b1
+Account balance: 20017477716340000000000
+VerifierBoard deployed to: 0xD2Ef7B400921F51a9A14Bf83A324dc3e4f013D04
+VerifierQuestion deployed to: 0x995f673eA7382876Ff8fDc14cBe23C5229d4ba73
+VerifierGuess deployed to: 0x9d8262FC1e87e71491E35F8fcE54c715Fd525BcB
+Game deployed to: 0x99928B6C25788E1b9d007bB93fF94F1eaF602996
+Account balance after deploy: 20017188437620000000000
 ```
 
 ## Deploy to mainnet

@@ -295,7 +295,7 @@ const Home: NextPage = () => {
 
   const opponentTurnComponent = (
     <Typography variant="h4" align="center" marginTop={4}>
-      <Alert severity="info">Opponent's turn. Waiting for the other player...</Alert>
+      <Alert severity="info">Opponent&apos;s turn. Waiting for the other player...</Alert>
     </Typography>
   );
 
