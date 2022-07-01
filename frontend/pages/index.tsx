@@ -9,6 +9,7 @@ import CharacterSelector from "../components/CharacterSelector";
 import AlertDialogSlide from "../components/EndGameDialog";
 import { GuessAnswer } from "../components/GuessAnswer";
 import { QuestionAnswer } from "../components/QuestionAnswer";
+import { QuestionAskAnswer } from "../components/QuestionAskAnswer";
 import WalletConnector from "../components/WalletConnector";
 import { GameConnection } from "../game/game-connection";
 import styles from "../styles/Home.module.css";
@@ -322,7 +323,7 @@ const Home: NextPage = () => {
     <>
       {/* if not guessing show question component */}
       {!isPendingGuess && (
-        <QuestionAnswer
+        <QuestionAskAnswer
           lastPosition={lastPosition}
           lastNumber={lastNumber}
           isQuestionTurn={isQuestionTurn}
@@ -464,7 +465,7 @@ const Home: NextPage = () => {
           </Toolbar>
         </AppBar>
 
-        <Container component="main" maxWidth="sm" sx={{ mb: 4 }}>
+        <Container component="main" maxWidth="md" sx={{ mb: 4 }}>
           <Paper elevation={15} sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>
             <Typography component="h1" variant="h4" align="center" margin={2}>
               <Image src="/guesswho.svg" alt="zkGuessWho" width={500} height={150} />

@@ -1,0 +1,48 @@
+{
+  "questions": [
+    {
+      "id": 0,
+      "type": "color",
+      "name": "'s fur", 
+    
+      "options": [
+        { "id": 0, "name": "purple" },
+        { "id": 1, "name": "green" },
+        { "id": 2, "name": "blue" },
+        { "id": 3, "name": "red" }
+      ]
+    },
+    {
+      "id": 1,
+      "type": "animal",
+      "name": " a",
+      "options": [
+        { "id": 0, "name": "cat" },
+        { "id": 1, "name": "dog" },
+        { "id": 2, "name": "tortoise" },
+        { "id": 3, "name": "rabbit" }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "accessory",
+      "name": "wearing",
+      "options": [
+        { "id": 0, "name": "a hat" },
+        { "id": 1, "name": "glasses" },
+        { "id": 2, "name": "shoes" },
+        { "id": 3, "name": "a tie" }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "spots",
+      "name": "skin with",
+      "options": [
+        { "id": 0, "name": "circle spots" },
+        { "id": 1, "name": "square spots" },
+        { "id": 2, "name": "triangle spots" }
+      ]
+    }
+  ]
+}
