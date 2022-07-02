@@ -18,7 +18,7 @@ characteristic is 2, the second 3... And the questions are for example: is 2 in 
 
 *dApp:*  https://zk-guess-who.vercel.app/
 
-*demo:* https://youtu.be/R4NqF-TJHcM
+*demo:* https://youtu.be/vziLUXe4Oc0
 
 ## Project Structure
 
