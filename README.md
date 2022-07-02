@@ -11,10 +11,8 @@ to keep the characters and the game privacy.
 A player can get clues from the opponent's character by asking yes/no questions about the character's characteristics.
 There is only one chance to guess the opponent's character. If it is guessed, the game is won if not lost.
 
-The broads consist on 24 characters and the character is defined by a set of 4 characteristics with 4 variants each.
+The broads consist on 24 characters and the character is defined by a set of 4 characteristics.
 
-Characters are defined by 4 digit number and the characteristics by the positions in this number. For example in a character 2310, the first
-characteristic is 2, the second 3... And the questions are for example: is 2 in position 0? (true) or is 1 in position 3? (false)
 
 *dApp:*  https://zk-guess-who.vercel.app/
 
