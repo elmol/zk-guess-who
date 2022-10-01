@@ -1,6 +1,7 @@
 import { Card, CardContent, FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
 import { forwardRef } from "react";
 import { Controller } from "react-hook-form";
+import Image from "next/image";
 import data from "../public/characters.json";
 
 type FromProps = React.HTMLProps<HTMLFormElement> & { control: typeof Controller | undefined } & { characters: number };
@@ -42,6 +43,11 @@ const CharacterSelector = forwardRef<any, any>(({ name, label, control, defaultV
     return getCharsOptions(typeId).find((char) => char.id === id)?.name;
   }
 
+  function getName(character: string) {
+    const guess = character.split("-").map((n: string) => parseInt(n.trim()));
+    return getNameByChars(guess);
+  }
+
   function getDescription(character: string) {
     const guess = character.split("-").map((n: string) => parseInt(n.trim()));
     const color = getCharName(0, guess[0]); //"red";
@@ -49,7 +55,7 @@ const CharacterSelector = forwardRef<any, any>(({ name, label, control, defaultV
     const accessory = getCharName(2, guess[2]); //"a bandana";
     const spots = getCharName(3, guess[3]); //"triangle spots";
     const withSpots = spots ? ` covered with ${spots} spots` : "";
-    const withAccessory = accessory ? ` wearing ${accessory}` : "";  
+    const withAccessory = accessory ? ` wearing ${accessory}` : "";
     const withSpotsAndAccessory = withSpots && withAccessory ? `${withSpots} and ${withAccessory}` : withSpots || withAccessory;
     return `It's a ${color} ${animal}${withSpotsAndAccessory}.`;
   }
@@ -67,7 +73,12 @@ const CharacterSelector = forwardRef<any, any>(({ name, label, control, defaultV
                 </MenuItem>
               ))}
             </Select>
-            <Card sx={{ mt: 1, background: '#cbf9f2'}} raised={true}>
+            <Card sx={{ mt: 1, background: "#cbf9f2" }} raised={true}>
+              <CardContent>
+                <Image src={"/board/" + getName(value).toLowerCase() + ".png"} alt={getName(value)} width={400} height={400} />
+              </CardContent>
+            </Card>
+            <Card sx={{ mt: 1, background: "#cbf9f2" }} raised={true}>
               <CardContent>
                 <Typography variant="body1">{getDescription(value)}</Typography>
               </CardContent>
